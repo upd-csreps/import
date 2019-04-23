@@ -1,6 +1,6 @@
 /* Variables */
 
-@BackgroundColor: #fbfbfb;
+@BackgroundColor: #fcfcfc;
 @TextColor: #2f2f2f;
 @ImportPink: #f66374;
 @ImportYellow: #f8ef60;
@@ -15,8 +15,10 @@
 
 /* Main CSS */
 
-*:focus{
+*:focus, input:focus{
 	outline: none !important;
+	box-shadow: none !important;
+	border-color: @ImportPink !important;
 }
 
 html{
@@ -62,12 +64,31 @@ body{
 	color: @ImportYellow;
 }
 
+.btn{
+	border-radius: 30px;
+}
+
+.btn:hover{
+	background-color: transparent !important;
+}
+
 .btn-primary{
 	background-color: @ImportPink;
+	border-color: @ImportPink;
+}
+
+.btn-primary:hover{
+	color: @ImportPink;
+	border-color: @ImportPink;
 }
 
 .btn-secondary{
 	background-color: @ImportYellow;
+	border-color: @ImportYellow;
+}
+
+.form-control{
+	border-radius: 1px;
 }
 
 /* Screen Sizes */
