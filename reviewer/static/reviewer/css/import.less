@@ -1,11 +1,11 @@
 /* Variables */
 
 @BackgroundColor: #fbfbfb;
-@TextColor: #111;
+@TextColor: #2f2f2f;
 @ImportPink: #f66374;
 @ImportYellow: #f8ef60;
 @ImportFont: "Avenir";
-
+@TransTime: 0.15s ease-in-out;
 
 
 /* Font Faces */
@@ -26,8 +26,8 @@ html{
 }
 
 body{
-	background-color: @ImportPink; 
-	color: @ImportYellow;
+	background-color: @BackgroundColor;
+	color: @TextColor;
 	font-family: @ImportFont;
 }
 
@@ -42,7 +42,35 @@ body{
 	min-height: 80vh;
 }
 
+.container{
+	transition: @TransTime;
+}
 
+.import-bg-pink{
+	background-color: @ImportPink;
+}
+
+.import-bg-yellow{
+	background-color: @ImportYellow;
+}
+
+.import-font-pink{
+	color:	@ImportPink;
+}
+
+.import-font-yellow{
+	color: @ImportYellow;
+}
+
+.btn-primary{
+	background-color: @ImportPink;
+}
+
+.btn-secondary{
+	background-color: @ImportYellow;
+}
+
+/* Screen Sizes */
 
 @media only screen and (min-width: 2560px) and (max-width: 4000px)  {
     .container-fluid, .container{
