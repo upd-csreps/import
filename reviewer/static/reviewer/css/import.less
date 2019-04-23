@@ -1,0 +1,52 @@
+/* Variables */
+
+@BackgroundColor: #fbfbfb;
+@TextColor: #111;
+@ImportPink: #f66374;
+@ImportYellow: #f8ef60;
+@ImportFont: "Avenir";
+
+
+
+/* Font Faces */
+@import url("../fonts/Avenir/avenir-font.css");
+@import url("../fonts/material/material-icons.css");
+
+
+/* Main CSS */
+
+*:focus{
+	outline: none !important;
+}
+
+html{
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	text-rendering: optimizeLegibility;
+}
+
+body{
+	background-color: @ImportPink; 
+	color: @ImportYellow;
+	font-family: @ImportFont;
+}
+
+
+/* CSS ID and Classes */
+
+.site-container{
+	height: 100vh;
+}
+
+.site-content{
+	min-height: 80vh;
+}
+
+
+
+@media only screen and (min-width: 2560px) and (max-width: 4000px)  {
+    .container-fluid, .container{
+    	max-width: 1440px !important;
+    }
+
+}
