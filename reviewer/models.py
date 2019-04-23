@@ -68,7 +68,7 @@ class Announcement(models.Model):
 	def __str__(self):
 		return	'{} - {}, {}'.format(self.title, self.datepost)
 
-class Lessons(models.Model):
+class Lesson(models.Model):
 
 	name = models.CharField(max_length=50)
 	course = models.ForeignKey(Course, on_delete=models.CASCADE)
@@ -76,9 +76,9 @@ class Lessons(models.Model):
 	def __str__(self):
 		return	'{}: {}'.format(self.course, self.name)
 
-class Modules(models.Model):
+class Module(models.Model):
 
-	lesson = models.ForeignKey(Lessons, on_delete=models.CASCADE)
+	lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
 	body = models.TextField()
 	custom_code = models.TextField()
 
@@ -86,9 +86,9 @@ class Modules(models.Model):
 		return	'{} - Modules'.format(self.lesson.name)
 
 
-class Questions(models.Model):
+class Question(models.Model):
 
-	lesson = models.ForeignKey(Lessons, on_delete=models.CASCADE)
+	lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
 	custom_code = models.TextField()
 	qtype = models.CharField(max_length=50)
 
