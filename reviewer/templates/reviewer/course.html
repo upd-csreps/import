@@ -22,53 +22,10 @@
 			<div class="site-content d-flex m-auto py-5">
 				<div class="container m-auto">
 					<div class="m-auto d-flex flex-column align-items-center" style="max-width: 300px;">
-						<h1 class="h1" style="font-weight: 900; font-size: 4.5em">import <span class="import-font-pink"><sup>*</sup></span></h1>
-						<p class="ml-auto h4 mt-2">Your CS life debugged.</p>
+						<h1 class="h1" style="font-weight: 900; font-size: 4.5em">{{ course_filt.code }} <span class="import-font-pink">{{ course_filt.number }}</span></h1>
+						<p class="ml-auto h4 mt-2">{{ course_filt.title }}</p>
 					</div>
 					<hr class="my-5">
-
-					<div class="" style="color: #131313">
-
-						<div class="row">
-							<div class="col-6">
-								<h1>Courses</h1>
-
-								{% for course in courses %}
-									<p> {{ course.name }} - {{ course.title }} </p>
-								{% endfor %}
-							</div>
-							<div class="col-6 d-flex flex-column">
-								<form class="form-group" method="POST" action="{% url 'index'%}" >
-									{% csrf_token %}
-
-									<div class="form-control-group">
-										{{ courseform.name }}
-									</div>
-
-									<div class="form-control-group">
-										{{ courseform.title }}
-									</div>
-
-									<div class="form-control-group">
-										{{ courseform.description }}
-									</div>
-
-									<div class="form-group">
-										<p><span class="mr-5">Old Curriculum Exclusive?</span> {{ courseform.old_curr }}</p>
-									</div>
-
-
-									<div class="form-group">
-										<p><span class="mr-5">Visible?</span> {{ courseform.visible }}</p>
-									</div>
-
-									<div class="form-group">
-										<input class="btn btn-primary" type="submit" value="Submit">
-									</div>
-								</form>
-							</div>
-						</div>
-					</div>
 				</div>
 			</div>
 		</div>

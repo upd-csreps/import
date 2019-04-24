@@ -17,6 +17,14 @@ class Course(models.Model):
 	def __str__(self):
 		return	'{}'.format(self.name)
 
+class Language(models.Model):
+
+	name = models.CharField(max_length=20)
+	image = models.CharField(max_length=100)
+
+	def __str__(self):
+		return	'{}'.format(self.name)
+
 class User(models.Model):
 
 	username = models.CharField("Username", max_length=30, primary_key=True)
@@ -31,6 +39,9 @@ class User(models.Model):
 	
 	admin_status = models.BooleanField("Is Administrator?", default=False)
 	exp = models.PositiveIntegerField("Experience Points", default=0)
+	prof_pic = models.CharField("Profile Pic URL", max_length= 100)
+
+	fave_lang = models.ForeignKey(Language, on_delete=models.SET_NULL, null=True, blank=True)
 
 	def __str__(self):
 		return	'{} - {}, {}'.format(self.username, self.lastname, self.firstname)
@@ -73,6 +84,10 @@ class Lesson(models.Model):
 	name = models.CharField(max_length=50)
 	course = models.ForeignKey(Course, on_delete=models.CASCADE)
 	prereq_lesson = models.ManyToManyField('self', blank=True, default=None)
+	verified = models.BooleanField("Verified?", default=False)
+	verifier = models.CharField(max_length=50)
+
+	ex_lang = models.ForeignKey(Language, on_delete=models.SET_NULL, null=True, blank=True)
 
 	def __str__(self):
 		return	'{}: {}'.format(self.course, self.name)
@@ -94,5 +109,13 @@ class Question(models.Model):
 	qtype = models.CharField(max_length=50)
 
 	def __str__(self):
-		return	'{}: {}'.format(self.lesson.name)
+		return	'{} - Questions'.format(self.lesson.name)
 
+class QuestionBankQ():
+
+	question_root = models.ForeignKey(Question, on_delete=models.CASCADE)
+	question_given = models.TextField()
+	answer = models.CharField(max_length=30)
+
+	def __str__(self):
+		return	'{}'.format(self.name)

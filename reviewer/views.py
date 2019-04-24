@@ -26,7 +26,7 @@ def index(request):
 			temp_visible = True
 		
 		# Add input validation
-		new_course = Course(name=data['name'], code=tempcode, number=tempnum, title=data['title'], description=data['description'], old_curr=temp_oldcurr, visible=temp_visible, prereqs=None, coreqs=None)	
+		new_course = Course(name=data['name'], code=tempcode, number=tempnum, title=data['title'], description=data['description'], old_curr=temp_oldcurr, visible=temp_visible)	
 
 		new_course.save()
 		return redirect('index')
@@ -39,3 +39,11 @@ def index(request):
 
 def construction(request):
 	return render(request, 'reviewer/construction.html')
+
+
+def course(request, csubj, cnum):
+
+	coursefilter = Course.objects.filter(code__iexact=csubj).filter(number__iexact=str(cnum))
+
+	context = {'course_filt': coursefilter[0]}
+	return render(request, 'reviewer/course.html', context)
