@@ -10,8 +10,8 @@ class Course(models.Model):
 	description = models.TextField("Course Description", blank=True)
 	old_curr = models.BooleanField("Pre-2018 Curriculum Exclusive?", default=False)
 	visible = models.BooleanField("Visible?", default=True)
-	prereqs = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, related_name='course_prereqs')
-	coreqs = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, related_name='course_coreqs')
+	prereqs = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, related_name='course_prereqs', blank=True, default=None)
+	coreqs = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, related_name='course_coreqs',  blank=True, default=None)
 	lastupdated = models.DateTimeField("Last Updated", default=timezone.now)
 
 	def __str__(self):

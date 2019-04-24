@@ -17,9 +17,17 @@ def index(request):
 		coursefulln = tempname.split(" ")
 		tempnum = coursefulln[len(coursefulln)-1]
 		tempcode = ' '.join(coursefulln[:-(len(coursefulln)-1)])
+		temp_oldcurr = data.get('old_curr', False)
+		temp_visible = data.get('visible', True)
+
+		if temp_oldcurr == 'on':
+			temp_oldcurr = True
+		if temp_visible == 'on':
+			temp_visible = True
 		
 		# Add input validation
-		new_course = Course(name=data['name'], code=tempcode, number=tempnum, title=data['title'], description=data['description'], old_curr=data.get('old_curr', False), visible=data.get('visible', True))
+		new_course = Course(name=data['name'], code=tempcode, number=tempnum, title=data['title'], description=data['description'], old_curr=temp_oldcurr, visible=temp_visible, prereqs=None, coreqs=None)	
+
 		new_course.save()
 		return redirect('index')
 	else:

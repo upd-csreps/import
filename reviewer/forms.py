@@ -1,4 +1,5 @@
 from django import forms
+import datetime
 
 # Copy from models.py
 class CourseForm(forms.Form):
@@ -10,3 +11,6 @@ class CourseForm(forms.Form):
 	description = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder' : 'Description'}), required=False)
 	old_curr = forms.BooleanField(widget=forms.CheckboxInput(attrs={ 'class': 'form-check-input' }), required=False, initial=False)
 	visible = forms.BooleanField(widget=forms.CheckboxInput(attrs={ 'class': 'form-check-input' }), required=False, initial=True)
+	prereqs = None;
+	coreqs = None;
+	lastupdated = datetime.datetime.now()
