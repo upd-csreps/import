@@ -6,4 +6,5 @@ urlpatterns = [
     path('home', views.index, name="index"),
     path('course/<str:csubj>/<int:cnum>', views.course, name="course"),
     path('su', views.su, name="su"),
+    path('u/register', views.register, name="register"),
 ]

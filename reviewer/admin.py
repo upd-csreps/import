@@ -1,9 +1,29 @@
 from django.contrib import admin
-from .models import Course, User, Lesson, Module, Question
+from .models import Course, Lesson, Module, Question, ImportUser
+from django.contrib.auth import get_user_model
+from django.contrib.auth.admin import UserAdmin
+from .forms import ImportUserCreationForm, ImportUserChangeForm
+
+class ImportUserAdmin(UserAdmin):
+    add_form = ImportUserCreationForm
+    form = ImportUserChangeForm
+    model = ImportUser
+    list_display = ['username', 'studentnum' , 'email' ]
+
+    fieldsets = (
+	(None, {'fields': ('username', 'password', 'exp')}),
+	('Personal Information', {'fields': ('first_name', 'middle_name','last_name', 'suffix', 'studentnum', 'email')}),
+	('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser')}),
+	)
+
+    readonly_fields =['exp']
+
+
+
+admin.site.register(ImportUser, ImportUserAdmin)
 
 # Register your models here.
 admin.site.register(Course)
-admin.site.register(User)
 admin.site.register(Lesson)
 admin.site.register(Module)
 admin.site.register(Question)

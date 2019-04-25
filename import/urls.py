@@ -19,4 +19,5 @@ from django.urls import include,path
 urlpatterns = [
     path('su-admin/', admin.site.urls),
     path('', include('reviewer.urls')),
+    path('u/', include('django.contrib.auth.urls')),
 ]

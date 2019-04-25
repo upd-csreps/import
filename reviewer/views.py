@@ -1,7 +1,10 @@
 from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate,login
 
+
+from django.contrib.auth import get_user_model
 from .models import Course, Announcement
-from .forms import CourseForm
+from .forms import CourseForm, ImportUserCreationForm
 
 # Create your views here.
 
@@ -56,3 +59,22 @@ def course(request, csubj, cnum):
 
 	context = {'course_filt': coursefilter[0]}
 	return render(request, 'reviewer/course.html', context)
+
+def register(request):
+	User = get_user_model()
+	if request.method == 'POST':
+		form = ImportUserCreationForm(request.POST)
+
+		if form.is_valid():
+			form.save()
+			username = form.cleaned_data['username']
+			password = form.cleaned_data['password1']
+			user = authenticate(username=username, password=password)
+
+			login(request, user)
+			return redirect('index')
+	else:
+		form = ImportUserCreationForm()
+
+	context = {'form': form}
+	return render(request, 'registration/register.html', context)

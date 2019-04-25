@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from django.contrib.auth.models import AbstractUser
 
 # Create your models here.
 class Course(models.Model):
@@ -25,32 +26,32 @@ class Language(models.Model):
 	def __str__(self):
 		return	'{}'.format(self.name)
 
-class User(models.Model):
+class ImportUser(AbstractUser):
 
 	username = models.CharField("Username", max_length=30, primary_key=True)
-	firstname = models.CharField("First Name", max_length=30)
-	middlename = models.CharField("Middle Name", max_length=30)
-	lastname = models.CharField("Last Name", max_length=30)
-	suffix = models.CharField("Suffix", max_length=10, blank=True)
-	password = models.CharField("Password", max_length=64)
-	studentnum = models.PositiveIntegerField("Student Number")
+	first_name = models.CharField("First Name", max_length=30)
+	middle_name = models.CharField("Middle Name", max_length=30, null=True)
+	last_name = models.CharField("Last Name", max_length=30)
+	suffix = models.CharField("Suffix", max_length=10, blank=True, null=True)
+	#password = models.CharField("Password", max_length=160)
+	studentnum = models.PositiveIntegerField("Student Number", null=True)
 	email = models.EmailField("E-mail", max_length=60)
 	course = models.CharField("Course/Degree Program", max_length=60)
 	
-	admin_status = models.BooleanField("Is Administrator?", default=False)
+	is_superuser = models.BooleanField("Is SuperUser?", default=False)
 	exp = models.PositiveIntegerField("Experience Points", default=0)
 	prof_pic = models.CharField("Profile Pic URL", max_length= 100)
 
-	fave_lang = models.ForeignKey(Language, on_delete=models.SET_NULL, null=True, blank=True)
+	fave_lang = models.ForeignKey(Language, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Favorite Language")
 
 	def __str__(self):
-		return	'{} - {}, {}'.format(self.username, self.lastname, self.firstname)
+		return	'{} - {}, {}'.format(self.username, self.last_name, self.first_name)
 
 
 class Comment(models.Model):
 
 	course_attr = models.ForeignKey(Course, on_delete=models.CASCADE)
-	user_attr = models.ForeignKey(User, on_delete=models.CASCADE)
+	user_attr = models.ForeignKey(ImportUser, on_delete=models.CASCADE)
 	body = models.CharField(max_length=140)
 	image_url = models.CharField(max_length=100)
 
@@ -61,7 +62,7 @@ class Comment(models.Model):
 class Reply(models.Model):
 
 	comment = models.ForeignKey(Comment, on_delete=models.CASCADE)
-	user_attr = models.ForeignKey(User, on_delete=models.CASCADE)
+	user_attr = models.ForeignKey(ImportUser, on_delete=models.CASCADE)
 	body = models.CharField(max_length=140)
 	image_url = models.CharField(max_length=100)
 
@@ -73,7 +74,7 @@ class Announcement(models.Model):
 
 	title = models.CharField(max_length=30)
 	body = models.TextField()
-	poster = models.ForeignKey(User, on_delete=models.CASCADE)
+	poster = models.ForeignKey(ImportUser, on_delete=models.CASCADE)
 	datepost = models.DateTimeField("Date Posted", default=timezone.now)
 
 	def __str__(self):

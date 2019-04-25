@@ -7,8 +7,12 @@
 		</a>
 		<nav class="d-flex">
 			<span class="mx-3">Courses</span>
-			<span class="mx-3">Login</span>
-			<i class="material-icons">search</i>
+			{% if user.is_authenticated %}
+				<span class="mx-3">{{user.username}}</span>
+			{% else %}
+				<span class="mx-3">Login</span>
+			{% endif %}
+			<i class="material-icons mx-3">search</i>
 			<i class="material-icons my-auto d-block d-lg-none">menu</i>
 		</nav>
 	</div>

@@ -1,0 +1,39 @@
+{% extends 'reviewer/base.html' %}
+
+
+{% block title %}
+	Login
+{% endblock %}
+
+{% block content %}
+	<div class="container">
+		<div class="d-flex site-content">
+			<div class="m-auto">
+				{% if form.errors %}
+				<p>WRONG</p>
+				{% endif %}
+
+
+				{% if next %}
+				<p>Unaccessible</p>
+				{% endif %}
+
+				<h1> Login </h1>
+
+				<form method="post" action="{% url 'login' %}">
+					{% csrf_token %}
+
+					<p>Username</p>
+					{{ form.username }}
+
+					<p>Password </p>
+					{{ form.password }}
+
+					<p><input type="submit" value="Login"></p>
+					<input type="hidden" name="next" value="{{next}}">
+				</form>
+			</div>
+		</div>
+	</div>
+
+{% endblock %}

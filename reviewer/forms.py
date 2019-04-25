@@ -1,5 +1,7 @@
 from django import forms
 import datetime
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm
+from .models import ImportUser
 
 # Copy from models.py
 class CourseForm(forms.Form):
@@ -12,3 +14,15 @@ class CourseForm(forms.Form):
 	old_curr = forms.BooleanField(widget=forms.CheckboxInput(attrs={ 'class': 'form-check-input' }), required=False, initial=False)
 	visible = forms.BooleanField(widget=forms.CheckboxInput(attrs={ 'class': 'form-check-input' }), required=False, initial=True)
 	lastupdated = datetime.datetime.now()
+
+class ImportUserCreationForm(UserCreationForm):
+
+    class Meta(UserCreationForm):
+        model = ImportUser
+        fields = ('username', 'first_name', 'last_name', 'suffix', 'studentnum', 'email', 'course', 'fave_lang')
+
+class ImportUserChangeForm(UserChangeForm):
+
+    class Meta:
+        model = ImportUser
+        fields = ('username', 'first_name', 'last_name', 'suffix', 'studentnum', 'email', 'course')
