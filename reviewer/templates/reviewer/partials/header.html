@@ -8,7 +8,7 @@
 		<nav class="d-flex">
 			<span class="mx-3">Courses</span>
 			{% if user.is_authenticated %}
-				<span class="mx-3">{{user.username}}</span>
+				<span class="mx-3"><img src="{{user.prof_pic.url}}" style="max-height: 30px; border-radius: 100%"> {{user.username}}</span>
 			{% else %}
 				<span class="mx-3">Login</span>
 			{% endif %}

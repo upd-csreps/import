@@ -61,7 +61,7 @@ def course(request, csubj, cnum):
 	return render(request, 'reviewer/course.html', context)
 
 def register(request):
-	User = get_user_model()
+	
 	if request.method == 'POST':
 		form = ImportUserCreationForm(request.POST)
 

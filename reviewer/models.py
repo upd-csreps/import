@@ -18,13 +18,21 @@ class Course(models.Model):
 	def __str__(self):
 		return	'{}'.format(self.name)
 
+
+def language_uploadto(instance, filename):
+	return 'language/{0}/{1}'.format(instance.name, filename)
+
 class Language(models.Model):
 
 	name = models.CharField(max_length=20)
-	image = models.CharField(max_length=100)
+	image = models.FileField(verbose_name="Icon", upload_to=language_uploadto)
 
 	def __str__(self):
 		return	'{}'.format(self.name)
+
+
+def user_uploadto(instance, filename):
+	return 'users/{0}/{1}'.format(instance.username, filename)
 
 class ImportUser(AbstractUser):
 
@@ -40,7 +48,7 @@ class ImportUser(AbstractUser):
 	
 	is_superuser = models.BooleanField("Is SuperUser?", default=False)
 	exp = models.PositiveIntegerField("Experience Points", default=0)
-	prof_pic = models.CharField("Profile Pic URL", max_length= 100)
+	prof_pic = models.FileField(verbose_name="Profile Picture", null=True, blank=True, upload_to=user_uploadto)
 
 	fave_lang = models.ForeignKey(Language, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Favorite Language")
 
@@ -48,27 +56,31 @@ class ImportUser(AbstractUser):
 		return	'{} - {}, {}'.format(self.username, self.last_name, self.first_name)
 
 
+def post_uploadto(instance, filename):
+	return 'users/{0}/posts/{1}'.format(instance.user_attr.username, filename)
+
 class Comment(models.Model):
 
 	course_attr = models.ForeignKey(Course, on_delete=models.CASCADE)
 	user_attr = models.ForeignKey(ImportUser, on_delete=models.CASCADE)
 	body = models.CharField(max_length=140)
-	image_url = models.CharField(max_length=100)
-
+	image = models.FileField(verbose_name="Image", null=True, upload_to=post_uploadto)
 
 	def __str__(self):
 		return	'Comment #{} - {}, {}'.format(self.id, self.course_attr, self.body[0:10])
+
+
 
 class Reply(models.Model):
 
 	comment = models.ForeignKey(Comment, on_delete=models.CASCADE)
 	user_attr = models.ForeignKey(ImportUser, on_delete=models.CASCADE)
 	body = models.CharField(max_length=140)
-	image_url = models.CharField(max_length=100)
-
+	image = models.FileField(verbose_name="Image", null=True, upload_to=post_uploadto)
 
 	def __str__(self):
 		return	'Reply to Comment #{} - {}, {}'.format(self.comment.id, self.id, self.course_attr, self.body[0:10])
+
 
 class Announcement(models.Model):
 
@@ -117,6 +129,18 @@ class QuestionBankQ():
 	question_root = models.ForeignKey(Question, on_delete=models.CASCADE)
 	question_given = models.TextField()
 	answer = models.CharField(max_length=30)
+
+	def __str__(self):
+		return	'{}'.format(self.question_given)
+
+def partners_uploadto(instance, filename):
+	return 'partners/{0}/{1}'.format(instance.name, filename)
+
+class Partners():
+
+	name = models.CharField(max_length=30)
+	image = models.FileField(verbose_name="Logo", null=True,  upload_to=partners_uploadto)
+	sponsor = models.BooleanField("Sponsor?", default=False)
 
 	def __str__(self):
 		return	'{}'.format(self.name)
