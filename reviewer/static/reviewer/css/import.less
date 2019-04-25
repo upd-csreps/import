@@ -2,8 +2,8 @@
 
 @BackgroundColor: #fcfcfc;
 @TextColor: #2f2f2f;
-@ImportPink: #ff9172;
-@ImportYellow: #f8ef60;
+@ImportPrimary: #ff9172;
+@ImportSecondary: #f8ef60;
 @ImportFont: "SpaceGrotesk";
 @TransTime: 0.15s ease-in-out;
 
@@ -19,7 +19,17 @@
 *:focus, input:focus{
 	outline: none !important;
 	box-shadow: none !important;
-	border-color: @ImportPink !important;
+	border-color: @ImportPrimary !important;
+}
+
+a{
+	color: @ImportPrimary;
+	transition: @TransTime;
+}
+
+a:hover{
+	color: initial;
+	text-decoration: none;
 }
 
 html{
@@ -32,6 +42,7 @@ body{
 	background-color: @BackgroundColor;
 	color: @TextColor;
 	font-family: @ImportFont;
+	font-size: 1em;
 }
 
 
@@ -50,53 +61,77 @@ body{
 }
 
 .import-bg-pink{
-	background-color: @ImportPink;
+	background-color: @ImportPrimary;
 }
 
 .import-bg-yellow{
-	background-color: @ImportYellow;
+	background-color: @ImportSecondary;
 }
 
 .import-font-pink{
-	color:	@ImportPink;
+	color:	@ImportPrimary;
 }
 
 .import-font-yellow{
-	color: @ImportYellow;
+	color: @ImportSecondary;
 }
 
 .btn{
 	border-radius: 30px;
 }
 
-.btn:hover{
+.btn:hover, .btn:focus{
 	background-color: transparent !important;
 }
 
 .btn-primary{
-	background-color: @ImportPink;
-	border-color: @ImportPink;
+	background-color: @ImportPrimary;
+	border-color: @ImportPrimary;
 }
 
-.btn-primary:hover{
-	color: @ImportPink;
-	border-color: @ImportPink;
+.btn-primary:hover, .btn-primary:focus{
+	color: @ImportPrimary;
+	border-color: @ImportPrimary;
+}
+
+.btn-primary:active{
+	color: @ImportPrimary !important;
 }
 
 .btn-secondary{
-	background-color: @ImportYellow;
-	border-color: @ImportYellow;
+	background-color: @ImportSecondary;
+	border-color: @ImportSecondary;
 }
 
 .form-control{
 	border-radius: 1px;
 }
 
-/* Screen Sizes */
+/* Navbar */
 
-@media only screen and (min-width: 2560px) and (max-width: 4000px)  {
-    .container-fluid, .container{
-    	max-width: 1440px !important;
-    }
+.import-header{
+	z-index: 99999;
+}
 
+.import-logo{
+	color: @TextColor;
+}
+
+.import-logo:hover{
+	opacity: 0.65;
+}
+
+.noselect, i {
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
+}
+
+
+.container{
+	max-width: 1280px;
 }

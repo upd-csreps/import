@@ -1,0 +1,53 @@
+{% extends 'reviewer/base.html' %}
+
+{% block title %}
+	Add Course
+{% endblock %}
+
+{% block content %}
+<div class="container pt-5">
+	<div class="pt-4" style="color: #131313">
+		<div class="row">
+			<div class="col-6 d-flex flex-column">
+				<h1 class="mb-3">Courses</h1>
+
+				<div class="py-3" style="height: 40vh;overflow-y: scroll;">
+					{% for course in courses %}
+						<p> {{ course.name }} - {{ course.title }} </p>
+					{% endfor %}
+				</div>
+			</div>
+			<div class="col-6 d-flex flex-column">
+				<form class="form-group" method="POST" action="{% url 'su'%}" >
+					{% csrf_token %}
+
+					<div class="form-control-group">
+						{{ courseform.name }}
+					</div>
+
+					<div class="form-control-group">
+						{{ courseform.title }}
+					</div>
+
+					<div class="form-control-group">
+						{{ courseform.description }}
+					</div>
+
+					<div class="form-group">
+						<p><span class="mr-5">Old Curriculum Exclusive?</span> {{ courseform.old_curr }}</p>
+					</div>
+
+
+					<div class="form-group">
+						<p><span class="mr-5">Visible?</span> {{ courseform.visible }}</p>
+					</div>
+
+					<div class="form-group">
+						<input class="btn btn-primary" type="submit" value="Submit">
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
