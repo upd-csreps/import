@@ -6,11 +6,11 @@
 			</div>
 		</a>
 		<nav class="d-flex">
-			<span class="mx-3 my-auto"><a href="{% url 'courselist' %}">Courses</a></span>
+			<span class="mx-3 my-auto d-none d-lg-block"><a href="{% url 'courselist' %}">Courses</a></span>
 			{% if user.is_authenticated %}
-				<span class="mx-3 my-auto"><img class="user-pic mr-1" src="{{user.prof_pic.url}}"> {{user.username}}</span>
+				<span class="mx-3 my-auto d-none d-lg-block"><a href="{% url 'user' user.username %}"><img class="user-pic mr-1" src="{{user.prof_pic.url}}"> {{user.username}}</a></span>
 			{% else %}
-				<span class="mx-3 my-auto"><a href="{% url 'login' %}">Login</a></span>
+				<span class="mx-3 my-auto d-none d-lg-block"><a href="{% url 'login' %}">Login</a></span>
 			{% endif %}
 			<i class="material-icons mx-3">search</i>
 			<i class="material-icons my-auto d-block d-lg-none">menu</i>

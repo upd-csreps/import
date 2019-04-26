@@ -27,7 +27,9 @@
 				{% block content %}
 				{% endblock %}
 			</div>
-			{% include 'reviewer/partials/footer.html' %}
+			{% block footer %}
+				{% include 'reviewer/partials/footer.html' %}
+			{% endblock %}
 		</div>
 
 		<script src="{% static 'reviewer/js/jquery-3.4.0.min.js' %}"></script>
