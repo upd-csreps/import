@@ -1,9 +1,9 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate,login
 
-
+from django.http import Http404
 from django.contrib.auth import get_user_model
-from .models import Course, Announcement
+from .models import Course, Announcement, ImportUser
 from .forms import CourseForm, ImportUserCreationForm
 
 # Create your views here.
@@ -64,8 +64,23 @@ def course(request, csubj, cnum):
 
 	coursefilter = Course.objects.filter(code__iexact=csubj).filter(number__iexact=str(cnum))
 
-	context = {'course_filt': coursefilter[0]}
-	return render(request, 'reviewer/course.html', context)
+	if (len(coursefilter) > 0):
+		context = {'course_filt': coursefilter[0]}
+		return render(request, 'reviewer/course.html', context)
+	else:
+		raise Http404("Course does not exist.")
+
+def user(request, username):
+
+	user_filter = ImportUser.objects.filter(username=username)
+
+	if (len(user_filter) > 0):
+		comments = user_filter[0].comment_set.all()
+		context = {'user_filt': user_filter[0], 'user_comments':comments }
+		return render(request, 'reviewer/user.html', context)
+	else:
+		raise Http404("User does not exist.")
+
 
 
 def register(request):

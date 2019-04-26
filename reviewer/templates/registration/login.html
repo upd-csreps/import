@@ -6,34 +6,51 @@
 {% endblock %}
 
 {% block content %}
-	<div class="container">
-		<div class="d-flex site-content">
-			<div class="m-auto">
-				{% if form.errors %}
-				<p>WRONG</p>
-				{% endif %}
 
+	{% if user.is_authenticated %}
 
-				{% if next %}
-				<p>Unaccessible</p>
-				{% endif %}
-
-				<h1> Login </h1>
-
-				<form method="post" action="{% url 'login' %}">
-					{% csrf_token %}
-
-					<p>Username</p>
-					{{ form.username }}
-
-					<p>Password </p>
-					{{ form.password }}
-
-					<p><input type="submit" value="Login"></p>
-					<input type="hidden" name="next" value="{{next}}">
-				</form>
+		<div class="container py-5 d-flex site-container">
+			<div class="m-auto d-flex flex-column">
+				<img class="m-auto" src="{{user.prof_pic.url}}" style="height: 10em; width:10em; border-radius: 100%">
+				<p class="mt-4">You are currently logged in as: {{user.username}}</p>
 			</div>
 		</div>
-	</div>
 
+	{% else %}
+		<div class="container py-5">
+			<div class="d-flex site-content">
+				<div class="m-auto w-50">
+					{% if form.errors %}
+					<div class="alert alert-danger d-flex" role="alert">
+					  <i class="material-icons my-auto mr-3">error</i>
+					  <span class="my-auto">You have entered wrong credentials.</span>
+					</div>
+					{% endif %}
+
+
+					{% if next %}
+					<p>Unaccessible link.</p>
+					{% endif %}
+
+					<h1 class="mb-3"> Login </h1>
+
+					<form method="post" action="{% url 'login' %}" class="form-group">
+						{% csrf_token %}
+
+						{% for field in form %}
+							<p class="text-capitalize">{{field.html_name}}</p>
+			                <input class="form-control my-3" id="{{ field.id_for_label }}" name="{{ field.html_name }}" value="{% if field.value != None %}{{field.value}}{%endif%}" type="{% if field.html_name == 'password' %}password{%else%}text{% endif %}" required {% if field.html_name == 'username' %}autofocus{% endif %}> 
+			                {{ field.errors }}
+				        {% endfor %}
+
+				        <button class="btn btn-primary d-flex justify-content-center" type="submit">
+							<span class="my-auto">Login</span>
+						</button>
+						
+						<input type="hidden" name="next" value="{{next}}">
+					</form>
+				</div>
+			</div>
+		</div>
+	{% endif %}
 {% endblock %}

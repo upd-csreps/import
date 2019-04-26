@@ -48,6 +48,22 @@ body{
 
 /* CSS ID and Classes */
 
+.noselect, i {
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
+}
+
+
+.container{
+	max-width: 1280px;
+}
+
+
 .site-container{
 	height: 100vh;
 }
@@ -129,17 +145,17 @@ body{
 	opacity: 0.65;
 }
 
-.noselect, i {
-  -webkit-touch-callout: none; /* iOS Safari */
-    -webkit-user-select: none; /* Safari */
-     -khtml-user-select: none; /* Konqueror HTML */
-       -moz-user-select: none; /* Firefox */
-        -ms-user-select: none; /* Internet Explorer/Edge */
-            user-select: none; /* Non-prefixed version, currently
-                                  supported by Chrome and Opera */
+.import-header .user-pic{
+	height: 30px;
+	width: 30px;
 }
 
+.user-pic{
+	height: 200px;
+	width: 200px;
+	border-radius: 100%
+}
 
-.container{
-	max-width: 1280px;
+.comments::-webkit-scrollbar {
+background: transparent;
 }

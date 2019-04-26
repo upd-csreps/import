@@ -1,0 +1,61 @@
+{% extends 'reviewer/base.html' %}
+
+
+{% block title %}
+	Home
+{% endblock %}
+
+{% block content %}
+	<div class="container pt-5">
+		<div class="row pt-5">
+			<div class="col-lg-4 d-flex">
+				<div class="mr-auto ml-lg-0 ml-auto d-flex flex-column">
+					<img class="user-pic mx-auto" src="{{user_filt.prof_pic.url}}">
+					<h3 class="h3 mx-auto my-3">{{user_filt.username}}</h3>
+					<p class="mx-auto">Experience Points: {{user_filt.exp}}</p>
+
+					<div class="row">
+						<div class="col-6">
+							<p class="font-weight-bold mb-1">First Name</p>
+							<p>{{user_filt.first_name}}</p>
+
+							{% if user_filt.middle_name != None %}
+								<p class="font-weight-bold mb-1">Middle Name</p>
+								<p>{{user_filt.middle_name}}</p>
+							{% endif %}
+
+							<p class="font-weight-bold mb-1">Last Name</p>
+							<p>{{user_filt.last_name}}</p>
+						</div>
+						<div class="col-6">
+							{% if user_filt.studentnum != None %}
+								<p class="font-weight-bold mb-1">Student Number</p>
+								<p>{{user_filt.studentnum}}</p>
+							{% endif %}
+
+							<p class="font-weight-bold mb-1">E-mail</p>
+							<p>{{user_filt.email}}</p>
+
+							{% if user_filt.course != None or user_filt.course != "" %}
+								<p class="font-weight-bold mb-1">Degree Program</p>
+								<p>{{user_filt.course}}</p>
+							{% endif %}
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-8 site-content comments" style="overflow-y: scroll;">
+				<h2>Comments</h2>
+
+				{% for comment in user_comments %}
+					<div class="py-4 px-4 d-flex" style="background-color: white">
+						<img class="user-pic" src="{{user_filt.prof_pic.url}}" style="height: 50px;width:50px">
+						<p class="mx-4">{{comment.body}}</p>
+						<p class="ml-auto"><small>{{comment.date_posted}}</small></p>
+					</div>
+				{% endfor %}
+			</div>
+		</div>
+	</div>
+
+{% endblock %}
