@@ -7,6 +7,7 @@ class Course(models.Model):
 	name = models.CharField("Course Name", max_length=20)
 	code = models.CharField("Course Code", max_length=10)
 	number = models.CharField("Course Number", max_length=10)
+	number_len = models.PositiveSmallIntegerField(default=1)
 	title = models.CharField("Course Title", max_length=50)
 	description = models.TextField("Course Description", blank=True)
 	old_curr = models.BooleanField("Pre-2018 Curriculum Exclusive?", default=False)
@@ -17,6 +18,10 @@ class Course(models.Model):
 
 	def __str__(self):
 		return	'{}'.format(self.name)
+
+	def save(self, *args, **kwargs):
+         self.number_len = len(self.number)
+         return super(Course, self).save(*args, **kwargs)
 
 
 def language_uploadto(instance, filename):
@@ -68,7 +73,6 @@ class Comment(models.Model):
 
 	def __str__(self):
 		return	'Comment #{} - {}, {}'.format(self.id, self.course_attr, self.body[0:10])
-
 
 
 class Reply(models.Model):

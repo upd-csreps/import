@@ -1,0 +1,42 @@
+{% extends 'reviewer/base.html' %}
+
+
+{% block title %}
+	Course List
+{% endblock %}
+
+{% block content %}
+	<div class="container py-5 d-flex">
+		<div class="w-100 py-5">
+			<h1>Course List</h1>
+
+			<div class="w-100 course-list">
+				{% if course_count == 0 %}
+					<p>No courses available</p>
+				{% else %}
+					{% for course in courselist %}
+						<div class="py-3 px-3 d-flex justify-content-between">
+							<div class="my-auto">
+								<h4>
+									{{course.name}} 
+									{% if course.old_curr == True %}
+										<i class="material-icons">timelapse</i>
+									{% endif %}
+								</h4>
+								<h6>{{course.title}}</h6>
+							</div>
+
+							<a class="my-auto" href="{% url 'courselist' %}{{course.code | lower}}/{{course.number}}">
+								<button class="btn btn-primary btn-sm d-flex justify-content-center">
+
+										<span>Start</span><i class="material-icons my-auto mx-1" style="font-size: 1em">arrow_forward</i>
+								</button>
+							</a>
+						</div>
+						<hr>
+					{% endfor %}
+				{% endif %}
+			</div>
+		</div>
+	</div>
+{% endblock %}

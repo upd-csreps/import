@@ -6,7 +6,7 @@
 			</div>
 		</a>
 		<nav class="d-flex">
-			<span class="mx-3">Courses</span>
+			<span class="mx-3"><a href="{% url 'courselist' %}">Courses</a></span>
 			{% if user.is_authenticated %}
 				<span class="mx-3"><img src="{{user.prof_pic.url}}" style="max-height: 30px; border-radius: 100%"> {{user.username}}</span>
 			{% else %}

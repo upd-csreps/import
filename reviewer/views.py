@@ -21,7 +21,7 @@ def construction(request):
 def su(request):
 
 
-	courses = Course.objects.order_by('name')
+	courses = Course.objects.order_by('code', 'number_len', 'number')
 
 	if request.method == "POST":
 		data = request.POST
@@ -53,12 +53,20 @@ def su(request):
 	return render(request, 'reviewer/admin.html', context)
 
 
+def courselist(request):
+
+	courselist = Course.objects.filter(visible=True).order_by('code', 'number_len', 'number')
+
+	context = {'courselist': courselist, 'course_count': len(courselist)}
+	return render(request, 'reviewer/course-list.html', context)
+
 def course(request, csubj, cnum):
 
 	coursefilter = Course.objects.filter(code__iexact=csubj).filter(number__iexact=str(cnum))
 
 	context = {'course_filt': coursefilter[0]}
 	return render(request, 'reviewer/course.html', context)
+
 
 def register(request):
 	
