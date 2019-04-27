@@ -30,7 +30,7 @@ def language_uploadto(instance, filename):
 class Language(models.Model):
 
 	name = models.CharField(max_length=20)
-	image = models.FileField(verbose_name="Icon", upload_to=language_uploadto)
+	image = models.ImageField(verbose_name="Icon", upload_to=language_uploadto)
 
 	def __str__(self):
 		return	'{}'.format(self.name)
@@ -53,7 +53,7 @@ class ImportUser(AbstractUser):
 	
 	is_superuser = models.BooleanField("Is SuperUser?", default=False)
 	exp = models.PositiveIntegerField("Experience Points", default=0)
-	prof_pic = models.FileField(verbose_name="Profile Picture", null=True, blank=True, upload_to=user_uploadto)
+	prof_pic = models.ImageField(verbose_name="Profile Picture", null=True, blank=True, upload_to=user_uploadto)
 
 	fave_lang = models.ForeignKey(Language, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Favorite Language")
 
@@ -69,7 +69,7 @@ class Comment(models.Model):
 	course_attr = models.ForeignKey(Course, on_delete=models.CASCADE)
 	user_attr = models.ForeignKey(ImportUser, on_delete=models.CASCADE)
 	body = models.CharField(max_length=150)
-	image = models.FileField(verbose_name="Image", null=True, blank=True, upload_to=post_uploadto)
+	image = models.ImageField(verbose_name="Image", null=True, blank=True, upload_to=post_uploadto)
 	date_posted = models.DateTimeField("Date Posted", default=timezone.now)
 
 	def __str__(self):
@@ -81,7 +81,7 @@ class Reply(models.Model):
 	comment = models.ForeignKey(Comment, on_delete=models.CASCADE)
 	user_attr = models.ForeignKey(ImportUser, on_delete=models.CASCADE)
 	body = models.CharField(max_length=140)
-	image = models.FileField(verbose_name="Image", null=True, blank=True, upload_to=post_uploadto)
+	image = models.ImageField(verbose_name="Image", null=True, blank=True, upload_to=post_uploadto)
 	date_posted = models.DateTimeField("Date Posted", default=timezone.now)
 
 	def __str__(self):
@@ -145,7 +145,7 @@ def partners_uploadto(instance, filename):
 class Partners():
 
 	name = models.CharField(max_length=30)
-	image = models.FileField(verbose_name="Logo", null=True,  upload_to=partners_uploadto)
+	image = models.ImageField(verbose_name="Logo", null=True,  upload_to=partners_uploadto)
 	sponsor = models.BooleanField("Sponsor?", default=False)
 
 	def __str__(self):

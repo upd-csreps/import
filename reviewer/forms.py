@@ -18,13 +18,13 @@ class CourseForm(forms.Form):
 class CommentForm(forms.Form):
 
 	body = forms.CharField(max_length=150, widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder' : 'Comment'}))
-	image = forms.FileField(required=False)
+	image = forms.ImageField(required=False)
 	date_posted = datetime.datetime.now()
 
 class CommentFormDisabled(forms.Form):
 
 	body = forms.CharField(max_length=150, widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder' : 'Comment', 'readonly':'readonly'}), disabled=True)
-	image = forms.FileField(required=False, disabled=True)
+	image = forms.ImageField(required=False, disabled=True)
 	date_posted = datetime.datetime.now()
 
 class ImportUserCreationForm(UserCreationForm):
