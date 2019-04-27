@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate,login
 from django.http import Http404
 from django.contrib.auth import get_user_model
 from .models import Course, Announcement, ImportUser, Comment
-from .forms import CourseForm, CommentForm, ImportUserCreationForm
+from .forms import CourseForm, CommentForm, CommentFormDisabled, ImportUserCreationForm
 
 # Create your views here.
 
@@ -69,14 +69,23 @@ def course(request, csubj, cnum):
 
 		if request.method == "POST":
 			data = request.POST
-			commentform = CommentForm(data, request.FILES)
+			
+			if request.user.is_authenticated:
+				commentform = CommentForm(data, request.FILES)
 
-			# Add input validation
-			new_comment = Comment(course_attr=coursefilter[0], user_attr=request.user, body=data['body'], image=request.FILES.get('image', None))	
-			new_comment.save()
+				# Add input validation
+				new_comment = Comment(course_attr=coursefilter[0], user_attr=request.user, body=data['body'], image=request.FILES.get('image', None))	
+				new_comment.save()
+			else:
+				commentform = CommentFormDisabled(data, request.FILES)
+
 			return redirect('course', csubj, cnum)
 		else:
-			commentform = CommentForm()
+			if request.user.is_authenticated:
+				commentform = CommentForm()
+			else:
+				commentform = CommentFormDisabled()
+
 			context = {'course_filt': coursefilter[0], 'course_comments': course_comments, 'comment_form': commentform}
 			return render(request, 'reviewer/course.html', context)
 	else:

@@ -21,6 +21,12 @@ class CommentForm(forms.Form):
 	image = forms.FileField(required=False)
 	date_posted = datetime.datetime.now()
 
+class CommentFormDisabled(forms.Form):
+
+	body = forms.CharField(max_length=150, widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder' : 'Comment', 'readonly':'readonly'}), disabled=True)
+	image = forms.FileField(required=False, disabled=True)
+	date_posted = datetime.datetime.now()
+
 class ImportUserCreationForm(UserCreationForm):
 
     class Meta(UserCreationForm):

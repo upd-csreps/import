@@ -8,5 +8,5 @@ urlpatterns = [
     path('course/<str:csubj>/<int:cnum>', views.course, name="course"),
     path('su', views.su, name="su"),
     path('u/register', views.register, name="register"),
-    path('u/<str:username>', views.user, name="user"),
+    path('u/*/<str:username>', views.user, name="user"),
 ]
