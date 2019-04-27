@@ -72,9 +72,9 @@ def course(request, csubj, cnum):
 			commentform = CommentForm(data, request.FILES)
 
 			# Add input validation
-			new_comment = Comment(course_attr=coursefilter[0], user_attr=request.user, body=data['body'], image=data.get('image', None))	
+			new_comment = Comment(course_attr=coursefilter[0], user_attr=request.user, body=data['body'], image=request.FILES.get('image', None))	
 			new_comment.save()
-			#return redirect('course', csubj, cnum)
+			return redirect('course', csubj, cnum)
 		else:
 			commentform = CommentForm()
 			context = {'course_filt': coursefilter[0], 'course_comments': course_comments, 'comment_form': commentform}

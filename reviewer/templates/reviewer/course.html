@@ -75,7 +75,7 @@
 
 			  		<div class="row mx-0 py-5">
 			  			<div class="col-lg-4">
-					  		<form class="form-group" method="POST" action="{% url 'course' course_filt.code|lower course_filt.number %}" >
+					  		<form class="form-group" enctype="multipart/form-data" method="POST" action="{% url 'course' course_filt.code|lower course_filt.number %}" >
 								{% csrf_token %}
 
 								{{ comment_form.as_p }}						
@@ -87,7 +87,7 @@
 					  		{% for comment in course_comments %}
 								<div class="py-4 px-4 d-flex mb-3" style="background-color: white">
 									<img class="user-pic" src="{{comment.user_attr.prof_pic.url}}" style="height: 50px;width:50px">
-									<div class="ml-4" style="width:85%">
+									<div class="ml-4 w-100">
 										<div class="d-flex w-100 justify-content-between">
 											<span>
 												<strong>{{comment.user_attr.username}}</strong> 
@@ -96,7 +96,7 @@
 										</div>
 										<p>{{comment.body}}</p>
 										{% if comment.image %}
-											<img class="mt-3 d-block" style="max-height: 300px" src="{{comment.image.url}}">
+											<img class="mt-3 d-block" style="max-height: 320px;max-width:480px" src="{{comment.image.url}}">
 										{% endif %}
 									
 									</div>
