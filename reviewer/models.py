@@ -12,8 +12,8 @@ class Course(models.Model):
 	description = models.TextField("Course Description", blank=True)
 	old_curr = models.BooleanField("Pre-2018 Curriculum Exclusive?", default=False)
 	visible = models.BooleanField("Visible?", default=True)
-	prereqs = models.ManyToManyField('self', blank=True, default=None)
-	coreqs = models.ManyToManyField('self', blank=True, default=None)
+	prereqs = models.ManyToManyField('self', blank=True, default=None, symmetrical=False, related_name="preq")
+	coreqs = models.ManyToManyField('self', blank=True, default=None,symmetrical=False , related_name="creq")
 	lastupdated = models.DateTimeField("Last Updated", default=timezone.now)
 
 	def __str__(self):
@@ -68,7 +68,7 @@ class Comment(models.Model):
 
 	course_attr = models.ForeignKey(Course, on_delete=models.CASCADE)
 	user_attr = models.ForeignKey(ImportUser, on_delete=models.CASCADE)
-	body = models.CharField(max_length=140)
+	body = models.CharField(max_length=150)
 	image = models.FileField(verbose_name="Image", null=True, blank=True, upload_to=post_uploadto)
 	date_posted = models.DateTimeField("Date Posted", default=timezone.now)
 

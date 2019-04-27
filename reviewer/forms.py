@@ -15,6 +15,12 @@ class CourseForm(forms.Form):
 	visible = forms.BooleanField(widget=forms.CheckboxInput(attrs={ 'class': 'form-check-input' }), required=False, initial=True)
 	lastupdated = datetime.datetime.now()
 
+class CommentForm(forms.Form):
+
+	body = forms.CharField(max_length=150, widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder' : 'Comment'}))
+	image = forms.FileField(required=False)
+	date_posted = datetime.datetime.now()
+
 class ImportUserCreationForm(UserCreationForm):
 
     class Meta(UserCreationForm):

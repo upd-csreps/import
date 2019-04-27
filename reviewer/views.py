@@ -3,8 +3,8 @@ from django.contrib.auth import authenticate,login
 
 from django.http import Http404
 from django.contrib.auth import get_user_model
-from .models import Course, Announcement, ImportUser
-from .forms import CourseForm, ImportUserCreationForm
+from .models import Course, Announcement, ImportUser, Comment
+from .forms import CourseForm, CommentForm, ImportUserCreationForm
 
 # Create your views here.
 
@@ -65,8 +65,20 @@ def course(request, csubj, cnum):
 	coursefilter = Course.objects.filter(code__iexact=csubj).filter(number__iexact=str(cnum))
 
 	if (len(coursefilter) > 0):
-		context = {'course_filt': coursefilter[0]}
-		return render(request, 'reviewer/course.html', context)
+		course_comments = coursefilter[0].comment_set.order_by('-date_posted')
+
+		if request.method == "POST":
+			data = request.POST
+			commentform = CommentForm(data, request.FILES)
+
+			# Add input validation
+			new_comment = Comment(course_attr=coursefilter[0], user_attr=request.user, body=data['body'], image=data.get('image', None))	
+			new_comment.save()
+			#return redirect('course', csubj, cnum)
+		else:
+			commentform = CommentForm()
+			context = {'course_filt': coursefilter[0], 'course_comments': course_comments, 'comment_form': commentform}
+			return render(request, 'reviewer/course.html', context)
 	else:
 		raise Http404("Course does not exist.")
 
@@ -75,7 +87,7 @@ def user(request, username):
 	user_filter = ImportUser.objects.filter(username=username)
 
 	if (len(user_filter) > 0):
-		comments = user_filter[0].comment_set.all()
+		comments = user_filter[0].comment_set.order_by('-date_posted')
 		context = {'user_filt': user_filter[0], 'user_comments':comments }
 		return render(request, 'reviewer/user.html', context)
 	else:
