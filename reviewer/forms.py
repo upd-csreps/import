@@ -17,7 +17,7 @@ class CourseForm(forms.Form):
 
 class CommentForm(forms.Form):
 
-	body = forms.CharField(max_length=150, widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder' : 'Comment'}))
+	body = forms.CharField(max_length=150, widget=forms.Textarea(attrs={'class': 'form-control comment-text-area', 'placeholder' : 'Comment'}))
 	image = forms.ImageField(required=False)
 	date_posted = datetime.datetime.now()
 

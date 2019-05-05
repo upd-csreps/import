@@ -91,16 +91,16 @@
 			  				{% if user.is_anonymous %}
 			  					<p>You must be logged in to comment.</p>
 			  				{% endif %}
-					  		<form class="form-group" enctype="multipart/form-data" method="POST" action="{% url 'course' course_filt.code|lower course_filt.number %}" >
+					  		<form class="form-group comment-form" enctype="multipart/form-data" method="POST" action="{% url 'course' course_filt.code|lower course_filt.number %}" >
 								{% csrf_token %}
 
 								{{ comment_form.body }}
 
-								<div class="my-3">
+								<div class="my-3 comment-image-upload d-none position-absolute">
 									{{ comment_form.image }}
 								</div>
 
-								<input class="btn btn-primary" type="submit" value="Submit">
+								<input class="btn btn-primary mt-3 ml-auto float-right" type="submit" value="Submit">
 							</form>
 						</div>
 						<div class="col-lg-8">
