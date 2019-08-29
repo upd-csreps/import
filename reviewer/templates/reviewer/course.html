@@ -100,10 +100,10 @@
 									{{ comment_form.image }}
 								</div>
 
-								<input class="btn btn-primary mt-3 ml-auto float-right" type="submit" value="Submit">
+								<input class="btn btn-primary mt-3 ml-auto float-right {% if user.is_anonymous %} -disabled {% endif %} course-comment-submit" type="submit" value="Submit" >
 							</form>
 						</div>
-						<div class="col-lg-8">
+						<div class="col-lg-8 course-comments">
 							{% if course_comments.count == 0 %}
 								<p class="d-inline-flex">
 									<i class="material-icons my-auto">comment</i>
@@ -117,7 +117,7 @@
 								</p>
 							{% else %}
 						  		{% for comment in course_comments %}
-									<div class="py-4 px-4 d-flex mb-3" style="background-color: white">
+									<div class="py-4 px-4 d-flex mb-3 comment" id="comment-{{comment.id}}">
 										<img class="user-pic-thumb" src="{{comment.user_attr.prof_pic.url}}">
 										<div class="ml-4 w-100">
 											<div class="d-flex w-100 justify-content-between my-2">
@@ -154,4 +154,126 @@
 			</div>
 		</div>
 	</div>
+{% endblock %}
+
+{% block scripts %}
+	<script>
+		var request;
+		var coursect =  {{course_comments.count}};
+
+		function addCommentDisplay(datestring, bodystring){
+			var newcomment = "";
+
+			newcomment = 
+			`<div class="py-4 px-4 d-flex mb-3 comment the-new-comment" style="display:none;">
+				<img class="user-pic-thumb" src="{{ user.prof_pic.url }}">
+				<div class="ml-4 w-100">
+					<div class="d-flex w-100 justify-content-between my-2">
+						<span class="my-auto">
+							<strong>{{ user.username }}</strong> 
+						</span>
+						<p class="my-auto">
+							<small class="d-inline-flex">
+								<span class="mr-3 my-auto">
+									{% if user.is_authenticated %}
+										<i class="material-icons material-icon-sm mx-2">reply</i>
+									{% endif %}
+									<i class="material-icons  material-icon-sm">delete</i>
+								</span>` +
+								datestring
+							+ `</small>
+						</p>
+					</div>
+					<p>` + bodystring + `</p>
+					
+				
+				</div>
+			</div>`;
+
+			if (coursect != 0){				
+				newcomment = newcomment + $(".course-comments").html();
+			}
+			
+			$(".course-comments").html(newcomment);
+			$(".the-new-comment").fadeIn(2000);
+			$(".the-new-comment").removeClass("the-new-comment");
+			
+		}
+
+		$(".comment-form").submit(function(event){
+
+	    // Prevent default posting of form - put here to work in case of errors
+	    event.preventDefault();
+
+	    {% if user.is_authenticated %}
+
+		    // Abort any pending request
+		    if (request) {
+		        request.abort();
+		    }
+		    // setup some local variables
+		    var form = $(this);
+
+		    // Let's select and cache all the fields
+		    var inputs = form.find("input, select, button, textarea");
+
+		    // Serialize the data in the form
+		    var serializedData = form.serialize();
+
+		    // Let's disable the inputs for the duration of the Ajax request.
+		    // Note: we disable elements AFTER the form data has been serialized.
+		    // Disabled form elements will not be serialized.
+		    inputs.prop("disabled", true);
+
+		    // Fire off the request to /form.php
+		    request = $.ajax({
+		        url: "{% url 'course' course_filt.code|lower course_filt.number %}",
+		        type: "post",
+		        data: serializedData
+		    });
+
+		    
+		     
+		    // Callback handler that will be called on success
+		    request.done(function (response, textStatus, jqXHR){
+		        // Log a message to the console
+
+		        var timeoptions = {
+			    	year: 'numeric',
+			    	month: 'short',
+			    	day: 'numeric',
+			    	timeZone: "Asia/Manila",
+			    	hour12: true,
+			    	hour: "2-digit", 
+			    	minute: "2-digit"  
+		    	}
+		    
+		        var today = new Date().toLocaleString('en-us' , timeoptions);
+		    	var commtent = $(".comment-text-area").val();
+		    	addCommentDisplay(today, commtent);
+		    	$(".comment-text-area").val("");
+		    });
+		    
+
+		    // Callback handler that will be called on failure
+		    request.fail(function (jqXHR, textStatus, errorThrown){
+		        // Log the error to the console
+		        console.error(
+		            "The following error occurred: "+
+		            textStatus, errorThrown
+		        );
+		    });
+
+		    // Callback handler that will be called regardless
+		    // if the request failed or succeeded
+		    request.always(function () {
+		        // Reenable the inputs
+		        inputs.prop("disabled", false);
+		    });
+
+	    {% endif %}
+
+	});
+
+	</script>
 {% endblock %}

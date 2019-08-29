@@ -23,7 +23,7 @@ class CommentForm(forms.Form):
 
 class CommentFormDisabled(forms.Form):
 
-	body = forms.CharField(max_length=150, widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder' : 'Comment', 'readonly':'readonly'}), disabled=True)
+	body = forms.CharField(max_length=150, widget=forms.Textarea(attrs={'class': 'form-control -disabled', 'placeholder' : 'Comment', 'readonly':'readonly'}), disabled=True)
 	image = forms.ImageField(required=False, disabled=True)
 	date_posted = datetime.datetime.now()
 
