@@ -67,7 +67,8 @@ def course(request, csubj, cnum):
 	coursefilter = Course.objects.filter(code__iexact=csubj).filter(number__iexact=str(cnum))
 
 	if (len(coursefilter) > 0):
-		course_comments = coursefilter[0].comment_set.order_by('-date_posted')
+		course_comments_filtered = coursefilter[0].comment_set.order_by('-date_posted')[0:10]
+		course_commentstotal = coursefilter[0].comment_set.order_by('-date_posted').count
 
 		if request.method == "POST":
 			data = request.POST
@@ -102,7 +103,7 @@ def course(request, csubj, cnum):
 			else:
 				commentform = CommentFormDisabled()
 
-			context = {'course_filt': coursefilter[0], 'course_comments': course_comments, 'comment_form': commentform}
+			context = {'course_filt': coursefilter[0], 'course_comment_count': course_commentstotal, 'course_comments': course_comments_filtered, 'comment_form': commentform}
 			return render(request, 'reviewer/course.html', context)
 	else:
 		raise Http404("Course does not exist.")

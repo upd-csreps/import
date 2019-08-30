@@ -86,7 +86,7 @@
 			  <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
 
 			  		<div class="m-3 d-flex pt-4">
-			  			<span class="ml-auto my-auto comme-count">{{ course_comments.count }} comment{% if course_comments.count != 1 %}s
+			  			<span class="ml-auto my-auto comme-count">{{ course_comment_count }} comment{% if course_comment_count != 1 %}s
 			  			{% endif %}</span>
 			  		</div>
 			  		<div class="row mx-0 pb-4">
@@ -163,7 +163,7 @@
 {% block scripts %}
 	<script>
 		var request;
-		var coursect =  {{course_comments.count}};
+		var coursect =  {{course_comment_count}};
 
 		function addCommentDisplay(response, datestring, bodystring){
 		
