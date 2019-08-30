@@ -1,10 +1,12 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate,login
 
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.contrib.auth import get_user_model
 from .models import Course, Announcement, ImportUser, Comment
 from .forms import CourseForm, CommentForm, CommentFormDisabled, ImportUserCreationForm
+
+import json
 
 # Create your views here.
 
@@ -69,18 +71,32 @@ def course(request, csubj, cnum):
 
 		if request.method == "POST":
 			data = request.POST
-			
+			resultid = None 
+
 			if request.user.is_authenticated:
 				commentform = CommentForm(data, request.FILES)
 
 				# Add input validation
 				new_comment = Comment(course_attr=coursefilter[0], user_attr=request.user, body=data['body'], image=request.FILES.get('image', None))	
 				new_comment.save()
+				resultid = new_comment.id
 			else:
 				commentform = CommentFormDisabled(data, request.FILES)
 
-			return redirect('course', csubj, cnum)
-		else:
+			redirect('course', csubj, cnum)
+
+			data = {'commentid': resultid}
+			return HttpResponse( json.dumps(data) )
+		elif request.method == "DELETE":
+			comment_findid = int(request.body.decode("utf-8").split("-")[1])
+
+			delcom = Comment.objects.get(pk=comment_findid)
+			result = "Nice try."
+			if (request.user == delcom.user_attr):
+				delcom.delete()
+				result = "Delete successful."
+			return HttpResponse(result)
+		elif request.method == "GET":
 			if request.user.is_authenticated:
 				commentform = CommentForm()
 			else:
