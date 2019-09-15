@@ -70,22 +70,32 @@
 			</div>
 		</div>
 		<div class="">
-			<ul class="nav nav-tabs" id="myTab" role="tablist">
+			<ul class="nav nav-tabs" id="coursetab" role="tablist">
 			  <li class="nav-item">
-			    <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Lessons</a>
+			    <a class="nav-link {% if section == 'l' %}active{%endif%}" id="lessons-tab" data-toggle="tab" href="#lessons" role="tab" aria-controls="lessons" aria-selected="true">Lessons</a>
 			  </li>
 			  <li class="nav-item">
-			    <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Comments</a>
+			    <a class="nav-link {% if section == 'c' %}active{%endif%}" id="comments-tab" data-toggle="tab" href="#comments" role="tab" aria-controls="profile" aria-selected="false">Comments</a>
 			  </li>
 			  <li class="nav-item">
-			    <a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false">References</a>
+			    <a class="nav-link {% if section == 'r' %}active{%endif%}" id="ref-tab" data-toggle="tab" href="#ref" role="tab" aria-controls="ref" aria-selected="false">References</a>
 			  </li>
 			</ul>
-			<div class="tab-content" id="myTabContent">
-			  <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">...</div>
-			  <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+			<div class="tab-content" id="import-tabcontents">
+			  <div class="tab-pane fade {% if section == 'l' %} show active{%endif%}" id="lessons" role="tabpanel" aria-labelledby="lessons-tab">...</div>
+			  <div class="tab-pane fade {% if section == 'c' %} show active{%endif%}" id="comments" role="tabpanel" aria-labelledby="comments-tab">
 
-			  		<div class="m-3 d-flex pt-4">
+			  		<div class="m-3 d-flex py-3">
+			  			<div class="ml-auto">
+			  				
+			  				{% for pg in page_count %}
+			  					<button>
+				  				{{ forloop.counter }}
+				  				</button>
+				  			{% endfor %}
+			  				
+			  				
+			  			</div>
 			  			<span class="ml-auto my-auto comme-count">{{ course_comment_count }} comment{% if course_comment_count != 1 %}s
 			  			{% endif %}</span>
 			  		</div>
@@ -154,7 +164,7 @@
 						</div>
 					</div>
 			  </div>
-			  <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">...</div>
+			  <div class="tab-pane fade {% if section == 'r' %} show active{%endif%}" id="ref" role="tabpanel" aria-labelledby="ref-tab">...</div>
 			</div>
 		</div>
 	</div>

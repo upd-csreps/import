@@ -5,7 +5,7 @@ from django.http import Http404, HttpResponse
 from django.contrib.auth import get_user_model
 from .models import Course, Announcement, ImportUser, Comment
 from .forms import CourseForm, CommentForm, CommentFormDisabled, ImportUserCreationForm
-
+import math
 import json
 
 # Create your views here.
@@ -64,12 +64,15 @@ def courselist(request):
 
 def course(request, csubj, cnum):
 
+	page_ct_limit = 10
 	coursefilter = Course.objects.filter(code__iexact=csubj).filter(number__iexact=str(cnum))
 
 	if (len(coursefilter) > 0):
 		course_comments_filtered = coursefilter[0].comment_set.order_by('-date_posted')[0:10]
-		course_commentstotal = coursefilter[0].comment_set.order_by('-date_posted').count
+		course_commentstotal = len(coursefilter[0].comment_set.order_by('-date_posted'))
 
+		page_ct = int(math.ceil(course_commentstotal/page_ct_limit))
+	
 		if request.method == "POST":
 			data = request.POST
 			resultid = None 
@@ -103,7 +106,86 @@ def course(request, csubj, cnum):
 			else:
 				commentform = CommentFormDisabled()
 
-			context = {'course_filt': coursefilter[0], 'course_comment_count': course_commentstotal, 'course_comments': course_comments_filtered, 'comment_form': commentform}
+			context = {
+					'course_filt': coursefilter[0], 
+					'course_comment_count': course_commentstotal, 
+					'course_comments': course_comments_filtered, 
+					'comment_form': commentform, 
+					'section': 'l',
+					'page_count' : range(page_ct)
+					}
+			return render(request, 'reviewer/course.html', context)
+	else:
+		raise Http404("Course does not exist.")
+
+def coursecpage(request, csubj, cnum, catchar, cpage):
+
+	if (catchar == None):
+		catchar = "l"
+		cpage = 1
+
+	if (cpage == ""):
+		cpage = 1
+
+	cnum = int(cnum)
+	cpage = int(cpage)	
+
+	coursefilter = Course.objects.filter(code__iexact=csubj).filter(number__iexact=str(cnum))
+
+	page_ct_limit = 10
+
+	if (len(coursefilter) > 0):
+		if (cpage < 1):
+			cpage = 1
+
+		startindex = (cpage - 1)*10
+		le_range = 10
+		course_comments_filtered = coursefilter[0].comment_set.order_by('-date_posted')[startindex:startindex+le_range]
+		course_commentstotal = len(coursefilter[0].comment_set.order_by('-date_posted'))
+
+		page_ct = int(math.ceil(course_commentstotal/page_ct_limit))
+
+		if request.method == "POST":
+			data = request.POST
+			resultid = None 
+
+			if request.user.is_authenticated:
+				commentform = CommentForm(data, request.FILES)
+
+				# Add input validation
+				new_comment = Comment(course_attr=coursefilter[0], user_attr=request.user, body=data['body'], image=request.FILES.get('image', None))	
+				new_comment.save()
+				resultid = new_comment.id
+			else:
+				commentform = CommentFormDisabled(data, request.FILES)
+
+			redirect('coursecpage', csubj, cnum, 'c', 1)
+
+			data = {'commentid': resultid}
+			return HttpResponse( json.dumps(data) )
+		elif request.method == "DELETE":
+			comment_findid = int(request.body.decode("utf-8").split("-")[1])
+
+			delcom = Comment.objects.get(pk=comment_findid)
+			result = "Nice try."
+			if (request.user == delcom.user_attr):
+				delcom.delete()
+				result = "Delete successful."
+			return HttpResponse(result)
+		elif request.method == "GET":
+			if request.user.is_authenticated:
+				commentform = CommentForm()
+			else:
+				commentform = CommentFormDisabled()
+
+			context = {
+					'course_filt': coursefilter[0],
+					'course_comment_count': course_commentstotal,
+					'course_comments': course_comments_filtered,
+					'comment_form': commentform,
+					'section': catchar,
+					'page_count' : range(page_ct)
+					}
 			return render(request, 'reviewer/course.html', context)
 	else:
 		raise Http404("Course does not exist.")
