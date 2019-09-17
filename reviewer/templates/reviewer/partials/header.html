@@ -1,3 +1,4 @@
+{% load static %}
 <header class="d-flex navbar w-100 import-header position-fixed py-3">
 	<div class="container d-flex justify-content-between">
 		<a href="{% url 'index'%}" class="import-logo">
@@ -9,7 +10,16 @@
 			<span class="mx-3 my-auto d-none d-lg-block"><a href="{% url 'courselist' %}">Courses</a></span>
 			{% if user.is_authenticated %}
 				<span class="mx-3 my-auto d-none d-lg-block"><a href="{% url 'logout' %}">Logout</a></span>
-				<span class="mx-3 my-auto d-none d-lg-block"><a href="{% url 'user' user.username %}"><img class="user-pic mr-1" src="{{user.prof_pic.url}}"> {{user.username}}</a></span>
+				<span class="mx-3 my-auto d-none d-lg-block"><a href="{% url 'user' user.username %}">
+					<img class="user-pic mr-1" src="
+					{% if user.prof_pic %}
+						{{user.prof_pic.url}}
+					{% else %}
+						{% static 'reviewer/images/default_profile.png' %}
+					{% endif %}
+
+					">
+				{{user.username}}</a></span>
 
 			{% else %}
 				<span class="mx-3 my-auto d-none d-lg-block"><a href="{% url 'login' %}">Login</a></span>

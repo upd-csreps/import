@@ -13,6 +13,7 @@ class ImportUserAdmin(UserAdmin):
     fieldsets = (
 	(None, {'fields': ('username', 'password', 'exp', 'prof_pic', 'fave_lang')}),
 	('Personal Information', {'fields': ('first_name', 'middle_name','last_name', 'suffix', 'studentnum', 'email', 'course')}),
+    ('Privacy', {'fields': ('show_studentnum', 'show_email')}),
 	('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser')}),
 	)
 

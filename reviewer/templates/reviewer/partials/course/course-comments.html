@@ -1,0 +1,129 @@
+{% load static %}
+<div class="m-3 d-flex py-3">
+		<div class="ml-auto page-count-parent my-auto">
+			
+			{% if page_count > 1 %}
+
+				{% if cpage > 1 %} <a href="{% url 'course' course_filt.code|lower course_filt.number %}/c/1">{% endif %}
+					<button class="btn btn-sm btn-light d-inline-flex" {% if cpage <= 1 %} disabled {%endif%}>
+	  				<i class="material-icons material-icon-sm my-auto">
+						first_page
+					</i>
+	  			</button>
+	  		{% if cpage > 1 %}</a>{%endif%}
+
+	  		{% if cpage > 1 %}<a href="{% url 'course' course_filt.code|lower course_filt.number %}/c/{{prev_page}}">{% endif %}
+					<button class="btn btn-sm btn-light d-inline-flex"  {% if cpage <= 1 %} disabled {%endif%}>
+	  				<i class="material-icons material-icon-sm my-auto">
+						chevron_left
+					</i>
+	  			</button>
+	  		</a>
+
+	  		<span class="mx-3">Page {{cpage}}</span>
+
+	  		{% if cpage < page_count %}
+		  		<a href="{% url 'course' course_filt.code|lower course_filt.number %}/c/{{next_page}}"> {%endif%}
+  					<button class="btn btn-sm btn-light d-inline-flex" {% if cpage >= page_count %} disabled {%endif%}>
+		  				<i class="material-icons material-icon-sm my-auto">
+							chevron_right
+						</i>
+		  			</button>
+		  	{% if cpage < page_count %}	</a> {%endif%}
+	  				
+		  	{% if cpage < page_count %}	<a href="{% url 'course' course_filt.code|lower course_filt.number %}/c/{{page_count}}"> {%endif%}
+  					<button class="btn btn-sm btn-light d-inline-flex" {% if cpage >= page_count %} disabled {%endif%}>
+		  				<i class="material-icons material-icon-sm my-auto">
+							last_page
+						</i>
+		  			</button>
+		  	{% if cpage < page_count %}
+		  		</a>
+		  	{% endif %}
+		 {% endif %}
+				
+	</div>
+	<span class="ml-auto my-auto comme-count">{{ course_comment_count }} comment{% if course_comment_count != 1 %}s
+		{% endif %}</span>
+</div>
+
+
+<div class="row mx-0 pb-4">
+
+	<div class="col-lg-4">
+
+		{% if user.is_anonymous %}
+			<p>You must be logged in to comment.</p>
+		{% endif %}
+  		<form class="form-group comment-form pb-5" enctype="multipart/form-data" method="POST" action="{% url 'course' course_filt.code|lower course_filt.number %}/c/{{cpage}}" >
+			{% csrf_token %}
+
+			{{ comment_form.body }}
+
+			<div class="my-3 comment-image-upload d-none position-absolute">
+				{{ comment_form.image }}
+			</div>
+
+			<input class="btn btn-primary mt-3 ml-auto float-right {% if user.is_anonymous %} -disabled {% endif %} course-comment-submit" type="submit" value="Submit" >
+		</form>
+	</div>
+	<div class="col-lg-8 course-comments">
+		{% if course_comments.count == 0 %}
+			<p class="d-inline-flex">
+				<i class="material-icons my-auto">comment</i>
+				<span class="my-auto mx-3">
+					{% if user.is_authenticated %}
+						Be the first to comment!
+					{% else %}
+						There are no comments to display.
+					{% endif %}
+				</span>
+			</p>
+		{% else %}
+	  		{% for comment in course_comments %}
+				<div class="py-4 px-4 d-flex mb-3 comment" id="comment-{{comment.id}}">
+						<a href="{% url 'user' comment.user_attr.username %}">
+							<img class="user-pic-thumb" src="
+							{% if comment.user_attr.prof_pic %}
+								{{comment.user_attr.prof_pic.url}}
+							{% else %}
+								{% static 'reviewer/images/default_profile.png' %}
+							{% endif %}
+							">
+						</a>
+					
+					<div class="ml-4 w-100">
+						<div class="d-flex w-100 justify-content-between my-2">
+							<span class="my-auto">
+								<a href="{% url 'user' comment.user_attr.username %}" class="text-dark">
+									<strong>
+										{{comment.user_attr.username}}
+									</strong>
+								</a> 
+							</span>
+							<p class="my-auto">
+								<small class="d-inline-flex">
+									<span class="mr-3 my-auto">
+										<i class="material-icons material-icon-sm {% if user.is_authenticated %}comment-like{%endif%}">
+											star_border
+										</i> 
+										<span class="my-auto ml-1 mr-2 comment-like-count">{{ comment.likes_set.all.count }}</span>
+										{% if user == comment.user_attr %}
+											<i class="material-icons  material-icon-sm comment-delete">delete</i>
+										{% endif %}
+									</span>
+									{{comment.date_posted}}
+								</small>
+							</p>
+						</div>
+						<p>{{comment.body}}</p>
+						{% if comment.image %}
+							<img class="mt-3 d-block comment-image" src="{{comment.image.url}}">
+						{% endif %}
+					
+					</div>
+				</div>
+			{% endfor %}
+		{% endif %}
+	</div>
+</div>

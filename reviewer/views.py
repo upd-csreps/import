@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate,login
 
 from django.http import Http404, HttpResponse
 from django.contrib.auth import get_user_model
-from .models import Course, Announcement, ImportUser, Comment
+from .models import Course, Announcement, ImportUser, Comment, Likes
 from .forms import CourseForm, CommentForm, CommentFormDisabled, ImportUserCreationForm
 import math
 import json
@@ -21,7 +21,6 @@ def construction(request):
 	return render(request, 'reviewer/construction.html')
 
 def su(request):
-
 
 	courses = Course.objects.order_by('code', 'number_len', 'number')
 
@@ -63,62 +62,9 @@ def courselist(request):
 	return render(request, 'reviewer/course-list.html', context)
 
 def course(request, csubj, cnum):
+	return coursecpage( request, csubj, cnum, 'l', '1')
 
-	page_ct_limit = 10
-	coursefilter = Course.objects.filter(code__iexact=csubj).filter(number__iexact=str(cnum))
-
-	if (len(coursefilter) > 0):
-		course_comments_filtered = coursefilter[0].comment_set.order_by('-date_posted')[0:10]
-		course_commentstotal = len(coursefilter[0].comment_set.order_by('-date_posted'))
-
-		page_ct = int(math.ceil(course_commentstotal/page_ct_limit))
-	
-		if request.method == "POST":
-			data = request.POST
-			resultid = None 
-
-			if request.user.is_authenticated:
-				commentform = CommentForm(data, request.FILES)
-
-				# Add input validation
-				new_comment = Comment(course_attr=coursefilter[0], user_attr=request.user, body=data['body'], image=request.FILES.get('image', None))	
-				new_comment.save()
-				resultid = new_comment.id
-			else:
-				commentform = CommentFormDisabled(data, request.FILES)
-
-			redirect('course', csubj, cnum)
-
-			data = {'commentid': resultid}
-			return HttpResponse( json.dumps(data) )
-		elif request.method == "DELETE":
-			comment_findid = int(request.body.decode("utf-8").split("-")[1])
-
-			delcom = Comment.objects.get(pk=comment_findid)
-			result = "Nice try."
-			if (request.user == delcom.user_attr):
-				delcom.delete()
-				result = "Delete successful."
-			return HttpResponse(result)
-		elif request.method == "GET":
-			if request.user.is_authenticated:
-				commentform = CommentForm()
-			else:
-				commentform = CommentFormDisabled()
-
-			context = {
-					'course_filt': coursefilter[0], 
-					'course_comment_count': course_commentstotal, 
-					'course_comments': course_comments_filtered, 
-					'comment_form': commentform, 
-					'section': 'l',
-					'page_count' : range(page_ct)
-					}
-			return render(request, 'reviewer/course.html', context)
-	else:
-		raise Http404("Course does not exist.")
-
-def coursecpage(request, csubj, cnum, catchar, cpage):
+def coursecpage(request, csubj, cnum, catchar = 'l', cpage = 1):
 
 	if (catchar == None):
 		catchar = "l"
@@ -127,68 +73,149 @@ def coursecpage(request, csubj, cnum, catchar, cpage):
 	if (cpage == ""):
 		cpage = 1
 
-	cnum = int(cnum)
-	cpage = int(cpage)	
+	cpage = int(cpage)
+	page_ct_limit = 10	
 
 	coursefilter = Course.objects.filter(code__iexact=csubj).filter(number__iexact=str(cnum))
-
-	page_ct_limit = 10
 
 	if (len(coursefilter) > 0):
 		if (cpage < 1):
 			cpage = 1
 
-		startindex = (cpage - 1)*10
-		le_range = 10
-		course_comments_filtered = coursefilter[0].comment_set.order_by('-date_posted')[startindex:startindex+le_range]
+		startindex = (cpage - 1)*page_ct_limit
+		course_comments_filtered = coursefilter[0].comment_set.order_by('-date_posted')[startindex:startindex+page_ct_limit]
 		course_commentstotal = len(coursefilter[0].comment_set.order_by('-date_posted'))
 
 		page_ct = int(math.ceil(course_commentstotal/page_ct_limit))
 
-		if request.method == "POST":
-			data = request.POST
-			resultid = None 
+		if (cpage > page_ct):
+			return redirect('course', csubj, cnum)
 
-			if request.user.is_authenticated:
-				commentform = CommentForm(data, request.FILES)
+		else:
+			if request.method == "POST":
 
-				# Add input validation
-				new_comment = Comment(course_attr=coursefilter[0], user_attr=request.user, body=data['body'], image=request.FILES.get('image', None))	
-				new_comment.save()
-				resultid = new_comment.id
-			else:
-				commentform = CommentFormDisabled(data, request.FILES)
+				data = request.POST
+				resultid = None 
 
-			redirect('coursecpage', csubj, cnum, 'c', 1)
+				response = redirect('/course/'+csubj+'/'+ str(cnum) + '/c/1', csubj, cnum)
 
-			data = {'commentid': resultid}
-			return HttpResponse( json.dumps(data) )
-		elif request.method == "DELETE":
-			comment_findid = int(request.body.decode("utf-8").split("-")[1])
+				if request.user.is_authenticated:
+					commentform = CommentForm(data, request.FILES)
 
-			delcom = Comment.objects.get(pk=comment_findid)
-			result = "Nice try."
-			if (request.user == delcom.user_attr):
-				delcom.delete()
-				result = "Delete successful."
-			return HttpResponse(result)
-		elif request.method == "GET":
-			if request.user.is_authenticated:
-				commentform = CommentForm()
-			else:
-				commentform = CommentFormDisabled()
+					# Add input validation
+					new_comment = Comment(course_attr=coursefilter[0], user_attr=request.user, body=data['body'], image=request.FILES.get('image', None))	
+					new_comment.save()
+					resultid = new_comment.id
 
-			context = {
-					'course_filt': coursefilter[0],
-					'course_comment_count': course_commentstotal,
-					'course_comments': course_comments_filtered,
-					'comment_form': commentform,
-					'section': catchar,
-					'page_count' : range(page_ct)
-					}
-			return render(request, 'reviewer/course.html', context)
+					if cpage == 1:
+						data = {'commentid': resultid}
+						response = HttpResponse( json.dumps(data) )
+				else:
+					commentform = CommentFormDisabled(data, request.FILES)
+
+				return response
+
+			elif request.method == "DELETE":
+
+				comment_findid = int(request.body.decode("utf-8").split("-")[1])
+
+				delcom = Comment.objects.get(pk=comment_findid)
+				result = {}
+				if (request.user == delcom.user_attr):
+					delcom.delete()
+
+					try:
+						last_comment = coursefilter[0].comment_set.order_by('-date_posted')[startindex+page_ct_limit-1]
+
+						likedstat = last_comment.likes_set.filter(user_attr=request.user).exists()
+
+						if last_comment:
+							result = { 
+								'id': str(last_comment.id),
+								'user' : str(last_comment.user_attr.username),
+								'user_img' : str(last_comment.user_attr.prof_pic.url),
+								'body' : str(last_comment.body),
+								'date' : str(last_comment.date_posted),
+								'liked' : likedstat,
+								'like_ct' : len(last_comment.likes_set.all())
+							 }
+
+							if last_comment.image:
+								result["image-url"]	= str(last_comment.image.url)
+					except IndexError:
+						pass
+
+				return HttpResponse(json.dumps(result))
+
+			elif request.method == "GET":
+
+				liked_comments = []
+
+				if request.user.is_authenticated:
+					commentform = CommentForm()
+
+					user_likes = Likes.objects.filter(user_attr=request.user)
+
+					for i in user_likes:
+						liked_comments.append(int(i.comment.id))
+
+				else:
+					commentform = CommentFormDisabled()
+
+				context = {
+						'course_filt': coursefilter[0],
+						'course_comment_count': course_commentstotal,
+						'course_comments': course_comments_filtered,
+						'comment_form': commentform,
+						'liked_comments': str(liked_comments),
+						'section': catchar,
+						'page_count' : page_ct,
+						'cpage' : cpage,
+						'prev_page' : cpage-1,
+						'next_page' : cpage+1
+						}
+				return render(request, 'reviewer/course.html', context)
 	else:
 		raise Http404("Course does not exist.")
+
+
+
+def comment_like(request, csubj, cnum):
+
+	if request.method == "POST":
+
+		data = request.POST
+		resultid = None 
+
+		response = redirect('/course/'+csubj+'/'+ str(cnum) + '/c/1', csubj, cnum)
+
+		if request.user.is_authenticated:
+
+			comment_findid = int(request.body.decode("utf-8").split("-")[1])
+			comm_like = Comment.objects.get(pk=comment_findid)	
+
+			like_state = Likes.objects.filter(comment=comm_like, user_attr=request.user)
+
+			if like_state.exists():
+				like_state.delete()
+				like_state = False
+
+			else:
+				new_like = Likes(comment=comm_like, user_attr=request.user)	
+				new_like.save()
+				like_state = True
+
+			like_count_callback = {
+				'count': len(comm_like.likes_set.all()), 
+				'state': like_state
+			}
+
+			print(like_count_callback)
+
+			response = HttpResponse(json.dumps(like_count_callback))
+
+		return response
+
 
 def user(request, username):
 

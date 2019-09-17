@@ -31,10 +31,10 @@ class ImportUserCreationForm(UserCreationForm):
 
     class Meta(UserCreationForm):
         model = ImportUser
-        fields = ('username', 'first_name', 'last_name', 'suffix', 'studentnum', 'email', 'course', 'fave_lang')
+        fields = ('username', 'first_name', 'last_name', 'suffix', 'studentnum', 'show_studentnum', 'email', 'show_email', 'course', 'fave_lang')
 
 class ImportUserChangeForm(UserChangeForm):
 
     class Meta:
         model = ImportUser
-        fields = ('username', 'first_name', 'last_name', 'suffix', 'studentnum', 'email', 'course')
+        fields = ('username', 'first_name', 'last_name', 'suffix', 'studentnum', 'show_studentnum', 'email', 'show_email', 'course')

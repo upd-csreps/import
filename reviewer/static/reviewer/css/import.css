@@ -1,0 +1,171 @@
+
+/* Font Faces */
+/*@import url("../fonts/Avenir/avenir-font.css");*/
+@import url("../fonts/spacegrotesk/spacegrotesk.css");
+@import url("../fonts/material/material-icons.css");
+
+/* Main CSS */
+
+*:focus, input:focus{
+	outline: none !important;
+	box-shadow: none !important;
+}
+
+
+a:hover{
+	color: initial;
+	text-decoration: none;
+}
+
+html{
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	text-rendering: optimizeLegibility;
+}
+
+body{
+	font-size: 1em;
+}
+
+
+/* CSS ID and Classes */
+
+.noselect, i {
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
+}
+
+
+.container{
+	max-width: 1280px;
+}
+
+
+.site-container{
+	height: 100vh;
+}
+
+.site-content{
+	min-height: 93vh;
+}
+
+.device-full-height{
+	min-height: 100vh;
+}
+
+
+.material-icons{
+	margin: 0 auto;
+}
+
+.material-icon-sm{
+	font-size: 18px !important;
+}
+
+.btn{
+	border-radius: 30px;
+}
+
+.btn:hover, .btn:focus{
+	background-color: transparent !important;
+}
+
+
+.form-control{
+	border-radius: 1px;
+}
+
+/* Navbar */
+
+.import-header{
+	z-index: 99999;
+}
+
+
+.import-logo:hover{
+	opacity: 0.65;
+}
+
+.import-header .user-pic{
+	height: 30px;
+	width: 30px;
+}
+
+.user-pic{
+	height: 200px;
+	width: 200px;
+	border-radius: 100%
+}
+
+.user-pic-thumb{
+	height: 50px;
+	width: 50px;
+	border-radius: 100%
+}
+
+.comments::-webkit-scrollbar {
+	width: 8px;
+	background: transparent;
+}
+
+.comments::-webkit-scrollbar-thumb{
+	background-color: #efefef;
+	border-radius: 1px;
+}
+
+.lang-badge{
+	top: 150px;
+	background-color: white;
+	border-radius: 100%;
+	padding: 0.5em;
+}
+
+.nav-tabs .nav-link{
+	border-bottom: 0 solid transparent;
+}
+
+.comment-image{
+	max-height: 320px;
+	max-width:480px;
+}
+
+.comment-form textarea{
+	height: 100px;
+	resize: none;
+}
+
+.comment-form .comment-image-upload{
+	z-index: -2;
+}
+
+.title{
+	font-size: 4.5em;
+}
+
+.comment{
+	background-color: white;
+	transition: 2.1s ease-out;
+}
+
+.the-new-comment{
+	background-color: #ffffcc;
+}
+
+.-disabled{
+	opacity: 0.5;
+	pointer-events: none;
+}
+
+.comment-delete, .comment-reply,.comment-like{
+	cursor: pointer;
+}
+
+.comment-delete:hover , .comment-reply:hover, .comment-like:hover {
+	opacity: 0.65;
+}
+

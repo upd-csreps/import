@@ -44,11 +44,19 @@ class ImportUser(AbstractUser):
 	username = models.CharField("Username", max_length=30, primary_key=True)
 	first_name = models.CharField("First Name", max_length=30)
 	middle_name = models.CharField("Middle Name", max_length=30, null=True)
+
+
 	last_name = models.CharField("Last Name", max_length=30)
 	suffix = models.CharField("Suffix", max_length=10, blank=True, null=True)
 	#password = models.CharField("Password", max_length=160)
+
 	studentnum = models.PositiveIntegerField("Student Number", null=True)
+	show_studentnum = models.BooleanField("Show Student Number", default=True)
+
+
 	email = models.EmailField("E-mail", max_length=60)
+	show_email = models.BooleanField("Show E-mail", default=True)
+
 	course = models.CharField("Course/Degree Program", max_length=60)
 	
 	is_superuser = models.BooleanField("Is SuperUser?", default=False)
@@ -86,6 +94,14 @@ class Reply(models.Model):
 
 	def __str__(self):
 		return	'Reply to Comment #{} - {}, {}'.format(self.comment.id, self.id, self.course_attr, self.body[0:10])
+
+class Likes(models.Model):
+
+	comment = models.ForeignKey(Comment, on_delete=models.CASCADE)
+	user_attr = models.ForeignKey(ImportUser, on_delete=models.CASCADE)
+
+	def __str__(self):
+		return	'Likes to Comment #{} - {}'.format(self.comment.id, self.user_attr)
 
 
 class Announcement(models.Model):

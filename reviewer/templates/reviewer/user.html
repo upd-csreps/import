@@ -5,13 +5,20 @@
 	{{user_filt.username}}
 {% endblock %}
 
+{% load static %}
 {% block content %}
 	<div class="container pt-5">
 		<div class="row pt-5">
 			<div class="col-lg-4 d-flex">
 				<div class="mr-auto ml-lg-0 ml-auto d-flex flex-column">
 					<div class="mx-auto" >
-						<img class="user-pic" src="{{user_filt.prof_pic.url}}">
+						<img class="user-pic" src="
+						{% if user_filt.prof_pic %}
+							{{user_filt.prof_pic.url}}
+						{% else %}
+							{% static 'reviewer/images/default_profile.png' %}
+						{% endif %}
+						">
 						<div class="position-absolute lang-badge">
 							<img class="position-relative" src="{{comment.user_attr.fave_lang.image.url}}" style="max-height: 40px;">
 						</div>
@@ -35,11 +42,33 @@
 						<div class="col-6">
 							{% if user_filt.studentnum != None %}
 								<p class="font-weight-bold mb-1">Student Number</p>
-								<p>{{user_filt.studentnum}}</p>
+								<p>
+									{% if user_filt.show_studentnum %} 
+										{{user_filt.studentnum}}
+									{% else %}
+										<span class="text-muted">
+											<i class="material-icons material-icon-sm">
+												visibility_off
+											</i>
+											Hidden
+										</span>
+									{% endif %}
+									</p>
 							{% endif %}
 
 							<p class="font-weight-bold mb-1">E-mail</p>
-							<p>{{user_filt.email}}</p>
+							<p>
+								{% if user_filt.show_email %} 
+									{{user_filt.email}}
+								{% else %}
+									<span class="text-muted">
+										<i class="material-icons material-icon-sm">
+											visibility_off
+										</i>
+										Hidden
+									</span>
+								{% endif %}
+							</p>
 
 							{% if user_filt.course != None or user_filt.course != "" %}
 								<p class="font-weight-bold mb-1">Degree Program</p>
@@ -55,7 +84,14 @@
 				<div class="comments px-3" style="overflow-y: scroll; overflow-wrap: break-word; height: 65vh">
 					{% for comment in user_comments %}
 						<div class="py-4 px-4 d-flex mb-3 comment">
-							<img class="user-pic" src="{{user_filt.prof_pic.url}}" style="height: 50px;width:50px">
+							<img class="user-pic" src="
+							{% if user_filt.prof_pic %}
+								{{user_filt.prof_pic.url}}
+							{% else %}
+								{% static 'reviewer/images/default_profile.png' %}
+							{% endif %}
+
+							" style="height: 50px;width:50px">
 							<div class="ml-4" style="width:85%">
 								<div class="d-flex w-100 justify-content-between">
 									<span>
