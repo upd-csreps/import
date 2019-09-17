@@ -43,8 +43,11 @@
 		 {% endif %}
 				
 	</div>
-	<span class="ml-auto my-auto comme-count">{{ course_comment_count }} comment{% if course_comment_count != 1 %}s
+	<span class="ml-auto my-auto comme-count d-flex">
+		<i class="material-icons material-icon-sm my-auto mr-2">comment</i> 
+		<span class="my-auto">{{ course_comment_count }} comment{% if course_comment_count != 1 %}s
 		{% endif %}</span>
+	</span>
 </div>
 
 
@@ -62,9 +65,24 @@
 
 			<div class="my-3 comment-image-upload d-none position-absolute">
 				{{ comment_form.image }}
+
 			</div>
 
-			<input class="btn btn-primary mt-3 ml-auto float-right {% if user.is_anonymous %} -disabled {% endif %} course-comment-submit" type="submit" value="Submit" >
+			<div class="d-flex my-3">
+				<div class="mr-auto border-dashed comment-image-drag {% if user.is_authenticated %}comment-image-drag-enabled{%else%}-disabled{%endif%}" style="border-width: 1px">
+					<div class="addphoto-popper ml-2 p-3">
+						Add a photo
+					</div>
+					<i class="material-icons p-3">
+						add_a_photo
+					</i>
+				</div>
+
+
+				<div class="ml-auto my-auto">
+					<input class="btn btn-primary {% if user.is_anonymous %} -disabled {% endif %} course-comment-submit" type="submit" value="Submit" >
+				</div>
+			</div>
 		</form>
 	</div>
 	<div class="col-lg-8 course-comments">

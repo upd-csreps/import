@@ -43,6 +43,7 @@ body{
 
 .container{
 	max-width: 1280px;
+	transition: 0.15s ease-in-out;
 }
 
 
@@ -169,3 +170,37 @@ body{
 	opacity: 0.65;
 }
 
+.border-dashed{
+	border-style: dashed;
+}
+
+.comment-image-drag{
+	border-color: #999;
+	color: #999;
+	transition: 0.15s;
+	cursor: pointer;
+	background-size: cover;
+	background-position: center;
+	background-repeat: no-repeat;	 
+}
+
+.comment-image-uploaded-icon, .addphoto-popper{
+	opacity: 0;
+	transition: 0.15s;
+	z-index: -1;
+}
+
+.comment-image-drag-enabled:hover .addphoto-popper, .comment-image-drag-enabled:hover .comment-image-uploaded-icon{
+	opacity: 1;
+	z-index: 1;
+}
+
+.comment-image-drag-enabled:hover .addphoto-popper{
+	background: white;
+
+}
+
+.dragging{
+	border-width: 1.8px !important;
+	transition: 0.15s;
+}

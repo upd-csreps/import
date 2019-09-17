@@ -96,9 +96,42 @@
 {% endblock %}
 
 {% block scripts %}
-	<script>
+	<script class="d-none">
 		var request;
 		var coursect =  {{course_comment_count}};
+
+		 var timeoptions = {
+				    	year: 'numeric',
+				    	month: 'short',
+				    	day: 'numeric',
+				    	timeZone: "Asia/Manila",
+				    	hour12: true,
+				    	hour: "2-digit", 
+				    	minute: "2-digit"  
+			    	};
+
+		$(".comment-image-upload input").val("");
+
+
+		let dragIcon = $(".comment-image-drag");
+
+		function clearCommentImage(){
+			$(".comment-image-upload input").val("");
+			dragIcon.find(".material-icons").html("add_a_photo");
+			dragIcon.find(".material-icons").removeClass("comment-image-uploaded-icon");
+			dragIcon.css("background-image", "");
+			dragIcon.find(".addphoto-popper").html("Add a photo")
+		}
+
+
+		function hasImage(response){
+
+			returnval = ""; 
+			if (response.image)
+				returnval =  `<img class="mt-3 d-block comment-image" src="` + response.image +`">`;
+
+			return returnval;
+		}
 
 		function addCommentDisplay(response, datestring, bodystring){
 		
@@ -130,9 +163,8 @@
 							+ `</small>
 						</p>
 					</div>
-					<p>` + bodystring + `</p>
+					<p>` + bodystring + `</p>` + hasImage(response) +`
 					
-				
 				</div>
 			</div>`;
 
@@ -170,46 +202,35 @@
 				    }
 				    // setup some local variables
 				    var form = $(this);
-
-				    // Let's select and cache all the fields
-				    var inputs = form.find("input, select, button, textarea");
-
-				    // Serialize the data in the form
-				    var serializedData = form.serialize();
-
+				    var formData = new FormData(this);
+				   
 				    // Let's disable the inputs for the duration of the Ajax request.
 				    // Note: we disable elements AFTER the form data has been serialized.
 				    // Disabled form elements will not be serialized.
+				    var inputs = form.find("input, select, button, textarea");
 				    inputs.prop("disabled", true);
 
 				    // Fire off the request to url
-				    request = $.ajax({
-				        url: "{% url 'course' course_filt.code|lower course_filt.number %}",
-				        type: "post",
-				        data: serializedData
-				    });
+				    request =  $.ajax({
+	                type: 'post',
+	                url: "{% url 'course' course_filt.code|lower course_filt.number %}",
+	                data: formData,
+	                cache: false,
+	                contentType: false,
+	                processData: false,	
+	                });
 
 				    
 				     
 				    // Callback handler that will be called on success
 				    request.done(function (response, textStatus, jqXHR){
-				        // Log a message to the console
-
-				        var timeoptions = {
-					    	year: 'numeric',
-					    	month: 'short',
-					    	day: 'numeric',
-					    	timeZone: "Asia/Manila",
-					    	hour12: true,
-					    	hour: "2-digit", 
-					    	minute: "2-digit"  
-				    	}
 				    
 				    	response = JSON.parse(response);
 				        var today = new Date().toLocaleString('en-us' , timeoptions);
 				    	var commtent = $(".comment-text-area").val();
 				    	addCommentDisplay(response, today, commtent);
 				    	$(".comment-text-area").val("");
+				    	clearCommentImage();
 
 				    	$(".course-comments .comment:nth-of-type(11)").remove();
 				    });
@@ -259,8 +280,6 @@
 			    // Callback handler that will be called on success
 			    request.done(function (response, textStatus, jqXHR){
 
-			    	
-
 			        commentpass.remove();
 
 			        if (coursect > 0)
@@ -288,15 +307,7 @@
 
 					$(".comme-count").html(countvalml);	
 
-					 var timeoptions = {
-				    	year: 'numeric',
-				    	month: 'short',
-				    	day: 'numeric',
-				    	timeZone: "Asia/Manila",
-				    	hour12: true,
-				    	hour: "2-digit", 
-				    	minute: "2-digit"  
-			    	};
+					
 			    
 
 			    	response = JSON.parse(response);
@@ -350,7 +361,7 @@
 													</p>
 												</div>
 												<p>`+  response.body +`</p>
-											
+											` + hasImage(response) + `
 											</div>
 										</div>`)
 			    	}
@@ -424,12 +435,68 @@
 		            "The following error occurred: "+
 		            textStatus, errorThrown
 		        );
-		    });
-
-		 	
+		    });		 	
 		}); 
 
+		function updateImagePhoto(files){
+			$(".comment-image-drag-enabled").removeClass("dragging");
+			let reader = new FileReader();
+			
+			reader.onload = function(){
+				dragIcon.css("background-image", "url("+ reader.result +")");
+				dragIcon.find(".material-icons").html("close");
+				dragIcon.find(".material-icons").addClass("comment-image-uploaded-icon");	
+				dragIcon.find(".addphoto-popper").html("<small>" + files[0].name + "</small>")
+			}
+			reader.readAsDataURL(files[0])
+		}
 
+		$(".comment-image-drag-enabled").on("click", "" , function(){
+			if($(".comment-image-upload input").val() == ""){
+				$(".comment-image-upload input").click();
+			}
+			else{
+				clearCommentImage();
+			}
+		}); 
+
+		const upphoto = document.querySelector(".comment-image-upload input")
+		const upphoto_drag = document.querySelector(".comment-image-drag-enabled")
+
+		upphoto.addEventListener('change', function(e){ 
+			updateImagePhoto(upphoto.files);
+		})
+
+		document.addEventListener('dragover', function(e){
+			e.preventDefault();
+			e.stopPropagation();
+			$(".comment-image-drag-enabled").addClass("dragging");
+			dragIcon.find(".material-icons").html("mouse");
+		})
+
+		document.addEventListener('dragleave', function(e){
+			e.preventDefault();
+			e.stopPropagation();
+			$(".comment-image-drag-enabled").removeClass("dragging");
+			dragIcon.find(".material-icons").html("add_a_photo");
+		})		
+
+		upphoto_drag.addEventListener('drop', function(e){
+			e.preventDefault();
+			e.stopPropagation();
+			upphoto.files = e.dataTransfer.files
+			updateImagePhoto(upphoto.files)
+		})
+
+		var popper = new Popper($(".comment-image-drag"), $(".addphoto-popper"), {
+		    placement: 'right',
+		    modifiers:{
+
+		    	arrow:{
+		    		
+		    	}
+		    }
+		});
 
 	</script>
 {% endblock %}

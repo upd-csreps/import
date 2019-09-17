@@ -109,6 +109,8 @@ def coursecpage(request, csubj, cnum, catchar = 'l', cpage = 1):
 
 					if cpage == 1:
 						data = {'commentid': resultid}
+						if new_comment.image:
+							data['image'] =  new_comment.image.url
 						response = HttpResponse( json.dumps(data) )
 				else:
 					commentform = CommentFormDisabled(data, request.FILES)
@@ -141,7 +143,7 @@ def coursecpage(request, csubj, cnum, catchar = 'l', cpage = 1):
 							 }
 
 							if last_comment.image:
-								result["image-url"]	= str(last_comment.image.url)
+								result["image"]	= str(last_comment.image.url)
 					except IndexError:
 						pass
 
@@ -209,8 +211,6 @@ def comment_like(request, csubj, cnum):
 				'count': len(comm_like.likes_set.all()), 
 				'state': like_state
 			}
-
-			print(like_count_callback)
 
 			response = HttpResponse(json.dumps(like_count_callback))
 
