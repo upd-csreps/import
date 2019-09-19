@@ -1,0 +1,105 @@
+{% extends 'reviewer/base.html' %}
+
+
+{% block title %}
+	Course List
+{% endblock %}
+
+{% block content %}
+	<div class="container py-5 d-flex">
+		<div class="w-100 py-5">
+			<div class="d-flex justify-content-between">
+				<h1 class="mb-3">Course List</h1>
+
+				{% if user.is_superuser %}
+				<div class="d-inline-block">
+
+					<a href="#{% url 'course_add' %}">
+						<button  type="button" class="btn btn-light px-3 d-flex" data-toggle="modal" data-target="#exampleModal">
+							<div class="my-auto d-flex">
+								<i class="material-icons">
+									library_add
+								</i>
+								<span class="my-auto ml-1 d-none d-md-block">
+								Add Course</span>	
+							</div>
+						</button>
+					</a>
+				</div>
+				{% endif %}
+			</div>
+
+			<div class="row">
+				<div class="col-lg-8 course-list">
+					{% if course_count == 0 %}
+						<p>No courses available</p>
+					{% else %}
+						{% for course in courselist %}
+							{% if forloop.counter != 1 %}
+								<hr>
+							{%endif%}
+							<div class="py-3 d-flex justify-content-between">
+								<div class="my-auto">
+									<div class="d-inline-flex">
+										<div class="my-auto mr-3" style="height: 80px; width: 80px; background-color: #444; {% if course.image %}background-image: url('{{course.image.url}}''); {%endif%}">
+
+										</div>
+
+										<div class="my-auto mx-auto">
+											<h4>
+												{{course.name}} 
+												{% if course.old_curr == True %}
+													<i class="material-icons material-icon-sm text-danger">error_outline</i>
+												{% endif %}
+											</h4>
+											<h6>{{course.title}}</h6>
+										</div> 	
+									</div>
+								</div>
+
+								<a class="my-auto" href="{% url 'courselist' %}{{course.code | lower}}/{{course.number}}">
+									<button class="btn btn-primary btn-sm d-flex justify-content-center">
+											<span class="my-auto d-none d-md-block">Start</span><i class="material-icons my-auto mx-1" style="font-size: 1em">arrow_forward</i>
+									</button>
+								</a>
+							</div>
+						{% endfor %}
+					{% endif %}
+				</div>
+				<div class="col-lg-4 d-flex">
+					<div class="mx-auto mr-lg-0">
+						<div class="d-flex mb-3 ad-box">
+							<span class="m-auto text-light h1 font-weight-bold">ADS</span>
+						</div>
+
+						<div class="d-none d-lg-block">
+							<h4>Announcements</h4>
+							<p>No announcements to show.</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<div class="modal fade" id="exampleModal" tabindex="" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+	  <div class="modal-dialog" role="document">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	          <span aria-hidden="true">&times;</span>
+	        </button>
+	      </div>
+	      <div class="modal-body">
+	        ...
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+	        <button type="button" class="btn btn-primary">Save changes</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+{% endblock %}

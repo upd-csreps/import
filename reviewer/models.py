@@ -3,6 +3,10 @@ from django.utils import timezone
 from django.contrib.auth.models import AbstractUser
 
 # Create your models here.
+
+def course_uploadto(instance, filename):
+	return 'course/{0}-{1}/{2}'.format(instance.code, instance.number, filename)
+
 class Course(models.Model):
 	name = models.CharField("Course Name", max_length=20)
 	code = models.CharField("Course Code", max_length=10)
@@ -15,6 +19,8 @@ class Course(models.Model):
 	prereqs = models.ManyToManyField('self', blank=True, default=None, symmetrical=False, related_name="preq")
 	coreqs = models.ManyToManyField('self', blank=True, default=None,symmetrical=False , related_name="creq")
 	lastupdated = models.DateTimeField("Last Updated", default=timezone.now)
+
+	image = models.ImageField(verbose_name="Cover Photo", null=True, blank=True, upload_to=course_uploadto)
 
 	def __str__(self):
 		return	'{}'.format(self.name)
@@ -43,7 +49,7 @@ class ImportUser(AbstractUser):
 
 	username = models.CharField("Username", max_length=30, primary_key=True)
 	first_name = models.CharField("First Name", max_length=30)
-	middle_name = models.CharField("Middle Name", max_length=30, null=True)
+	middle_name = models.CharField("Middle Name", max_length=30, blank=True, null=True)
 
 
 	last_name = models.CharField("Last Name", max_length=30)
@@ -64,6 +70,8 @@ class ImportUser(AbstractUser):
 	prof_pic = models.ImageField(verbose_name="Profile Picture", null=True, blank=True, upload_to=user_uploadto)
 
 	fave_lang = models.ForeignKey(Language, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Favorite Language")
+
+	dark_mode = models.BooleanField("Dark Mode", default=False);
 
 	def __str__(self):
 		return	'{} - {}, {}'.format(self.username, self.last_name, self.first_name)

@@ -13,6 +13,10 @@
 
 	  	<link href="{% static 'reviewer/css/import.css' %}" rel="stylesheet"/>
 	  	<link href="{% static 'reviewer/css/import.less' %}" type="text/css" rel="stylesheet/less"/>
+	  	{% if user.dark_mode %}
+	  		<link href="{% static 'reviewer/css/import_dark.less' %}" type="text/css" rel="stylesheet/less"/>
+	  	{% endif %}
+
 	  	<script src="{% static 'reviewer/js/less.min.js'%}" type="text/javascript"></script>
 	  	{% block styles %}
 	  	{% endblock %}
@@ -33,7 +37,7 @@
 		<script src="{% static 'reviewer/js/popper.min.js' %}"></script>
 		<script src="{% static 'reviewer/js/bootstrap.min.js' %}"></script>
 		<script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
-
+		<script src="{% static 'reviewer/js/import_generic.js' %}"></script>
 		{% block scripts %}
 		{% endblock %}
 	</body>

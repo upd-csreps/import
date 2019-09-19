@@ -41,12 +41,6 @@ body{
 }
 
 
-.container{
-	max-width: 1280px;
-	transition: 0.15s ease-in-out;
-}
-
-
 .site-container{
 	height: 100vh;
 }
@@ -84,7 +78,7 @@ body{
 /* Navbar */
 
 .import-header{
-	z-index: 99999;
+	z-index: 99997;
 }
 
 
@@ -181,7 +175,9 @@ body{
 	cursor: pointer;
 	background-size: cover;
 	background-position: center;
-	background-repeat: no-repeat;	 
+	background-repeat: no-repeat;	
+	background-color: transparent;
+	padding: 0; 
 }
 
 .comment-image-uploaded-icon, .addphoto-popper{
@@ -196,11 +192,43 @@ body{
 }
 
 .comment-image-drag-enabled:hover .addphoto-popper{
-	background: white;
+	background-color: white;
 
+}
+
+.comment-username{
+	color: #2f2f2f;
 }
 
 .dragging{
 	border-width: 1.8px !important;
 	transition: 0.15s;
+}
+
+.ad-box{
+	height: 300px;
+	width: 300px;
+	background-color: #444;
+}
+
+
+.modal-backdrop{
+	z-index: 999998;
+}
+
+.modal{
+	z-index: 999999; 	
+}
+.modal-content{
+	border: 0;
+	border-radius: 0;
+}
+
+.link-ico{
+	opacity: 0.35;
+	font-size: 0.85em;
+}
+
+.import-ex-link:hover{
+	opacity: 0.75;
 }

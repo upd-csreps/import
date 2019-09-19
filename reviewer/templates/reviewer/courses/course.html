@@ -6,7 +6,6 @@
 	{{ course_filt.name }}
 {% endblock %}
 
-
 {% load static %}
 {% block content %}
 	<div class="container pt-5">
@@ -85,11 +84,15 @@
 			  </li>
 			</ul>
 			<div class="tab-content" id="import-tabcontents">
-			  <div class="tab-pane fade {% if section == 'l' %} show active{%endif%}" id="lessons" role="tabpanel" aria-labelledby="lessons-tab">...</div>
+			  <div class="tab-pane fade {% if section == 'l' %} show active{%endif%}" id="lessons" role="tabpanel" aria-labelledby="lessons-tab">
+			  	...
+			  </div>
 			  <div class="tab-pane fade {% if section == 'c' %} show active{%endif%}" id="comments" role="tabpanel" aria-labelledby="comments-tab">
 			  		{% include 'reviewer/partials/course/course-comments.html' %}
 			  </div>
-			  <div class="tab-pane fade {% if section == 'r' %} show active{%endif%}" id="ref" role="tabpanel" aria-labelledby="ref-tab">...</div>
+			  <div class="tab-pane fade {% if section == 'r' %} show active{%endif%}" id="ref" role="tabpanel" aria-labelledby="ref-tab">
+			  	...
+			  </div>
 			</div>
 		</div>
 	</div>
@@ -99,21 +102,44 @@
 	<script class="d-none">
 		var request;
 		var coursect =  {{course_comment_count}};
-
-		 var timeoptions = {
-				    	year: 'numeric',
-				    	month: 'short',
-				    	day: 'numeric',
-				    	timeZone: "Asia/Manila",
-				    	hour12: true,
-				    	hour: "2-digit", 
-				    	minute: "2-digit"  
-			    	};
-
-		$(".comment-image-upload input").val("");
-
-
 		let dragIcon = $(".comment-image-drag");
+
+		var timeoptions = {
+	    	year: 'numeric',
+	    	month: 'short',
+	    	day: 'numeric',
+	    	timeZone: "Asia/Manila",
+	    	hour12: true,
+	    	hour: "2-digit", 
+	    	minute: "2-digit"  
+    	};
+
+    	function initCourseSection(){
+    		// Clear comment image
+    		$(".comment-image-upload input").val("");
+
+    		// Visuals: Liked comments
+    		var commentvisual = {{liked_comments}};
+
+			for(i = 0; i < commentvisual.length; i++){
+				$("#comment-"+commentvisual[i]).find(".comment-like").html("star");
+				$("#comment-"+commentvisual[i]).find(".comment-like").addClass("liked");
+			}
+
+			// Image button Popup
+			var popper = new Popper($(".comment-image-drag"), $(".addphoto-popper"), {
+			    placement: 'right',
+			    modifiers:{
+
+			    	arrow:{
+			    		
+			    	}
+			    }
+			});
+    	}
+
+
+		// Comment Images
 
 		function clearCommentImage(){
 			$(".comment-image-upload input").val("");
@@ -124,14 +150,52 @@
 		}
 
 
-		function hasImage(response){
+		function hasImage(response, req){
 
 			returnval = ""; 
-			if (response.image)
-				returnval =  `<img class="mt-3 d-block comment-image" src="` + response.image +`">`;
+
+			if (req == "comment"){
+				if (response.image)
+					returnval =  `<img class="mt-3 d-block comment-image" src="` + response.image +`">`;
+			}
+			else if (req == "profile"){
+				if (response.user_img){
+					returnval =  response.user_img;
+				}
+				else{
+					returnval = "{% static 'reviewer/images/default_profile.png' %}";
+				}
+			}
 
 			return returnval;
 		}
+
+		function isFileImage(file) {
+		    return file && file['type'].split('/')[0] === 'image';
+		}
+
+		function updateImagePhoto(files){
+			$(".comment-image-drag-enabled").removeClass("dragging");
+			let reader = new FileReader();
+			
+			reader.onload = function(){
+
+				if (isFileImage(files[0])){
+					dragIcon.css("background-image", "url("+ reader.result +")");
+					dragIcon.find(".material-icons").html("close");
+					dragIcon.find(".material-icons").addClass("comment-image-uploaded-icon");	
+					dragIcon.find(".addphoto-popper").html("<small>" + files[0].name + "</small>")
+				}
+				else{
+					alert("Please upload an image file.");
+					clearCommentImage();
+				}
+			}
+			reader.readAsDataURL(files[0])
+		}
+
+
+		// Form AJAX
 
 		function addCommentDisplay(response, datestring, bodystring){
 		
@@ -163,7 +227,7 @@
 							+ `</small>
 						</p>
 					</div>
-					<p>` + bodystring + `</p>` + hasImage(response) +`
+					<p>` + replace_url(bodystring) + `</p>` + hasImage(response, "comment") +`
 					
 				</div>
 			</div>`;
@@ -228,6 +292,14 @@
 				    	response = JSON.parse(response);
 				        var today = new Date().toLocaleString('en-us' , timeoptions);
 				    	var commtent = $(".comment-text-area").val();
+				    	commtent =commtent.split("\n");
+
+				    	for (i = 0; i < commtent.length; i++){
+				    		commtent[i] = "<p>" + commtent[i] + "</p>";
+				    	}
+
+				    	commtent = commtent.join("");
+
 				    	addCommentDisplay(response, today, commtent);
 				    	$(".comment-text-area").val("");
 				    	clearCommentImage();
@@ -255,7 +327,6 @@
 		    	{% endif %}
 
 			});
-
 		{% endif %}
 
 		$(".course-comments").on("click", ".comment-delete" , function(){
@@ -307,8 +378,6 @@
 
 					$(".comme-count").html(countvalml);	
 
-					
-			    
 
 			    	response = JSON.parse(response);
 
@@ -316,9 +385,12 @@
 			    	if (jQuery.isEmptyObject(response) == false){
 
 			    		function delshow(){
+
+			    			retval = "";
 							if (response.user == "{{user.username}}"){
-								return `<i class="material-icons  material-icon-sm comment-delete">delete</i>`
+								retval = `<i class="material-icons  material-icon-sm comment-delete">delete</i>`
 							}
+							return retval;
 						};
 
 						function lkshow(a){
@@ -340,7 +412,7 @@
 						};
 
 						$(".course-comments").html($(".course-comments").html() + `<div class="py-4 px-4 d-flex mb-3 comment" id="comment-`+response.id + `">
-											<img class="user-pic-thumb" src="` + response.user_img + `">
+											<img class="user-pic-thumb" src="` + hasImage(response, "profile") + `">
 											<div class="ml-4 w-100">
 												<div class="d-flex w-100 justify-content-between my-2">
 													<span class="my-auto">
@@ -360,8 +432,8 @@
 														</small>
 													</p>
 												</div>
-												<p>`+  response.body +`</p>
-											` + hasImage(response) + `
+												<p>`+  replace_url(response.body) +`</p>
+											` + hasImage(response, "comment") + `
 											</div>
 										</div>`)
 			    	}
@@ -381,13 +453,6 @@
 		 	}
 		}); 
 
-
-		var commentvisual = {{liked_comments}};
-
-		for(i = 0; i < commentvisual.length; i++){
-			$("#comment-"+commentvisual[i]).find(".comment-like").html("star");
-			$("#comment-"+commentvisual[i]).find(".comment-like").addClass("liked");
-		}
 
 		$(".course-comments").on("click", ".comment-like" , function(){
 			let therf = document.getElementsByName('csrfmiddlewaretoken')[0].value
@@ -438,18 +503,10 @@
 		    });		 	
 		}); 
 
-		function updateImagePhoto(files){
-			$(".comment-image-drag-enabled").removeClass("dragging");
-			let reader = new FileReader();
-			
-			reader.onload = function(){
-				dragIcon.css("background-image", "url("+ reader.result +")");
-				dragIcon.find(".material-icons").html("close");
-				dragIcon.find(".material-icons").addClass("comment-image-uploaded-icon");	
-				dragIcon.find(".addphoto-popper").html("<small>" + files[0].name + "</small>")
-			}
-			reader.readAsDataURL(files[0])
-		}
+
+		// Image Button Events
+		const upphoto = document.querySelector(".comment-image-upload input")
+		const upphoto_drag = document.querySelector(".comment-image-drag-enabled")
 
 		$(".comment-image-drag-enabled").on("click", "" , function(){
 			if($(".comment-image-upload input").val() == ""){
@@ -459,9 +516,6 @@
 				clearCommentImage();
 			}
 		}); 
-
-		const upphoto = document.querySelector(".comment-image-upload input")
-		const upphoto_drag = document.querySelector(".comment-image-drag-enabled")
 
 		upphoto.addEventListener('change', function(e){ 
 			updateImagePhoto(upphoto.files);
@@ -484,19 +538,14 @@
 		upphoto_drag.addEventListener('drop', function(e){
 			e.preventDefault();
 			e.stopPropagation();
-			upphoto.files = e.dataTransfer.files
-			updateImagePhoto(upphoto.files)
+			if (isFileImage(e.dataTransfer.files)){
+				upphoto.files = e.dataTransfer.files
+				updateImagePhoto(upphoto.files)
+			}
 		})
 
-		var popper = new Popper($(".comment-image-drag"), $(".addphoto-popper"), {
-		    placement: 'right',
-		    modifiers:{
 
-		    	arrow:{
-		    		
-		    	}
-		    }
-		});
+		initCourseSection();
 
 	</script>
 {% endblock %}

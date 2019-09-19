@@ -17,13 +17,39 @@ class CourseForm(forms.Form):
 
 class CommentForm(forms.Form):
 
-	body = forms.CharField(max_length=150, widget=forms.Textarea(attrs={'class': 'form-control comment-text-area', 'placeholder' : 'Comment'}))
-	image = forms.ImageField(required=False)
+	
 	date_posted = datetime.datetime.now()
+
+	def __init__(self, *args, **kwargs):
+		self.request = kwargs.pop("request")
+		user = self.request.user
+		super(CommentForm, self).__init__(*args, **kwargs)
+
+		disabled = True
+
+		if user.is_anonymous:
+			attributes = {
+			'class': 'form-control -disabled', 
+			'placeholder' : 'You must be logged in to comment.', 
+			'readonly':'readonly'
+			}
+			
+		else:
+			attributes = { 
+			'class': 'form-control comment-text-area', 
+			'placeholder' : 'Comment'
+			}
+			disabled = False
+
+		self.fields['body'] = forms.CharField(max_length=150, widget=forms.Textarea(attrs=attributes))
+		self.fields['image'] = image = forms.ImageField(required=False, disabled=disabled)
+
+
+
 
 class CommentFormDisabled(forms.Form):
 
-	body = forms.CharField(max_length=150, widget=forms.Textarea(attrs={'class': 'form-control -disabled', 'placeholder' : 'Comment', 'readonly':'readonly'}), disabled=True)
+	body = forms.CharField(max_length=150, widget=forms.Textarea(attrs={'class': 'form-control -disabled', 'placeholder' : 'You must be logged in to comment.', 'readonly':'readonly'}), disabled=True)
 	image = forms.ImageField(required=False, disabled=True)
 	date_posted = datetime.datetime.now()
 
@@ -31,10 +57,10 @@ class ImportUserCreationForm(UserCreationForm):
 
     class Meta(UserCreationForm):
         model = ImportUser
-        fields = ('username', 'first_name', 'last_name', 'suffix', 'studentnum', 'show_studentnum', 'email', 'show_email', 'course', 'fave_lang')
+        fields = ('username', 'first_name', 'middle_name', 'last_name', 'suffix', 'studentnum', 'show_studentnum', 'email', 'show_email', 'course', 'fave_lang')
 
 class ImportUserChangeForm(UserChangeForm):
 
     class Meta:
         model = ImportUser
-        fields = ('username', 'first_name', 'last_name', 'suffix', 'studentnum', 'show_studentnum', 'email', 'show_email', 'course')
+        fields = ('username', 'first_name', 'middle_name', 'last_name', 'suffix', 'studentnum', 'show_studentnum', 'email', 'show_email', 'course', 'fave_lang', 'dark_mode')
