@@ -1,17 +1,7 @@
 
 	
-	 $(document).ready(function(){
-
-	   $('.comment-body').each(function(){
-
-	   		var content = $(this).html();
-	   		$(this).html(replace_url(content));
-
-	   })
-	   
-	});
-
-	  function replace_url(content){
+	
+	 function replace_url(content){
 
 	  	   let url_length = 40;
 
@@ -60,5 +50,35 @@
 
 		   });
 		   return new_content;
-	   }
+	 }
+
+	function headerEffect(){
+	 	var scroll = $(window).scrollTop();
+
+	    if (scroll < 15){
+	    	$(".import-header").removeClass("import-header-scrolled");
+	    }
+	    else{
+	    	$(".import-header").addClass("import-header-scrolled");
+	    }
+
+	}
+
+	$(document).ready(function(){
+
+	   $('.comment-body').each(function(){
+
+	   		var content = $(this).html();
+	   		$(this).html(replace_url(content));
+
+	   });
+
+	   headerEffect;
+	   
+	});
+
+	$(window).scroll(function (event) {
+	   headerEffect();
+	    
+	});
 	

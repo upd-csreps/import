@@ -1,30 +1,33 @@
 {% load static %}
-<header class="d-flex navbar w-100 import-header position-fixed py-3">
-	<div class="container d-flex justify-content-between">
+<header class="d-flex navbar import-header position-fixed py-3">
+	<div class="container d-flex justify-content-between py-2">
 		<a href="{% url 'index'%}" class="import-logo">
 			<div class="noselect">
-				<h2 class="h2" ><strong>import <span class="import-font-primary"><sup>*</sup></span></strong></h2>
+				<h2 class="h2 mb-0" ><strong>import <span class="import-font-primary"><sup>*</sup></span></strong></h2>
 			</div>
 		</a>
 		<nav class="d-flex">
 			<span class="mx-3 my-auto d-none d-lg-block"><a href="{% url 'courselist' %}">Courses</a></span>
 			{% if user.is_authenticated %}
 				<span class="mx-3 my-auto d-none d-lg-block"><a href="{% url 'logout' %}">Logout</a></span>
-				<span class="mx-3 my-auto d-none d-lg-block"><a href="{% url 'user' user.username %}">
-					<img class="user-pic mr-1" src="
-					{% if user.prof_pic %}
-						{{user.prof_pic.url}}
-					{% else %}
-						{% static 'reviewer/images/default_profile.png' %}
-					{% endif %}
+				<div class="mx-3 my-auto d-none d-lg-block">
+					<a class="d-flex" href="{% url 'user' user.username %}">
+						<img class="user-pic mr-2 my-auto" src="
+						{% if user.prof_pic %}
+							{{user.prof_pic.url}}
+						{% else %}
+							{% static 'reviewer/images/default_profile.png' %}
+						{% endif %}
 
-					">
-				{{user.username}}</a></span>
+						">
+						<span class="my-auto">{{user.username}}</span>
+					</a>
+				</div>
 
 			{% else %}
 				<span class="mx-3 my-auto d-none d-lg-block"><a href="{% url 'login' %}">Login</a></span>
 			{% endif %}
-			<i class="material-icons mx-3 mr-lg-0">search</i>
+			<i class="material-icons mx-3 mr-lg-0 my-auto">search</i>
 			<i class="material-icons my-auto d-block d-lg-none">menu</i>
 		</nav>
 	</div>

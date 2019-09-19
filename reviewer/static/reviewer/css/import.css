@@ -43,7 +43,9 @@ body{
 
 .site-container{
 	height: 100vh;
+	width: 100vw;
 }
+
 
 .site-content{
 	min-height: 93vh;
@@ -79,6 +81,9 @@ body{
 
 .import-header{
 	z-index: 99997;
+	transition: 0.35s ease-in-out;
+	border-color: transparent;
+	width: 100%;
 }
 
 
@@ -231,4 +236,19 @@ body{
 
 .import-ex-link:hover{
 	opacity: 0.75;
+}
+
+.import-header-scrolled .container{
+ 
+}
+
+.form-control{
+	border-color: #dcdcdc;
+	box-shadow: none;
+	outline: 0;
+}
+
+.modal-open { 
+	overflow-y: auto; 
+	padding-right: 0 !important;
 }
