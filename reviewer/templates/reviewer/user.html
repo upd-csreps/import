@@ -84,14 +84,14 @@
 				<div class="comments px-3" style="overflow-y: scroll; overflow-wrap: break-word; height: 65vh">
 					{% for comment in user_comments %}
 						<div class="py-4 px-4 d-flex mb-3 comment">
-							<img class="user-pic" src="
+							<img class="user-pic-thumb" src="
 							{% if user_filt.prof_pic %}
 								{{user_filt.prof_pic.url}}
 							{% else %}
 								{% static 'reviewer/images/default_profile.png' %}
 							{% endif %}
 
-							" style="height: 50px;width:50px">
+							">
 							<div class="ml-4" style="width:85%">
 								<div class="d-flex w-100 justify-content-between">
 									<span>
@@ -104,7 +104,9 @@
 									</span>
 									<p><small>{{comment.date_posted}}</small></p>
 								</div>
-								<p>{{comment.body}}</p>
+								<div class="comment-body">
+									{{comment.body| linebreaks}}
+								</div>
 								{% if comment.image %}
 									<img class="mt-3 d-block comment-image "src="{{comment.image.url}}">
 								{% endif %}

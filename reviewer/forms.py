@@ -1,22 +1,35 @@
 from django import forms
 import datetime
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
-from .models import ImportUser
+from .models import ImportUser, Course
+
 
 # Copy from models.py
 class CourseForm(forms.Form):
 
-	name = forms.CharField(max_length=20, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder' : 'Course Code & No.'}))
+	query = Course.objects.order_by('code', 'number_len', 'number')
+
+	name = forms.CharField(max_length=20, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder' : 'ex. CS 11'}))
 	code = forms.CharField(max_length=10)
 	number = forms.CharField(max_length=10)
-	title = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder' : 'Title'}))
-	description = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder' : 'Description'}), required=False)
+	title = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder' : 'ex. Computer Programming I'}))
+	description = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder' : '', 'rows': 4}), required=False)
 	old_curr = forms.BooleanField(widget=forms.CheckboxInput(attrs={ 'class': 'form-check-input' }), required=False, initial=False)
 	visible = forms.BooleanField(widget=forms.CheckboxInput(attrs={ 'class': 'form-check-input' }), required=False, initial=True)
 	lastupdated = datetime.datetime.now()
+	image = forms.ImageField(required=False)
+	prereq = forms.ModelMultipleChoiceField(
+		widget = forms.CheckboxSelectMultiple(),
+        queryset = query,
+        required = False
+	)
+	coreq = forms.ModelMultipleChoiceField(
+		widget = forms.CheckboxSelectMultiple(),
+        queryset = query,
+        required = False
+	)
 
 class CommentForm(forms.Form):
-
 	
 	date_posted = datetime.datetime.now()
 
@@ -42,16 +55,8 @@ class CommentForm(forms.Form):
 			disabled = False
 
 		self.fields['body'] = forms.CharField(max_length=150, widget=forms.Textarea(attrs=attributes))
-		self.fields['image'] = image = forms.ImageField(required=False, disabled=disabled)
+		self.fields['image'] = forms.ImageField(required=False, disabled=disabled)
 
-
-
-
-class CommentFormDisabled(forms.Form):
-
-	body = forms.CharField(max_length=150, widget=forms.Textarea(attrs={'class': 'form-control -disabled', 'placeholder' : 'You must be logged in to comment.', 'readonly':'readonly'}), disabled=True)
-	image = forms.ImageField(required=False, disabled=True)
-	date_posted = datetime.datetime.now()
 
 class ImportUserCreationForm(UserCreationForm):
 

@@ -33,6 +33,29 @@
 			{% endblock %}
 		</div>
 
+		{% block modal %}
+			<div class="modal fade" id="importModal" tabindex="" role="dialog" aria-labelledby="importModalLabel" aria-hidden="true">
+			  <div class="modal-dialog modal-lg" role="document">
+			    <div class="modal-content">
+			      <div class="modal-header">
+			        <h5 class="modal-title" id="importModalLabel"></h5>
+			        <button type="button" class="close d-flex" data-dismiss="modal" aria-label="Close">
+			          <span aria-hidden="true" class="my-auto">
+			          	<i class="material-icons mt-1">
+							clear
+						</i>
+			          </span>
+			        </button>
+			      </div>
+			      <div class="modal-body px-3">
+			      
+			      </div>
+			    </div>
+			  </div>
+			</div>
+
+		{% endblock %}
+
 		<script src="{% static 'reviewer/js/jquery-3.4.0.min.js' %}"></script>
 		<script src="{% static 'reviewer/js/popper.min.js' %}"></script>
 		<script src="{% static 'reviewer/js/bootstrap.min.js' %}"></script>

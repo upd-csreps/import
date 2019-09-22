@@ -173,7 +173,7 @@ body{
 	border-style: dashed;
 }
 
-.comment-image-drag{
+.import-image-drag{
 	border-color: #999;
 	color: #999;
 	transition: 0.15s;
@@ -185,19 +185,19 @@ body{
 	padding: 0; 
 }
 
-.comment-image-uploaded-icon, .addphoto-popper{
+.import-image-uploaded-icon, .addphoto-popper{
 	opacity: 0;
 	transition: 0.15s;
 	z-index: -1;
 }
 
-.comment-image-drag-enabled:hover .addphoto-popper, .comment-image-drag-enabled:hover .comment-image-uploaded-icon{
+.import-image-drag-enabled:hover .addphoto-popper, .import-image-drag-enabled:hover .import-image-uploaded-icon{
 	opacity: 1;
 	z-index: 1;
 }
 
-.comment-image-drag-enabled:hover .addphoto-popper{
-	background-color: white;
+.import-image-drag-enabled:hover .addphoto-popper{
+	background-color: #fefefe;
 
 }
 
@@ -251,4 +251,10 @@ body{
 .modal-open { 
 	overflow-y: auto; 
 	padding-right: 0 !important;
+}
+
+.course-thumb{
+	height: 80px; width: 80px; background-color: #444; 
+	background-size: cover;
+	background-position: center;
 }

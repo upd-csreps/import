@@ -32,40 +32,57 @@
 								</div>
 							</div>
 						</div>
-						<div class="mt-1">
-							<p>{{course_filt.description}}</p>
-							<small>
-								<div class="mb-1">
-									<span>Prerequisites:</span>
-									<div class="d-inline-flex align-items-start">
-										{% if course_filt.prereqs.count > 0 %}
-											{% for prereq in course_filt.prereqs.all %}
-												{% if forloop.counter != 1 %},{%endif%}
-												<a href="{% url 'course' prereq.code|lower prereq.number %}">
-													{{ prereq.name }}
-												</a>
-											{% endfor %}
-										{% else %}
-											None
-										{% endif %}
+						<div class="mt-1 d-flex">
+							<div class="d-flex flex-column">
+
+								<p>{{course_filt.description}}</p>
+								<small>
+									<div class="mb-1">
+										<span>Prerequisites:</span>
+										<div class="d-inline-flex align-items-start">
+											{% if course_filt.prereqs.count > 0 %}
+												{% for prereq in course_filt.prereqs.all %}
+													{% if forloop.counter != 1 %}<span class="mr-1">,</span>{%endif%}
+													<a href="{% url 'course' prereq.code|lower prereq.number %}">
+														{{ prereq.name }}
+													</a>
+												{% endfor %}
+											{% else %}
+												None
+											{% endif %}
+										</div>
 									</div>
-								</div>
-								<div>
-									<span>Corequisites:</span>
-									<div class="d-inline-flex align-items-start">
-										{% if course_filt.coreqs.count > 0 %}
-											{% for coreq in course_filt.coreqs.all %}
-												{% if forloop.counter != 1 %},{%endif%}
-												<a href="{% url 'course' coreq.code|lower coreq.number %}">
-													{{ coreq.name }}
-												</a>
-											{% endfor %}
-										{% else %}
-											None
-										{% endif %}
+									<div>
+										<span>Corequisites:</span>
+										<div class="d-inline-flex align-items-start">
+											{% if course_filt.coreqs.count > 0 %}
+												{% for coreq in course_filt.coreqs.all %}
+													{% if forloop.counter != 1 %}<span class="mr-1">,</span>{%endif%}
+													<a href="{% url 'course' coreq.code|lower coreq.number %}">
+														{{ coreq.name }}
+													</a>
+												{% endfor %}
+											{% else %}
+												None
+											{% endif %}
+										</div>
 									</div>
+								</small>
+							</div>
+
+							{% if  user.is_superuser %}
+								<div class="ml-auto mt-auto">
+									<button  type="button" class="btn btn-light px-3 d-flex" data-toggle="modal" data-target="#importModal">
+										<div class="my-auto d-flex">
+											<i class="material-icons">
+												edit
+											</i>
+											<span class="my-auto ml-1 d-none d-md-block">
+											Edit Course</span>	
+										</div>
+									</button>
 								</div>
-							</small>
+							{% endif %}
 						</div>
 					</div>
 				</div>
@@ -100,9 +117,7 @@
 
 {% block scripts %}
 	<script class="d-none">
-		var request;
 		var coursect =  {{course_comment_count}};
-		let dragIcon = $(".comment-image-drag");
 
 		var timeoptions = {
 	    	year: 'numeric',
@@ -114,85 +129,6 @@
 	    	minute: "2-digit"  
     	};
 
-    	function initCourseSection(){
-    		// Clear comment image
-    		$(".comment-image-upload input").val("");
-
-    		// Visuals: Liked comments
-    		var commentvisual = {{liked_comments}};
-
-			for(i = 0; i < commentvisual.length; i++){
-				$("#comment-"+commentvisual[i]).find(".comment-like").html("star");
-				$("#comment-"+commentvisual[i]).find(".comment-like").addClass("liked");
-			}
-
-			// Image button Popup
-			var popper = new Popper($(".comment-image-drag"), $(".addphoto-popper"), {
-			    placement: 'right',
-			    modifiers:{
-
-			    	arrow:{
-			    		
-			    	}
-			    }
-			});
-    	}
-
-
-		// Comment Images
-
-		function clearCommentImage(){
-			$(".comment-image-upload input").val("");
-			dragIcon.find(".material-icons").html("add_a_photo");
-			dragIcon.find(".material-icons").removeClass("comment-image-uploaded-icon");
-			dragIcon.css("background-image", "");
-			dragIcon.find(".addphoto-popper").html("Add a photo")
-		}
-
-
-		function hasImage(response, req){
-
-			returnval = ""; 
-
-			if (req == "comment"){
-				if (response.image)
-					returnval =  `<img class="mt-3 d-block comment-image" src="` + response.image +`">`;
-			}
-			else if (req == "profile"){
-				if (response.user_img){
-					returnval =  response.user_img;
-				}
-				else{
-					returnval = "{% static 'reviewer/images/default_profile.png' %}";
-				}
-			}
-
-			return returnval;
-		}
-
-		function isFileImage(file) {
-		    return file && file['type'].split('/')[0] === 'image';
-		}
-
-		function updateImagePhoto(files){
-			$(".comment-image-drag-enabled").removeClass("dragging");
-			let reader = new FileReader();
-			
-			reader.onload = function(){
-
-				if (isFileImage(files[0])){
-					dragIcon.css("background-image", "url("+ reader.result +")");
-					dragIcon.find(".material-icons").html("close");
-					dragIcon.find(".material-icons").addClass("comment-image-uploaded-icon");	
-					dragIcon.find(".addphoto-popper").html("<small>" + files[0].name + "</small>")
-				}
-				else{
-					alert("Please upload an image file.");
-					clearCommentImage();
-				}
-			}
-			reader.readAsDataURL(files[0])
-		}
 
 
 		// Form AJAX
@@ -302,7 +238,7 @@
 
 				    	addCommentDisplay(response, today, commtent);
 				    	$(".comment-text-area").val("");
-				    	clearCommentImage();
+				    	clearImage("comment-image-upload", document.querySelector(".import-image-drag"));
 
 				    	$(".course-comments .comment:nth-of-type(11)").remove();
 				    });
@@ -504,45 +440,37 @@
 		}); 
 
 
-		// Image Button Events
-		const upphoto = document.querySelector(".comment-image-upload input")
-		const upphoto_drag = document.querySelector(".comment-image-drag-enabled")
+		
 
-		$(".comment-image-drag-enabled").on("click", "" , function(){
-			if($(".comment-image-upload input").val() == ""){
-				$(".comment-image-upload input").click();
+		function initCourseSection(){
+    		// Clear input image
+    		$(".comment-image-upload input").val("");
+
+    		var image_drops = document.querySelectorAll(".import-image-drag");
+    		for (i = 0; i < image_drops.length; i++){
+    			clearImage(image_drops[i].getAttribute("data-file-target"),image_drops[i])
+    		}
+
+    		// Visuals: Liked comments
+    		var commentvisual = {{liked_comments}};
+
+			for(i = 0; i < commentvisual.length; i++){
+				$("#comment-"+commentvisual[i]).find(".comment-like").html("star");
+				$("#comment-"+commentvisual[i]).find(".comment-like").addClass("liked");
 			}
-			else{
-				clearCommentImage();
-			}
-		}); 
 
-		upphoto.addEventListener('change', function(e){ 
-			updateImagePhoto(upphoto.files);
-		})
+			// Image button Popup
+			var popper = new Popper($(".import-image-drag"), $(".addphoto-popper"), {
+			    placement: 'right',
+			    modifiers:{
 
-		document.addEventListener('dragover', function(e){
-			e.preventDefault();
-			e.stopPropagation();
-			$(".comment-image-drag-enabled").addClass("dragging");
-			dragIcon.find(".material-icons").html("mouse");
-		})
+			    	arrow:{
+			    		
+			    	}
+			    }
+			});
+    	}
 
-		document.addEventListener('dragleave', function(e){
-			e.preventDefault();
-			e.stopPropagation();
-			$(".comment-image-drag-enabled").removeClass("dragging");
-			dragIcon.find(".material-icons").html("add_a_photo");
-		})		
-
-		upphoto_drag.addEventListener('drop', function(e){
-			e.preventDefault();
-			e.stopPropagation();
-			if (isFileImage(e.dataTransfer.files)){
-				upphoto.files = e.dataTransfer.files
-				updateImagePhoto(upphoto.files)
-			}
-		})
 
 
 		initCourseSection();

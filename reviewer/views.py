@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate,login
 from django.http import Http404, HttpResponse
 from django.contrib.auth import get_user_model
 from .models import Course, Announcement, ImportUser, Comment, Likes
-from .forms import CourseForm, CommentForm, CommentFormDisabled, ImportUserCreationForm
+from .forms import CourseForm, CommentForm, ImportUserCreationForm
 import math
 import json
 
@@ -20,41 +20,69 @@ def index(request):
 def construction(request):
 	return render(request, 'reviewer/construction.html')
 
-def course_add(request):
+def admin_course(request, purpose):
+	return admin_get_course(request, purpose, False)
+
+def admin_get_course(request, purpose, ajax=True):
+
 
 	if request.user.is_superuser:
 		
+		if purpose == "add":
 
-		if request.method == "POST":
-			data = request.POST
-			courseform = CourseForm(data)
+			if request.method == "POST":
+				data = request.POST
+				courseform = CourseForm(data)
 
-			tempname = data['name']
-			coursefulln = tempname.split(" ")
-			tempnum = coursefulln[len(coursefulln)-1]
-			tempcode = ' '.join(coursefulln[:-(len(coursefulln)-1)])
-			temp_oldcurr = data.get('old_curr', False)
-			temp_visible = data.get('visible', True)
+				tempname = data['name']
+				coursefulln = tempname.split(" ")
+				tempnum = coursefulln[len(coursefulln)-1]
+				tempcode = ' '.join(coursefulln[:-(len(coursefulln)-1)])
 
-			if temp_oldcurr == 'on':
-				temp_oldcurr = True
-			if temp_visible == 'on':
-				temp_visible = True
+				if tempnum.isnumeric():
+					temp_oldcurr = data.get('old_curr', False)
+					temp_visible = data.get('visible', True)
+
+					if temp_oldcurr == 'on':
+						temp_oldcurr = True
+					if temp_visible == 'on':
+						temp_visible = True
+					
+					prereq_list = data.getlist('prereq')
+					coreq_list = data.getlist('coreq')
+
+					# Add input validation
+					new_course = Course(
+						name=data['name'],
+						code=tempcode, 
+						number=tempnum, 
+						title=data['title'], 
+						description=data['description'], 
+						old_curr=temp_oldcurr, 
+						visible=temp_visible,
+						image=request.FILES.get('image', None)
+						)	
+
+					new_course.save()
+					new_course.prereqs.set(Course.objects.filter(id__in=prereq_list))
+					new_course.coreqs.set(Course.objects.filter(id__in=coreq_list))
+
+					return redirect('course', tempcode.lower(), tempnum)
+				else:
+					return redirect('course', tempcode.lower(), tempnum)
+			else:
+				courselist = Course.objects.filter(visible=True).order_by('code', 'number_len', 'number')
+
+				courseform = CourseForm()
 			
-			# Add input validation
-			new_course = Course(name=data['name'], code=tempcode, number=tempnum, title=data['title'], description=data['description'], old_curr=temp_oldcurr, visible=temp_visible)	
+			context = {'courseform': courseform, 'title': "Add Course", 'courses': courselist}
 
-			new_course.save()
-			return redirect('course_add')
-		else:
-			courseform = CourseForm()
-		
-		context = {'courseform': courseform}
-
-
-		return render(request, 'reviewer/admin.html', context)
+			if ajax == True:
+				return render(request, 'reviewer/courses/course_add.html', context)
+			else:	
+				return render(request, 'reviewer/admin.html', context)
 	else:
-		return
+		raise Http404("You do not have enough permission for this page")
 
 
 def courselist(request):
@@ -91,7 +119,7 @@ def coursecpage(request, csubj, cnum, catchar = 'l', cpage = 1):
 
 		page_ct = int(math.ceil(course_commentstotal/page_ct_limit))
 
-		if (cpage > page_ct):
+		if (cpage > page_ct and page_ct != 0):
 			return redirect('course', csubj, cnum)
 
 		else:
@@ -181,7 +209,7 @@ def coursecpage(request, csubj, cnum, catchar = 'l', cpage = 1):
 						}
 				return render(request, 'reviewer/courses/course.html', context)
 	else:
-		raise Http404("You do not have enough permission for this page")
+		raise Http404("Course not found.")
 
 
 

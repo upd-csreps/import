@@ -61,11 +61,10 @@
 
 			<div class="my-3 comment-image-upload d-none position-absolute">
 				{{ comment_form.image }}
-
 			</div>
 
 			<div class="d-flex my-3">
-				<button class="mr-auto border-dashed comment-image-drag {% if user.is_authenticated %}comment-image-drag-enabled{%else%}-disabled{%endif%}" style="border-width: 1px" type="button">
+				<button class="mr-auto border-dashed import-image-drag {% if user.is_authenticated %}import-image-drag-enabled{%else%}-disabled{%endif%}" data-file-target="comment-image-upload" style="border-width: 1px" type="button">
 					{% if user.is_authenticated %}
 						<div class="addphoto-popper ml-2 p-3">
 							Add a photo
