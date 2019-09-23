@@ -3,12 +3,26 @@
 		<i class="material-icons my-auto mr-2 import-font-primary" style="font-size: inherit;">
 			library_add
 		</i>
-		<span class="my-auto">Add Course</span>
+		<span class="my-auto">{{title}}</span>
 	</span>
 </h1>
 
-<div class="d-flex flex-column p-3">
-	<form class="form-group" method="POST" action="{% url 'admin_course' 'add' %}" enctype="multipart/form-data">
+{% if error %}
+	<div class="w-100 alert-danger p-3 d-flex">
+		<i class="material-icons mr-3 my-auto ml-0">
+		error_outline
+		</i>
+		<span class="my-auto">{{error}}</span>
+	</div>
+{% endif %}
+<div class="d-flex flex-column p-3 pb-0">
+	<form class="form-group mb-0" method="POST" action="
+		{% if title == 'Add Course' %}
+			{% url 'admin_course' 'add' %}
+		{% else %}
+			{% url 'admin_course_id' 'edit' course_subj course_num %}
+		{% endif %}
+		" enctype="multipart/form-data">
 		{% csrf_token %}
 
 		<div class="row">
@@ -64,12 +78,14 @@
 						<span class="my-auto mr-3">
 						Old Course?
 						</span> 
-						<span class="my-auto d-none position-absolute">
+						<span class="my-auto d-none position-absolute old-curr-val">
 							{{ courseform.old_curr }}
 						</span>
-						<i class="material-icons my-auto">
-							check_box
+
+						<i class="material-icons my-auto togglable {% if courseform.old_curr.value %}active-button{% endif %}" onclick="$('.old-curr-val input').click()">
+							check_box{% if not courseform.old_curr.value %}_outline_blank{% endif %}
 						</i>
+					
 						
 					</div>
 				</div>
@@ -78,12 +94,12 @@
 				<div class="form-group">
 					<p class="d-inline-flex">
 						<span class="mr-3 my-auto">Visibility</span> 
-						<span class="d-none position-absolute my-auto">
+						<span class="d-none position-absolute my-auto course-vis-val">
 							{{ courseform.visible }}
 						</span>
-						<a href="#"><i class="material-icons my-auto">
-							visibility
-						</i></a>
+						<i class="material-icons my-auto togglable {% if courseform.visible.value %}active-button{% endif %}" onclick="$('.course-vis-val input').click()">
+							visibility{% if not courseform.visible.value %}_off{%endif%}
+						</i>
 
 					</p>
 				</div>
@@ -95,7 +111,9 @@
 			<div class="mx-auto w-100">
 				<h4>Prequisites and Corequisites</h4>
 
-				<table class="table">
+				<button class="btn btn-primary d-flex" type="button" onclick="$('table').fadeToggle()"><i class="material-icons material-icon-sm my-auto mr-2">library_books</i> <span class="my-auto">Toggle prerequisites/corequisites</span></button>
+
+				<table class="table mt-3" style="display: none">
 				  <thead>
 				    <tr>
 				      <th scope="col">Course Name</th>
@@ -123,9 +141,16 @@
 			</div>
 		</div>
 
-		<div class="form-group w-100 d-flex my-0">
-			<input class="btn btn-primary ml-auto mr-auto mr-lg-0" type="submit" value="Submit">
-		</div>		
+		<hr>
+		<div class="w-100 d-flex mt-3">
+			<div class="mr-auto form-group w-50 my-auto">
+				<h6 class="font-weight-bold">Confirm Action</h6>
+				<input class="form-control my-3 w-100" name="password" type="password" placeholder="Type password to confirm" required>
+			</div>
+			<div class="form-group mt-auto">
+				<input class="btn btn-primary ml-auto mr-auto mr-lg-0" type="submit" value="Submit">
+			</div>	
+		</div>	
 			
 	</form>
 </div>

@@ -24,7 +24,7 @@
 										<i class="material-icons material-icon-sm mx-2">update</i> Last Updated: {{ course_filt.lastupdated }}
 									</small>
 									{% if course_filt.old_curr == True %}
-										<small class="d-inline-flex">
+										<small class="d-inline-flex mt-1">
 											<i class="material-icons material-icon-sm mx-2">error_outline</i>
 											This is part of the old curriculum.
 										</small>
@@ -72,15 +72,17 @@
 
 							{% if  user.is_superuser %}
 								<div class="ml-auto mt-auto">
-									<button  type="button" class="btn btn-light px-3 d-flex" data-toggle="modal" data-target="#importModal">
-										<div class="my-auto d-flex">
-											<i class="material-icons">
-												edit
-											</i>
-											<span class="my-auto ml-1 d-none d-md-block">
-											Edit Course</span>	
-										</div>
-									</button>
+									<a href="{% url 'admin_course_id' 'edit' course_filt.code|lower course_filt.number %}">
+										<button  type="button" class="btn btn-light px-3 d-flex">
+											<div class="my-auto d-flex">
+												<i class="material-icons">
+													edit
+												</i>
+												<span class="my-auto ml-1 d-none d-md-block">
+												Edit Course</span>	
+											</div>
+										</button>
+									</a>
 								</div>
 							{% endif %}
 						</div>

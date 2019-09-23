@@ -9,10 +9,10 @@ class CourseForm(forms.Form):
 
 	query = Course.objects.order_by('code', 'number_len', 'number')
 
-	name = forms.CharField(max_length=20, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder' : 'ex. CS 11'}))
+	name = forms.CharField(max_length=20, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder' : 'ex. CS 11', 'autocomplete': 'off'}))
 	code = forms.CharField(max_length=10)
 	number = forms.CharField(max_length=10)
-	title = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder' : 'ex. Computer Programming I'}))
+	title = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder' : 'ex. Computer Programming I', 'autocomplete': 'off'}))
 	description = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder' : '', 'rows': 4}), required=False)
 	old_curr = forms.BooleanField(widget=forms.CheckboxInput(attrs={ 'class': 'form-check-input' }), required=False, initial=False)
 	visible = forms.BooleanField(widget=forms.CheckboxInput(attrs={ 'class': 'form-check-input' }), required=False, initial=True)
@@ -50,7 +50,8 @@ class CommentForm(forms.Form):
 		else:
 			attributes = { 
 			'class': 'form-control comment-text-area', 
-			'placeholder' : 'Comment'
+			'placeholder' : 'Comment', 
+			'autocomplete': 'off'
 			}
 			disabled = False
 

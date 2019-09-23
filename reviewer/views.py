@@ -20,38 +20,39 @@ def index(request):
 def construction(request):
 	return render(request, 'reviewer/construction.html')
 
-def admin_course(request, purpose):
-	return admin_get_course(request, purpose, False)
+def admin_course(request, purpose, course_id=""):
+	return admin_get_course(request, purpose, False, "", "")
 
-def admin_get_course(request, purpose, ajax=True):
+def admin_course_id(request, purpose, course_subj="", course_num =""):
+	return admin_get_course(request, purpose, False, course_subj, course_num)
 
+def admin_get_course(request, purpose, ajax=True, course_subj="", course_num=""):
 
 	if request.user.is_superuser:
 		
-		if purpose == "add":
+		if request.method == "POST" and request.user.check_password(request.POST['password']):
+			data = request.POST
+			courseform = CourseForm(data)
 
-			if request.method == "POST":
-				data = request.POST
-				courseform = CourseForm(data)
+			tempname = data['name']
+			coursefulln = tempname.split(" ")
+			tempnum = coursefulln[len(coursefulln)-1]
+			tempcode = ' '.join(coursefulln[:-(len(coursefulln)-1)])
 
-				tempname = data['name']
-				coursefulln = tempname.split(" ")
-				tempnum = coursefulln[len(coursefulln)-1]
-				tempcode = ' '.join(coursefulln[:-(len(coursefulln)-1)])
+			if tempnum.isnumeric():
+				temp_oldcurr = data.get('old_curr', False)
+				temp_visible = data.get('visible', True)
 
-				if tempnum.isnumeric():
-					temp_oldcurr = data.get('old_curr', False)
-					temp_visible = data.get('visible', True)
+				if temp_oldcurr == 'on':
+					temp_oldcurr = True
+				if temp_visible == 'on':
+					temp_visible = True
+				
+				prereq_list = data.getlist('prereq')
+				coreq_list = data.getlist('coreq')
 
-					if temp_oldcurr == 'on':
-						temp_oldcurr = True
-					if temp_visible == 'on':
-						temp_visible = True
-					
-					prereq_list = data.getlist('prereq')
-					coreq_list = data.getlist('coreq')
-
-					# Add input validation
+				# Add input validation
+				if purpose == "add":
 					new_course = Course(
 						name=data['name'],
 						code=tempcode, 
@@ -66,23 +67,68 @@ def admin_get_course(request, purpose, ajax=True):
 					new_course.save()
 					new_course.prereqs.set(Course.objects.filter(id__in=prereq_list))
 					new_course.coreqs.set(Course.objects.filter(id__in=coreq_list))
+				elif purpose == "edit":
 
-					return redirect('course', tempcode.lower(), tempnum)
-				else:
-					return redirect('course', tempcode.lower(), tempnum)
+					edit_course = Course.objects.get(code__iexact=course_subj, number__iexact=course_num)
+
+					edit_course.name = data['name']
+					edit_course.code = tempcode
+					edit_course.number = tempnum
+					edit_course.title = data['title']
+					edit_course.description = data['description']
+					edit_course.old_curr = temp_oldcurr
+					edit_course.visible = temp_visible
+					edit_course.image = request.FILES.get('image', None)
+
+					edit_course.save()
+					edit_course.prereqs.set(Course.objects.filter(id__in=prereq_list))
+					edit_course.coreqs.set(Course.objects.filter(id__in=coreq_list))
+
+				return redirect('course', tempcode.lower(), tempnum)
 			else:
-				courselist = Course.objects.filter(visible=True).order_by('code', 'number_len', 'number')
+				return redirect('course', tempcode.lower(), tempnum)
+		else:
+			courselist = Course.objects.filter(visible=True).order_by('code', 'number_len', 'number')
 
-				courseform = CourseForm()
+
+		if purpose == "add":
+			courseform = CourseForm()
+			context = {'courseform': courseform, 'courses': courselist}
+			context['title'] = "Add Course"
+
+		elif purpose == "edit":
+
+			edit_course = Course.objects.get(code__iexact=course_subj, number__iexact=course_num)
+
+			initialvalue = {				
+					'name' : edit_course.name,
+					'title' : edit_course.title,
+					'description' : edit_course.description,
+					'old_curr' : edit_course.old_curr,
+					'visible' : edit_course.visible
+			}
+
+			if edit_course.image:
+				initialvalue['image'] = edit_course.image
+
 			
-			context = {'courseform': courseform, 'title': "Add Course", 'courses': courselist}
 
-			if ajax == True:
-				return render(request, 'reviewer/courses/course_add.html', context)
-			else:	
-				return render(request, 'reviewer/admin.html', context)
+
+			courseform = CourseForm(initial=initialvalue)
+
+			context = {'courseform': courseform, 'courses': courselist, 'course_subj': edit_course.code.lower(), 'course_num': edit_course.number}
+			context['title'] = "Edit Course"
+
+		if (request.method == "POST") and (request.user.check_password(request.POST['password']) == False):
+			context['error'] = "You entered the wrong password."
+
+		if ajax == True:
+			return render(request, 'reviewer/courses/course_add.html', context)
+		else:	
+			return render(request, 'reviewer/admin.html', context)
+	
 	else:
-		raise Http404("You do not have enough permission for this page")
+		raise Http404("You do not have enough permission for this page.")
 
 
 def courselist(request):

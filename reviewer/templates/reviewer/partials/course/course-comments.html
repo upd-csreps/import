@@ -4,7 +4,7 @@
 			
 			{% if page_count > 1 %}
 
-				{% if cpage > 1 %} <a href="{% url 'course' course_filt.code|lower course_filt.number %}/c/1">{% endif %}
+				{% if cpage > 1 %} <a href="{% url 'course' course_filt.code|lower course_filt.number %}c/1">{% endif %}
 					<button class="btn btn-sm btn-light d-inline-flex" {% if cpage <= 1 %} disabled {%endif%}>
 	  				<i class="material-icons material-icon-sm my-auto">
 						first_page
@@ -12,7 +12,7 @@
 	  			</button>
 	  		{% if cpage > 1 %}</a>{%endif%}
 
-	  		{% if cpage > 1 %}<a href="{% url 'course' course_filt.code|lower course_filt.number %}/c/{{prev_page}}">{% endif %}
+	  		{% if cpage > 1 %}<a href="{% url 'course' course_filt.code|lower course_filt.number %}c/{{prev_page}}">{% endif %}
 					<button class="btn btn-sm btn-light d-inline-flex"  {% if cpage <= 1 %} disabled {%endif%}>
 	  				<i class="material-icons material-icon-sm my-auto">
 						chevron_left
@@ -23,7 +23,7 @@
 	  		<span class="mx-3">Page {{cpage}}</span>
 
 	  		{% if cpage < page_count %}
-		  		<a href="{% url 'course' course_filt.code|lower course_filt.number %}/c/{{next_page}}"> {%endif%}
+		  		<a href="{% url 'course' course_filt.code|lower course_filt.number %}c/{{next_page}}"> {%endif%}
   					<button class="btn btn-sm btn-light d-inline-flex" {% if cpage >= page_count %} disabled {%endif%}>
 		  				<i class="material-icons material-icon-sm my-auto">
 							chevron_right
@@ -31,7 +31,7 @@
 		  			</button>
 		  	{% if cpage < page_count %}	</a> {%endif%}
 	  				
-		  	{% if cpage < page_count %}	<a href="{% url 'course' course_filt.code|lower course_filt.number %}/c/{{page_count}}"> {%endif%}
+		  	{% if cpage < page_count %}	<a href="{% url 'course' course_filt.code|lower course_filt.number %}c/{{page_count}}"> {%endif%}
   					<button class="btn btn-sm btn-light d-inline-flex" {% if cpage >= page_count %} disabled {%endif%}>
 		  				<i class="material-icons material-icon-sm my-auto">
 							last_page
@@ -54,7 +54,7 @@
 <div class="row mx-0 pb-4">
 
 	<div class="col-lg-4">
-  		<form class="form-group comment-form pb-5" enctype="multipart/form-data" method="POST" action="{% url 'course' course_filt.code|lower course_filt.number %}/c/{{cpage}}" id="{{comment_form.auto_id}}">
+  		<form class="form-group comment-form pb-5" enctype="multipart/form-data" method="POST" action="{% url 'course' course_filt.code|lower course_filt.number %}c/{{cpage}}" id="{{comment_form.auto_id}}">
 			{% csrf_token %}
 
 			{{ comment_form.body }}

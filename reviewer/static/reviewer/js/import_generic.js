@@ -76,7 +76,7 @@
 			});
 		}
 		catch(error){
-			
+
 		}
 	}
 
@@ -161,8 +161,28 @@
 	}
 
 
-		
+	$("body").on("click", ".togglable" , function(){
+		$(this).toggleClass("active-button");
 
+		var currenthtml = $(this).html().trim();
+
+		if (currenthtml == "visibility"){
+			$(this).html("visibility_off")
+		}
+		else if (currenthtml == "visibility_off"){
+			$(this).html("visibility")
+		}
+		else if (currenthtml == "check_box_outline_blank"){
+			$(this).html("check_box")
+		}
+		else if (currenthtml == "check_box"){
+			$(this).html("check_box_outline_blank")
+		}
+
+	}); 
+
+
+	
 
 	//Hyperlink Support
 	 function replace_url(content){

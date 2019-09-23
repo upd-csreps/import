@@ -161,7 +161,7 @@ body{
 	pointer-events: none;
 }
 
-.comment-delete, .comment-reply,.comment-like{
+.comment-delete, .comment-reply,.comment-like, .togglable{
 	cursor: pointer;
 }
 
@@ -257,4 +257,16 @@ body{
 	height: 80px; width: 80px; background-color: #444; 
 	background-size: cover;
 	background-position: center;
+}
+
+.togglable{
+	color: #777;
+}
+
+.course-bg{
+	top:0;
+	left: 0;
+	position: fixed;
+	background-size: cover;
+	z-index: -40;
 }
