@@ -11,7 +11,7 @@
 	// Comment Images
 
 		function clearImage(target, dragicon){
-			$("." + target + " input").val("");
+			$("." + target + " input[type=file]").val("");
 			dragicon.querySelector(".material-icons").innerHTML = "add_a_photo";
 			dragicon.querySelector(".material-icons").classList.remove("import-image-uploaded-icon");
 			dragicon.style.backgroundImage = "";
@@ -87,7 +87,7 @@
 
 		for (i=0; i<targetElements.length; i++){
 			var temphole = targetElements[i].getAttribute("data-file-target");
-			upphotos[i] = document.querySelector("."+temphole+ " input");	
+			upphotos[i] = document.querySelector("."+temphole+ " input[type=file]");	
 		}
 
 		let upphoto_drag = document.querySelectorAll(".import-image-drag-enabled");
@@ -95,8 +95,8 @@
 		$(".import-image-drag-enabled").on("click", "" , function(){
 			let targetClassName = $(this).attr("data-file-target");
 
-			if($("." + targetClassName + " input").val() == ""){
-				$("."+targetClassName + " input").click();
+			if($("." + targetClassName + " input[type=file]").val() == ""){
+				$("."+targetClassName + " input[type=file]").click();
 			}
 			else{
 				clearImage(targetClassName, this);
@@ -129,7 +129,7 @@
 
 			$(".import-image-drag").each(function(){
 				var targetClassName = $(this).attr("data-file-target");
-				if($("." + targetClassName + " input").val() == "")
+				if($("." + targetClassName + " input[type=file]").val() == "")
 					$(this).find(".material-icons").html("add_a_photo");
 				else
 					$(this).find(".material-icons").html("close");
@@ -145,7 +145,7 @@
 
 
 				var temphole = upphoto_drag[i].getAttribute("data-file-target");
-				var upphoto = document.querySelector("."+temphole+ " input");
+				var upphoto = document.querySelector("."+temphole+ " input[type=file]");
 				if (isFileImage(e.dataTransfer.files[0])){
 					upphoto.files = e.dataTransfer.files
 					updateImagePhoto(upphoto.files, upphoto_drag[i]);
@@ -252,14 +252,39 @@
 
 	function initSection(){
     		
-    		var image_drops = document.querySelectorAll(".import-image-drag");
-    		for (i = 0; i < image_drops.length; i++){
-    			// Clear input image
-    			$("." + image_drops[i].getAttribute("data-file-target") +" input").val("");
-    			clearImage(image_drops[i].getAttribute("data-file-target"),image_drops[i])
-    		}
 
-    	}
+		// Check if there is image TODO
+
+		var image_drops = document.querySelectorAll(".import-image-drag");
+		for (i = 0; i < image_drops.length; i++){
+			//Get Image
+			var log = $("." + image_drops[i].getAttribute("data-file-target") +" input[type=file]").val();
+
+			var dragicon = image_drops[i];
+
+			console.log($("#image-clear_id"))
+						
+			var pic;
+
+			if (image_drops[i].parentElement.querySelector("a").getAttribute("href") != null){
+
+				pic = image_drops[i].parentElement.querySelector("a").getAttribute("href")
+				$(".import-image-drag-enabled").removeClass("dragging");
+		
+				dragicon.style.backgroundImage = "url("+ pic +")";
+				dragicon.querySelector(".material-icons").innerHTML = "close";
+				dragicon.querySelector(".material-icons").classList.add("import-image-uploaded-icon");		
+				dragicon.querySelector(".addphoto-popper").innerHTML = "<small>" + pic.split("/").pop() + "</small>";	
+			}
+			
+			
+				
+
+
+			//clearImage(image_drops[i].getAttribute("data-file-target"),image_drops[i])
+		}
+
+    }
 
 	$(document).ready(function(){
 		//Initialize

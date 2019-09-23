@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate,login
 
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpResponse, HttpResponseForbidden
 from django.contrib.auth import get_user_model
 from .models import Course, Announcement, ImportUser, Comment, Likes
 from .forms import CourseForm, CommentForm, ImportUserCreationForm
@@ -111,8 +111,6 @@ def admin_get_course(request, purpose, ajax=True, course_subj="", course_num="")
 			if edit_course.image:
 				initialvalue['image'] = edit_course.image
 
-			
-
 
 			courseform = CourseForm(initial=initialvalue)
 
@@ -128,7 +126,7 @@ def admin_get_course(request, purpose, ajax=True, course_subj="", course_num="")
 			return render(request, 'reviewer/admin.html', context)
 	
 	else:
-		raise Http404("You do not have enough permission for this page.")
+		raise HttpResponseForbidden()
 
 
 def courselist(request):
