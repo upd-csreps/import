@@ -32,10 +32,10 @@
 								</div>
 							</div>
 						</div>
-						<div class="mt-1 d-flex">
-							<div class="d-flex flex-column">
+						<div class="mt-1 row">
+							<div class="d-flex flex-column col-lg-9 ml-lg-0 ml-auto mr-auto">
 
-								<p>{{course_filt.description}}</p>
+								<p class="text-center text-lg-left">{{course_filt.description}}</p>
 								<small>
 									<div class="mb-1">
 										<span>Prerequisites:</span>
@@ -71,8 +71,8 @@
 							</div>
 
 							{% if  user.is_superuser %}
-								<div class="ml-auto mt-auto">
-									<a href="{% url 'admin_course_id' 'edit' course_filt.code|lower course_filt.number %}">
+								<div class="ml-auto mt-lg-auto mt-0 mb-auto mb-lg-0 col-lg-3 d-flex">
+									<a class="ml-auto" href="{% url 'admin_course_id' 'edit' course_filt.code|lower course_filt.number %}">
 										<button  type="button" class="btn btn-light px-3 d-flex">
 											<div class="my-auto d-flex">
 												<i class="material-icons">

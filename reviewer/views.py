@@ -78,7 +78,9 @@ def admin_get_course(request, purpose, ajax=True, course_subj="", course_num="")
 					edit_course.description = data['description']
 					edit_course.old_curr = temp_oldcurr
 					edit_course.visible = temp_visible
-					edit_course.image = request.FILES.get('image', None)
+
+					if (request.FILES.get('image', None) != None):
+						edit_course.image = request.FILES.get('image', None)
 
 					edit_course.save()
 					edit_course.prereqs.set(Course.objects.filter(id__in=prereq_list))
@@ -114,7 +116,20 @@ def admin_get_course(request, purpose, ajax=True, course_subj="", course_num="")
 
 			courseform = CourseForm(initial=initialvalue)
 
-			context = {'courseform': courseform, 'courses': courselist, 'course_subj': edit_course.code.lower(), 'course_num': edit_course.number}
+			getprereqs = []
+			getcoreqs = []
+
+			prere =  edit_course.prereqs.all().values_list('id', flat=True)
+			core = edit_course.coreqs.all().values_list('id', flat=True)
+
+			for i in prere:		
+				getprereqs.append(i)
+
+			for i in core:
+				getcoreqs.append(i)
+
+			context = {'courseform': courseform, 'courses': courselist, 'course_subj': edit_course.code.lower(), 
+			'course_num': edit_course.number, 'course_prereq': getprereqs, 'course_coreq': getcoreqs}
 			context['title'] = "Edit Course"
 
 		if (request.method == "POST") and (request.user.check_password(request.POST['password']) == False):

@@ -1,9 +1,18 @@
 <h1 class="admin-title mb-3 mt-3 h1">
 	<span class="d-inline-flex">
 		<i class="material-icons my-auto mr-2 import-font-primary" style="font-size: inherit;">
-			library_add
+			{% if title == 'Add Course'%}
+					library_add
+			{% elif title == 'Edit Course' %}
+					edit
+			{% endif %}
 		</i>
-		<span class="my-auto">{{title}}</span>
+		<span class="my-auto">
+			{{title}}
+			{% if title == 'Edit Course' %}
+				<p class="h6">{{courseform.name.value}}</p>
+			{% endif %}
+		</span>
 	</span>
 </h1>
 
