@@ -174,3 +174,15 @@ class Partners():
 
 	def __str__(self):
 		return	'{}'.format(self.name)
+
+
+class Reference(models.Model):
+
+	title = models.CharField(max_length=50)
+	course = models.ForeignKey(Course, on_delete=models.CASCADE)
+	link = models.CharField(max_length=100)
+
+	def __str__(self):
+		return	'{}: {}'.format(self.course, self.title)
+
+

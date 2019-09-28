@@ -15,7 +15,7 @@
 					<div class="mx-3">
 						<div class="d-flex justify-content-between flex-column flex-lg-row mb-3 mb-lg-0">
 							<div class="mx-auto mx-lg-0 text-center text-lg-left">
-								<h1 class="h1 title" ><strong>{{ course_filt.code }} <span class="import-font-primary">{{ course_filt.number }}</span></strong></h1>
+								<h1 class="h1 title course-{{course_filt.id}}" ><strong>{{ course_filt.code }} <span class="import-font-primary">{{ course_filt.number }}</span></strong></h1>
 								<h4 class=" h4 mt-2">{{ course_filt.title }}</h4>
 							</div>
 							<div class="mx-auto mx-lg-0  text-center text-lg-right">
@@ -33,7 +33,7 @@
 							</div>
 						</div>
 						<div class="mt-1 row">
-							<div class="d-flex flex-column col-lg-9 ml-lg-0 ml-auto mr-auto">
+							<div class="d-flex flex-column col-lg-8 ml-lg-0 ml-auto mr-auto">
 
 								<p class="text-center text-lg-left">{{course_filt.description}}</p>
 								<small>
@@ -71,7 +71,7 @@
 							</div>
 
 							{% if  user.is_superuser %}
-								<div class="ml-auto mt-lg-auto mt-0 mb-auto mb-lg-0 col-lg-3 d-flex">
+								<div class="ml-auto mt-lg-auto mt-0 mb-auto mb-lg-0 col-lg-4 d-flex">
 									<a class="ml-auto" href="{% url 'admin_course_id' 'edit' course_filt.code|lower course_filt.number %}">
 										<button  type="button" class="btn btn-light px-3 d-flex">
 											<div class="my-auto d-flex">
@@ -80,6 +80,18 @@
 												</i>
 												<span class="my-auto ml-1 d-none d-md-block">
 												Edit Course</span>	
+											</div>
+										</button>
+									</a>
+
+									<a class="ml-2 delete-course" href="{% url 'admin_course_id' 'delete' course_filt.code|lower course_filt.number %}">
+										<button  type="button" class="btn btn-light px-3 d-flex">
+											<div class="my-auto d-flex">
+												<i class="material-icons">
+													delete
+												</i>
+												<span class="my-auto ml-1 d-none d-md-block">
+												Delete Course</span>	
 											</div>
 										</button>
 									</a>
@@ -110,7 +122,23 @@
 			  		{% include 'reviewer/partials/course/course-comments.html' %}
 			  </div>
 			  <div class="tab-pane fade {% if section == 'r' %} show active{%endif%}" id="ref" role="tabpanel" aria-labelledby="ref-tab">
-			  	...
+			  		<div class="course-ref mt-3">
+			  			<div class="p-3 d-flex justify-content-between">
+			  				<div class="d-flex">
+			  					<i class="material-icons my-auto import-font-primary">
+									insert_drive_file
+								</i>
+								<h5 class="my-auto ml-3">Quiwa Book</h5>
+
+			  				</div>
+			  				
+			  				<div>
+					  				<i class="material-icons">
+										open_in_new
+									</i>
+							</div>
+			  			</div>
+			  		</div>
 			  </div>
 			</div>
 		</div>
@@ -132,6 +160,9 @@
     	};
 
 
+	    $('.delete-course').on('click', function () {
+	        return confirm('Are you sure you want to delete {{course_filt.name}}?');
+	    });
 
 		// Form AJAX
 

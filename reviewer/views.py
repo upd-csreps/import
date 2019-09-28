@@ -30,116 +30,125 @@ def admin_get_course(request, purpose, ajax=True, course_subj="", course_num="")
 
 	if request.user.is_superuser:
 		
-		if request.method == "POST" and request.user.check_password(request.POST['password']):
-			data = request.POST
-			courseform = CourseForm(data)
+		if purpose == "delete":
 
-			tempname = data['name']
-			coursefulln = tempname.split(" ")
-			tempnum = coursefulln[len(coursefulln)-1]
-			tempcode = ' '.join(coursefulln[:-(len(coursefulln)-1)])
+			del_course = Course.objects.get(code__iexact=course_subj, number__iexact=course_num)
+			del_course.delete()
 
-			if tempnum.isnumeric():
-				temp_oldcurr = data.get('old_curr', False)
-				temp_visible = data.get('visible', True)
-
-				if temp_oldcurr == 'on':
-					temp_oldcurr = True
-				if temp_visible == 'on':
-					temp_visible = True
-				
-				prereq_list = data.getlist('prereq')
-				coreq_list = data.getlist('coreq')
-
-				# Add input validation
-				if purpose == "add":
-					new_course = Course(
-						name=data['name'],
-						code=tempcode, 
-						number=tempnum, 
-						title=data['title'], 
-						description=data['description'], 
-						old_curr=temp_oldcurr, 
-						visible=temp_visible,
-						image=request.FILES.get('image', None)
-						)	
-
-					new_course.save()
-					new_course.prereqs.set(Course.objects.filter(id__in=prereq_list))
-					new_course.coreqs.set(Course.objects.filter(id__in=coreq_list))
-				elif purpose == "edit":
-
-					edit_course = Course.objects.get(code__iexact=course_subj, number__iexact=course_num)
-
-					edit_course.name = data['name']
-					edit_course.code = tempcode
-					edit_course.number = tempnum
-					edit_course.title = data['title']
-					edit_course.description = data['description']
-					edit_course.old_curr = temp_oldcurr
-					edit_course.visible = temp_visible
-
-					if (request.FILES.get('image', None) != None):
-						edit_course.image = request.FILES.get('image', None)
-
-					edit_course.save()
-					edit_course.prereqs.set(Course.objects.filter(id__in=prereq_list))
-					edit_course.coreqs.set(Course.objects.filter(id__in=coreq_list))
-
-				return redirect('course', tempcode.lower(), tempnum)
-			else:
-				return redirect('course', tempcode.lower(), tempnum)
+			return redirect('courselist')
 		else:
-			courselist = Course.objects.filter(visible=True).order_by('code', 'number_len', 'number')
+
+			if request.method == "POST" and request.user.check_password(request.POST['password']):
+				data = request.POST
+				courseform = CourseForm(data)
+
+				tempname = data['name']
+				coursefulln = tempname.split(" ")
+				tempnum = coursefulln[len(coursefulln)-1]
+				tempcode = ' '.join(coursefulln[:-(len(coursefulln)-1)])
+
+				if tempnum.isnumeric():
+					temp_oldcurr = data.get('old_curr', False)
+					temp_visible = data.get('visible', True)
+
+					if temp_oldcurr == 'on':
+						temp_oldcurr = True
+					if temp_visible == 'on':
+						temp_visible = True
+					
+					prereq_list = data.getlist('prereq')
+					coreq_list = data.getlist('coreq')
+
+					# Add input validation
+					if purpose == "add":
+						new_course = Course(
+							name=data['name'],
+							code=tempcode, 
+							number=tempnum, 
+							title=data['title'], 
+							description=data['description'], 
+							old_curr=temp_oldcurr, 
+							visible=temp_visible,
+							image=request.FILES.get('image', None)
+							)	
+
+						new_course.save()
+						new_course.prereqs.set(Course.objects.filter(id__in=prereq_list))
+						new_course.coreqs.set(Course.objects.filter(id__in=coreq_list))
+					elif purpose == "edit":
+
+						edit_course = Course.objects.get(code__iexact=course_subj, number__iexact=course_num)
+
+						edit_course.name = data['name']
+						edit_course.code = tempcode
+						edit_course.number = tempnum
+						edit_course.title = data['title']
+						edit_course.description = data['description']
+						edit_course.old_curr = temp_oldcurr
+						edit_course.visible = temp_visible
+
+						print(data.get('imagehascleared', False))
+						if ((request.FILES.get('image', None) != None) or (data.get('imagehascleared', False) != False )):
+							edit_course.image = request.FILES.get('image', None)
+
+						edit_course.save()
+						edit_course.prereqs.set(Course.objects.filter(id__in=prereq_list))
+						edit_course.coreqs.set(Course.objects.filter(id__in=coreq_list))
+
+					return redirect('course', tempcode.lower(), tempnum)
+				else:
+					return redirect('course', tempcode.lower(), tempnum)
+			else:
+				courselist = Course.objects.filter(visible=True).order_by('code', 'number_len', 'number')
 
 
-		if purpose == "add":
-			courseform = CourseForm()
-			context = {'courseform': courseform, 'courses': courselist}
-			context['title'] = "Add Course"
+			if purpose == "add":
+				courseform = CourseForm()
+				context = {'courseform': courseform, 'courses': courselist}
+				context['title'] = "Add Course"
 
-		elif purpose == "edit":
+			elif purpose == "edit":
 
-			edit_course = Course.objects.get(code__iexact=course_subj, number__iexact=course_num)
+				edit_course = Course.objects.get(code__iexact=course_subj, number__iexact=course_num)
 
-			initialvalue = {				
-					'name' : edit_course.name,
-					'title' : edit_course.title,
-					'description' : edit_course.description,
-					'old_curr' : edit_course.old_curr,
-					'visible' : edit_course.visible
-			}
+				initialvalue = {				
+						'name' : edit_course.name,
+						'title' : edit_course.title,
+						'description' : edit_course.description,
+						'old_curr' : edit_course.old_curr,
+						'visible' : edit_course.visible
+				}
 
-			if edit_course.image:
-				initialvalue['image'] = edit_course.image
+				if edit_course.image:
+					initialvalue['image'] = edit_course.image
 
 
-			courseform = CourseForm(initial=initialvalue)
+				courseform = CourseForm(initial=initialvalue)
 
-			getprereqs = []
-			getcoreqs = []
+				getprereqs = []
+				getcoreqs = []
 
-			prere =  edit_course.prereqs.all().values_list('id', flat=True)
-			core = edit_course.coreqs.all().values_list('id', flat=True)
+				prere =  edit_course.prereqs.all().values_list('id', flat=True)
+				core = edit_course.coreqs.all().values_list('id', flat=True)
 
-			for i in prere:		
-				getprereqs.append(i)
+				for i in prere:		
+					getprereqs.append(i)
 
-			for i in core:
-				getcoreqs.append(i)
+				for i in core:
+					getcoreqs.append(i)
 
-			context = {'courseform': courseform, 'courses': courselist, 'course_subj': edit_course.code.lower(), 
-			'course_num': edit_course.number, 'course_prereq': getprereqs, 'course_coreq': getcoreqs}
-			context['title'] = "Edit Course"
+				context = {'courseform': courseform, 'courses': courselist, 'course_subj': edit_course.code.lower(), 
+				'course_num': edit_course.number, 'course_prereq': getprereqs, 'course_coreq': getcoreqs}
+				context['title'] = "Edit Course"
 
-		if (request.method == "POST") and (request.user.check_password(request.POST['password']) == False):
-			context['error'] = "You entered the wrong password."
+			if (request.method == "POST") and (request.user.check_password(request.POST['password']) == False):
+				context['error'] = "You entered the wrong password."
 
-		if ajax == True:
-			return render(request, 'reviewer/courses/course_add.html', context)
-		else:	
-			return render(request, 'reviewer/admin.html', context)
-	
+			if ajax == True:
+				return render(request, 'reviewer/courses/course_add.html', context)
+			else:	
+				return render(request, 'reviewer/admin.html', context)
+		
 	else:
 		raise HttpResponseForbidden()
 
@@ -269,8 +278,6 @@ def coursecpage(request, csubj, cnum, catchar = 'l', cpage = 1):
 				return render(request, 'reviewer/courses/course.html', context)
 	else:
 		raise Http404("Course not found.")
-
-
 
 def comment_like(request, csubj, cnum):
 

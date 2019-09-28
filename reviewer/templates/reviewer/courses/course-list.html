@@ -38,7 +38,7 @@
 							{% if forloop.counter != 1 %}
 								<hr>
 							{%endif%}
-							<div class="py-3 d-flex justify-content-between">
+							<div class="py-3 d-flex justify-content-between" id="course-{{course.id}}">
 								<div class="my-auto">
 									<div class="d-inline-flex">
 										<div class="my-auto mr-3 course-thumb" style="{% if course.image %}background-image: url('{{course.image.url}}'); {%endif%}">

@@ -16,10 +16,10 @@ class CourseForm(forms.Form):
 	description = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder' : '', 'rows': 4}), required=False)
 	old_curr = forms.BooleanField(widget=forms.CheckboxInput(attrs={ 'class': 'form-check-input' }), required=False, initial=False)
 	visible = forms.BooleanField(widget=forms.CheckboxInput(attrs={ 'class': 'form-check-input' }), required=False, initial=True)
+	imagehascleared = forms.BooleanField(widget=forms.CheckboxInput(attrs={ 'class': 'form-check-input' }), required=False,initial=False)
 	lastupdated = datetime.datetime.now()
 	image = forms.ImageField(required=False)
-	image_hascleared = forms.BooleanField(widget=forms.CheckboxInput(attrs={ 'class': 'form-check-input' }), required=False, initial=False)
-	# Fix for edit image
+
 
 	prereq = forms.ModelMultipleChoiceField(
 		widget = forms.CheckboxSelectMultiple(),

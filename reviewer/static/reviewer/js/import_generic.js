@@ -12,6 +12,12 @@
 
 		function clearImage(target, dragicon){
 			$("." + target + " input[type=file]").val("");
+			try{
+				document.querySelector("#id_imagehascleared").setAttribute('checked', 'checked');
+			}
+			catch(err){
+				
+			}
 			dragicon.querySelector(".material-icons").innerHTML = "add_a_photo";
 			dragicon.querySelector(".material-icons").classList.remove("import-image-uploaded-icon");
 			dragicon.style.backgroundImage = "";
@@ -46,10 +52,12 @@
 			reader.onload = function(){
 
 				if (isFileImage(files[0])){
+
 					dragicon.style.backgroundImage = "url("+ reader.result +")";
 					dragicon.querySelector(".material-icons").innerHTML = "close";
 					dragicon.querySelector(".material-icons").classList.add("import-image-uploaded-icon");		
 					dragicon.querySelector(".addphoto-popper").innerHTML = "<small>" + files[0].name + "</small>";
+					dragicon.querySelector
 				}
 				else{
 					alert("Please upload an image file.");
@@ -95,7 +103,18 @@
 		$(".import-image-drag-enabled").on("click", "" , function(){
 			let targetClassName = $(this).attr("data-file-target");
 
-			if($("." + targetClassName + " input[type=file]").val() == ""){
+			var photouploaded = true;
+
+			if ($("."+targetClassName + " a").length){
+				photouploaded = true;
+			}
+			else{
+				photouploaded = false;
+			}
+
+			
+
+			if($("." + targetClassName + " input[type=file]").val() == "" && photouploaded == false){
 				$("."+targetClassName + " input[type=file]").click();
 			}
 			else{
@@ -107,6 +126,8 @@
 		function GetAroundEventListenerUpdate(i){
 			upphotos[i].addEventListener('change', function(e){
 				updateImagePhoto(upphotos[i].files, targetElements[i]);
+				document.querySelector("#id_imagehascleared").setAttribute('checked', 'checked');
+
 			});
 		}
 
@@ -266,17 +287,22 @@
 						
 			var pic;
 
-			if (image_drops[i].parentElement.querySelector("a").getAttribute("href") != null){
 
-				pic = image_drops[i].parentElement.querySelector("a").getAttribute("href")
-				$(".import-image-drag-enabled").removeClass("dragging");
-		
-				dragicon.style.backgroundImage = "url("+ pic +")";
-				dragicon.querySelector(".material-icons").innerHTML = "close";
-				dragicon.querySelector(".material-icons").classList.add("import-image-uploaded-icon");		
-				dragicon.querySelector(".addphoto-popper").innerHTML = "<small>" + pic.split("/").pop() + "</small>";	
-			}
+			try{
+				if (image_drops[i].parentElement.querySelector("a").getAttribute("href") != null){
+
+					pic = image_drops[i].parentElement.querySelector("a").getAttribute("href")
+					$(".import-image-drag-enabled").removeClass("dragging");
 			
+					dragicon.style.backgroundImage = "url("+ pic +")";
+					dragicon.querySelector(".material-icons").innerHTML = "close";
+					dragicon.querySelector(".material-icons").classList.add("import-image-uploaded-icon");		
+					dragicon.querySelector(".addphoto-popper").innerHTML = "<small>" + pic.split("/").pop() + "</small>";	
+				}
+			}
+			catch(error){
+
+			}
 			
 				
 
