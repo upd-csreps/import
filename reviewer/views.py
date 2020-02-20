@@ -318,13 +318,20 @@ def user(request, username):
 
 	user_filter = ImportUser.objects.filter(username=username)
 
-	if (len(user_filter) > 0):
-		comments = user_filter[0].comment_set.order_by('-date_posted')
-		context = {'user_filt': user_filter[0], 'user_comments':comments }
-		return render(request, 'reviewer/user.html', context)
+	if request.method == 'POST':
+		if user_filter[0].username == request.user.username:
+			user_filter[0].prof_pic = request.FILES.get('image', None)
+			user_filter[0].save()
+		return redirect('user', user_filter[0].username)
 	else:
-		raise Http404("User does not exist.")
+		if (len(user_filter) > 0):
+			comments = user_filter[0].comment_set.order_by('-date_posted')
+			context = {'user_filt': user_filter[0], 'user_comments':comments }
+			return render(request, 'reviewer/user.html', context)
+		else:
+			raise Http404("User does not exist.")
 
+	return redirect('user', user_filter[0].username)
 
 
 def register(request):

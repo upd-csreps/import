@@ -43,7 +43,9 @@ class Language(models.Model):
 
 
 def user_uploadto(instance, filename):
-	return 'users/{0}/{1}'.format(instance.username, filename)
+
+	fileex = filename.split('.')[-1]
+	return 'users/{0}/image.{1}'.format(instance.username, fileex)
 
 class ImportUser(AbstractUser):
 

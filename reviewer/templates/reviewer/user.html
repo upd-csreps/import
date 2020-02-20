@@ -11,7 +11,7 @@
 		<div class="row pt-5">
 			<div class="col-lg-4 d-flex">
 				<div class="mr-auto ml-lg-0 ml-auto d-flex flex-column">
-					<div class="mx-auto" >
+					<div class="mx-auto prof-pic" >
 						<img class="user-pic" src="
 						{% if user_filt.prof_pic %}
 							{{user_filt.prof_pic.url}}
@@ -19,14 +19,38 @@
 							{% static 'reviewer/images/default_profile.png' %}
 						{% endif %}
 						">
-						<div class="position-absolute lang-badge">
-							<img class="position-relative" src="{{comment.user_attr.fave_lang.image.url}}" style="max-height: 40px;">
-						</div>
+
+						{% if user.is_authenticated %}
+							{% if user.username == user_filt.username %}
+								<div class="d-flex position-absolute prof-pic-edit" style="z-index: 5">
+									<i class="material-icons m-auto p-0" style="font-size: 70px">
+										edit
+									</i>
+								</div>
+								<div class="d-flex position-absolute prof-pic-edit prof-pic-edit-overlay">
+										<div class="m-auto">
+
+										</div>
+								</div>
+
+								<form action="{% url 'user' user_filt.username %}" method="post" enctype="multipart/form-data">
+										{% csrf_token %}    
+									    <input type="file" name="image"/>
+									    <input type="submit" value="Save Changes" name="save" />        
+								</form>
+							{% endif %}
+						{% endif %}
+
+						{% if user.fave_lang %}
+							<div class="position-absolute lang-badge">
+								<img class="position-relative" src="{{comment.user_attr.fave_lang.image.url}}">
+							</div>
+						{% endif %}
 					</div>
 					<h3 class="h3 mx-auto my-3">{{user_filt.username}}</h3>
 					<p class="mx-auto">Experience Points: {{user_filt.exp}}</p>
 
-					<div class="row">
+					<div class="row w-100">
 						<div class="col-6">
 							<p class="font-weight-bold mb-1">First Name</p>
 							<p>{{user_filt.first_name}}</p>

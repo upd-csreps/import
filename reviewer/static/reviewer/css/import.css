@@ -123,7 +123,34 @@ body{
 	background-color: white;
 	border-radius: 100%;
 	padding: 0.5em;
+	width: 50px;
+	height: 50px;
 }
+
+
+.prof-pic:hover .prof-pic-edit{
+	opacity: 1;
+}
+
+.prof-pic:hover .prof-pic-edit-overlay{
+	opacity: 0.3;
+}
+
+.prof-pic-edit{
+	top: 0;
+	height: 200px;
+	width: 200px;
+	border-radius: 100%;
+	color: white;
+	opacity: 0;
+	transition: 0.15s ease-in-out;
+	cursor: pointer;
+}
+
+.prof-pic-edit-overlay{
+	background: black;
+}
+
 
 .nav-tabs .nav-link{
 	border-bottom: 0 solid transparent;
