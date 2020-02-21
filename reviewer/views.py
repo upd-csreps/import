@@ -320,9 +320,10 @@ def user(request, username):
 
 	if request.method == 'POST':
 		if user_filter[0].username == request.user.username:
-			user_filter[0].prof_pic = request.FILES.get('image', None)
-			user_filter[0].save()
-		return redirect('user', user_filter[0].username)
+			utest = ImportUser.objects.get(username=username)
+			utest.prof_pic = request.FILES.get('image', None)
+			utest.save()
+		return redirect('user', utest.username)
 	else:
 		if (len(user_filter) > 0):
 			comments = user_filter[0].comment_set.order_by('-date_posted')

@@ -74,6 +74,7 @@ class ImportUser(AbstractUser):
 	fave_lang = models.ForeignKey(Language, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Favorite Language")
 
 	dark_mode = models.BooleanField("Dark Mode", default=False);
+	notifications = models.BooleanField("Notifications", default=True);
 
 	def __str__(self):
 		return	'{} - {}, {}'.format(self.username, self.last_name, self.first_name)

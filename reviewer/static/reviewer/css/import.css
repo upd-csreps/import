@@ -127,6 +127,10 @@ body{
 	height: 50px;
 }
 
+.prof-pic{
+	border-radius: 100%;
+}
+
 
 .prof-pic:hover .prof-pic-edit{
 	opacity: 1;
