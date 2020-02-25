@@ -354,12 +354,16 @@ def user_get(request, user_filter, error=None):
 
 	liked_comments_data = []
 
-
 	user_likes = Likes.objects.filter(user_attr=request.user)
+	user_page_likes = Likes.objects.filter(user_attr=user_filter[0])
 
 	for i in user_likes:
 		liked_comments.append(int(i.comment.id))
+
+	for i in user_page_likes:
 		liked_comments_data.append(i.comment)
+
+	liked_comments_data.reverse()
 
 	if (len(user_filter) > 0):
 		comments = user_filter[0].comment_set.order_by('-date_posted')

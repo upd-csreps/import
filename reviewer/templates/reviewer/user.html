@@ -147,7 +147,7 @@
 				  <li class="nav-item ml-auto">
 				    <a class="nav-link active" id="created-tab" data-toggle="tab" href="#created" role="tab" aria-controls="created" aria-selected="true">Created</a>
 				  </li>
-				  <li class="nav-item">
+				  <li class="nav-item mr-2">
 				    <a class="nav-link" id="liked-tab" data-toggle="tab" href="#liked" role="tab" aria-controls="liked" aria-selected="false">Liked</a>
 				  </li>
 				</ul>
@@ -328,17 +328,17 @@
 		    	let icons = ["star_border", "star"];
 
 		    	response = JSON.parse(response);
-		    	console.log(response.state);
 
-		    	clicked.parent().children(".comment-like-count").html(response.count);
+
+		    	$("[data-comment-id='" + commentpassid +"']").find(".comment-like-count").html(response.count);
 
 		    	if (response.state){
-		    		clicked.html(icons[1]);
-		    		clicked.addClass("liked");
+		    		$("[data-comment-id='" + commentpassid +"']").find(".comment-like").html(icons[1]);
+		    		$("[data-comment-id='" + commentpassid +"']").find(".comment-like").addClass("liked");
 		    	}
 		    	else{
-		    		clicked.html(icons[0]);
-		    		clicked.removeClass("liked");
+		    		$("[data-comment-id='" + commentpassid +"']").find(".comment-like").html(icons[0]);
+		    		$("[data-comment-id='" + commentpassid +"']").find(".comment-like").removeClass("liked");
 		    	}
 		    });
 		    
