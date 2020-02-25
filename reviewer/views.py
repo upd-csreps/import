@@ -2,11 +2,13 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate,login
 
 from django.http import Http404, HttpResponse, HttpResponseForbidden
+from PIL import Image
 from django.contrib.auth import get_user_model
 from .models import Course, Announcement, ImportUser, Comment, Likes
 from .forms import CourseForm, CommentForm, ImportUserCreationForm
 import math
 import json
+
 
 # Create your views here.
 
@@ -27,6 +29,8 @@ def admin_course_id(request, purpose, course_subj="", course_num =""):
 	return admin_get_course(request, purpose, False, course_subj, course_num)
 
 def admin_get_course(request, purpose, ajax=True, course_subj="", course_num=""):
+
+	error = None
 
 	if request.user.is_superuser:
 		
@@ -61,6 +65,16 @@ def admin_get_course(request, purpose, ajax=True, course_subj="", course_num="")
 
 					# Add input validation
 					if purpose == "add":
+
+						image_uploaded = request.FILES.get('image', None)
+
+						try:
+							image_test =  Image.open(image_uploaded)
+							image_test.verify()
+							
+						except:
+							image_uploaded = None
+
 						new_course = Course(
 							name=data['name'],
 							code=tempcode, 
@@ -69,7 +83,7 @@ def admin_get_course(request, purpose, ajax=True, course_subj="", course_num="")
 							description=data['description'], 
 							old_curr=temp_oldcurr, 
 							visible=temp_visible,
-							image=request.FILES.get('image', None)
+							image=image_uploaded
 							)	
 
 						new_course.save()
@@ -87,9 +101,17 @@ def admin_get_course(request, purpose, ajax=True, course_subj="", course_num="")
 						edit_course.old_curr = temp_oldcurr
 						edit_course.visible = temp_visible
 
+						image_uploaded = request.FILES.get('image', None)
+
+						try:
+							image_test =  Image.open(image_uploaded)
+							image_test.verify()
+						except:
+							image_uploaded = None
+
 						print(data.get('imagehascleared', False))
-						if ((request.FILES.get('image', None) != None) or (data.get('imagehascleared', False) != False )):
-							edit_course.image = request.FILES.get('image', None)
+						if ((image_uploaded != None) or (data.get('imagehascleared', False) != False )):
+							edit_course.image = image_uploaded
 
 						edit_course.save()
 						edit_course.prereqs.set(Course.objects.filter(id__in=prereq_list))
@@ -202,8 +224,17 @@ def coursecpage(request, csubj, cnum, catchar = 'l', cpage = 1):
 
 				if request.user.is_authenticated:
 					
+					image_uploaded = request.FILES.get('image', None)
+
+					try:
+						image_test =  Image.open(image_uploaded)
+						image_test.verify()
+						
+					except:
+						image_uploaded = None
+
 					# Add input validation
-					new_comment = Comment(course_attr=coursefilter[0], user_attr=request.user, body=data['body'], image=request.FILES.get('image', None))	
+					new_comment = Comment(course_attr=coursefilter[0], user_attr=request.user, body=data['body'], image=image_uploaded)	
 					new_comment.save()
 					resultid = new_comment.id
 
@@ -314,25 +345,45 @@ def comment_like(request, csubj, cnum):
 		return response
 
 
+
+# User Views
+
+def user_get(request, user_filter, error=None):
+	if (len(user_filter) > 0):
+		comments = user_filter[0].comment_set.order_by('-date_posted')
+		context = {'user_filt': user_filter[0], 'user_comments':comments , 'error': error }
+		return render(request, 'reviewer/user.html', context)
+	else:
+		raise Http404("User does not exist.")
+
 def user(request, username):
 
 	user_filter = ImportUser.objects.filter(username=username)
+	error = None
 
 	if request.method == 'POST':
 		if user_filter[0].username == request.user.username:
 			utest = ImportUser.objects.get(username=username)
-			utest.prof_pic = request.FILES.get('image', None)
-			utest.save()
-		return redirect('user', utest.username)
-	else:
-		if (len(user_filter) > 0):
-			comments = user_filter[0].comment_set.order_by('-date_posted')
-			context = {'user_filt': user_filter[0], 'user_comments':comments }
-			return render(request, 'reviewer/user.html', context)
-		else:
-			raise Http404("User does not exist.")
 
-	return redirect('user', user_filter[0].username)
+			image_uploaded = request.FILES.get('image', None)
+
+			try:
+				image_test =  Image.open(image_uploaded)
+				image_test.verify()
+				utest.prof_pic = request.FILES.get('image', None)
+				utest.save()
+			except:
+				error = "Upload a valid image file."
+
+		return user_get(request, user_filter, error)
+	else:
+		return user_get(request, user_filter)
+		
+
+
+def user_settings(request):
+
+	return redirect('index')
 
 
 def register(request):
@@ -349,7 +400,9 @@ def register(request):
 			login(request, user)
 			return redirect('index')
 	else:
-		form = ImportUserCreationForm()
-
-	context = {'form': form}
-	return render(request, 'registration/register.html', context)
+		if request.user.is_anonymous:
+			form = ImportUserCreationForm()
+			context = {'form': form}
+			return render(request, 'registration/register.html', context)
+		else:
+			return redirect('login')

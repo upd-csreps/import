@@ -42,7 +42,7 @@ body{
 
 
 .site-container{
-	height: 100vh;
+	min-height: 100vh;
 	width: 100vw;
 }
 
@@ -91,9 +91,11 @@ body{
 	opacity: 0.65;
 }
 
+
 .import-header .user-pic{
 	height: 30px;
 	width: 30px;
+	border: 1px solid transparent;
 }
 
 .user-pic{
@@ -198,6 +200,14 @@ body{
 
 .comment-delete:hover , .comment-reply:hover, .comment-like:hover {
 	opacity: 0.65;
+}
+
+.user-comment-course-link{
+	transition: 0.25s ease-in-out;
+}
+
+.user-comment-course-link:hover{
+	padding-left: 0.1em;
 }
 
 .border-dashed{

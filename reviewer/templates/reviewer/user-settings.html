@@ -82,13 +82,7 @@
 											<i class="material-icons material-icon-sm my-auto mr-2">
 												visibility_off
 											</i>
-											<span class="my-auto">
-												{% if user.username == user_filt.username %}
-													{{user_filt.studentnum}}
-												{% else %}
-													Hidden
-												{% endif %}
-											</span>
+											<span class="my-auto">Hidden</span>
 										</span>
 									{% endif %}
 									</p>
@@ -103,13 +97,7 @@
 										<i class="material-icons material-icon-sm my-auto mr-2">
 											visibility_off
 										</i>
-										<span class="my-auto">
-											{% if user.username == user_filt.username %}
-												{{user_filt.email }}
-											{% else %}
-												Hidden
-											{% endif %}
-										</span>
+										<span class="my-auto">Hidden</span>
 									</span>
 								{% endif %}
 							</p>
@@ -191,10 +179,6 @@
 		$('#user-pic-upload').on("change", function(){ 
 			$("#user-pic-form").submit();
 		});
-
-		{% if error %}
-			alert("{{error}}");
-		{% endif %}
 
 	</script>
 

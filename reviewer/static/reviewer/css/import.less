@@ -24,6 +24,10 @@ a, .active-button{
 }
 
 
+html{
+	background-color: @HeaderScroll;
+}
+
 body{
 	background-color: @BackgroundColor;
 	color: @TextColor;
@@ -77,6 +81,14 @@ body{
 
 .import-header a{
 	color: @TextColor;
+}
+
+.user-pic{
+	transition: @TransTime;
+}
+
+.import-header a:hover .user-pic{
+	border-color: @ImportPrimary;
 }
 
 .import-header a:not(.import-logo):hover{

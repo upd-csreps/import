@@ -12,5 +12,6 @@ urlpatterns = [
     path('su/course/<str:purpose>/<str:course_subj>/<str:course_num>', views.admin_course_id, name="admin_course_id"),
     path('su/course/<str:purpose>/', views.admin_course, name="admin_course"),
     path('u/register/', views.register, name="register"),
+    path('settings/', views.user_settings, name="user_settings"),
     path('u/*/<str:username>/', views.user, name="user"),
 ]

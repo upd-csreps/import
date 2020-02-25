@@ -10,7 +10,7 @@
 		<span class="my-auto">
 			{{title}}
 			{% if title == 'Edit Course' %}
-				<p class="h6">{{courseform.name.value}}</p>
+				<p class="h6 text-muted">{{courseform.name.value}}</p>
 			{% endif %}
 		</span>
 	</span>
@@ -178,7 +178,14 @@
 		<hr>
 		<div class="w-100 d-flex mt-3">
 			<div class="mr-auto form-group w-50 my-auto">
-				<h6 class="font-weight-bold">Confirm Action</h6>
+				<h6 class="font-weight-bold d-inline-flex mr-2">
+					<i class="material-icons my-auto">
+						verified_user
+					</i>
+					<span class="my-auto">
+						Confirm Action
+					</span>
+				</h6>
 				<input class="form-control my-3 w-100" name="password" type="password" placeholder="Type password to confirm" required>
 			</div>
 			<div class="form-group mt-auto">
