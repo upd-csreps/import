@@ -202,6 +202,11 @@ body{
 	opacity: 0.65;
 }
 
+.comment-like-count{
+	width: 0.5em;
+	font-size: 80%;
+}
+
 .user-comment-course-link{
 	transition: 0.25s ease-in-out;
 }

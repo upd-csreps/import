@@ -349,9 +349,27 @@ def comment_like(request, csubj, cnum):
 # User Views
 
 def user_get(request, user_filter, error=None):
+
+	liked_comments = []
+
+	liked_comments_data = []
+
+
+	user_likes = Likes.objects.filter(user_attr=request.user)
+
+	for i in user_likes:
+		liked_comments.append(int(i.comment.id))
+		liked_comments_data.append(i.comment)
+
 	if (len(user_filter) > 0):
 		comments = user_filter[0].comment_set.order_by('-date_posted')
-		context = {'user_filt': user_filter[0], 'user_comments':comments , 'error': error }
+		context = {
+			'user_filt': user_filter[0],
+			'user_comments':comments , 
+			'error': error,
+			'liked_comments': str(liked_comments) ,
+			'liked_comments_data' : liked_comments_data
+		}
 		return render(request, 'reviewer/user.html', context)
 	else:
 		raise Http404("User does not exist.")

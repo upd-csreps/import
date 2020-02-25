@@ -137,42 +137,137 @@
 					{% endif %}
 				</div>
 			</div>
-			<div class="col-lg-8" >
-				<h2>Comments</h2>
-				<div class="comments px-3" style="overflow-y: scroll; overflow-wrap: break-word; height: 65vh">
-					{% for comment in user_comments %}
-						<div class="py-4 px-4 d-flex {% if forloop.counter0 == 0 %} my-3 {% else %} mb-3 {% endif %} comment">
-							<img class="user-pic-thumb" src="
-							{% if user_filt.prof_pic %}
-								{{user_filt.prof_pic.url}}
-							{% else %}
-								{% static 'reviewer/images/default_profile.png' %}
-							{% endif %}
+			<div class="col-lg-8 course-comments mt-5 mt-lg-0" >
 
-							">
-							<div class="ml-4" style="width:85%">
-								<div class="d-flex w-100 justify-content-between">
-									<span>
-										<strong>{{comment.user_attr.username}}</strong> 
-										<a class="text-muted user-comment-course-link" href="{% url 'course' comment.course_attr.code|lower comment.course_attr.number  %}">
-											<small>
-												<i class="material-icons" style="font-size: 0.75em">arrow_forward</i> {{comment.course_attr.name}}
-											</small>
-										</a>
-									</span>
-									<p><small>{{comment.date_posted}}</small></p>
-								</div>
-								<div class="comment-body">
-									{{comment.body| linebreaks}}
-								</div>
-								{% if comment.image %}
-									<img class="mt-3 d-block comment-image "src="{{comment.image.url}}">
+				<ul class="nav nav-tabs d-flex mt-2" id="myTab" role="tablist">
+					<h2 class="mb-0">
+						<span class="position-relative" style="bottom: 0.25em">
+							Comments
+						</h2>
+				  <li class="nav-item ml-auto">
+				    <a class="nav-link active" id="created-tab" data-toggle="tab" href="#created" role="tab" aria-controls="created" aria-selected="true">Created</a>
+				  </li>
+				  <li class="nav-item">
+				    <a class="nav-link" id="liked-tab" data-toggle="tab" href="#liked" role="tab" aria-controls="liked" aria-selected="false">Liked</a>
+				  </li>
+				</ul>
+				<div class="tab-content" id="myTabContent">
+				  <div class="tab-pane fade show active" id="created" role="tabpanel" aria-labelledby="created-tab">
+				  	<div class="comments px-3" style="overflow-y: scroll; overflow-wrap: break-word; height: 65vh">
+						{% for comment in user_comments %}
+							<div class="py-4 px-4 d-flex {% if forloop.counter0 == 0 %} my-3 {% else %} mb-3 {% endif %} comment" data-comment-id="comment-{{comment.id}}" data-code="{{comment.course_attr.code|lower}}" data-number="{{comment.course_attr.number}}">
+								<img class="user-pic-thumb" src="
+								{% if user_filt.prof_pic %}
+									{{user_filt.prof_pic.url}}
+								{% else %}
+									{% static 'reviewer/images/default_profile.png' %}
 								{% endif %}
-							
+
+								">
+								<div class="ml-4 w-100">
+									<div class="d-flex w-100 justify-content-between my-2">
+										<span class="d-inline-flex">
+											<strong class="comment-username my-auto">{{comment.user_attr.username}}</strong> 
+											<a class="text-muted user-comment-course-link my-auto" href="{% url 'course' comment.course_attr.code|lower comment.course_attr.number  %}" >
+												<small class="d-inline-flex">
+													<i class="material-icons my-auto mx-1" style="font-size: 0.75em">arrow_forward</i>
+													<span class="my-auto">{{comment.course_attr.name}}</span>
+												</small>
+											</a>
+										</span>
+										<p class="my-auto">
+											<div class="d-inline-flex ml-auto">
+												<span class="mr-3 my-auto d-flex">
+													<i class="material-icons material-icon-sm {% if user.is_authenticated %}comment-like{%endif%}">
+														star_border
+													</i> 
+													<div class="my-auto ml-1 mr-2 comment-like-count inline-block">
+														{{ comment.likes_set.all.count }}
+													</div>
+													{% if user == comment.user_attr %}
+														<i class="material-icons  material-icon-sm comment-delete">delete</i>
+													{% endif %}
+												</span>
+												<small class="my-auto">{{comment.date_posted|date:"M d, Y, h:i A"}}</small>
+											</div>
+										</p>
+									</div>
+									<div class="comment-body">
+										{{comment.body| linebreaks}}
+									</div>
+									{% if comment.image %}
+										<img class="mt-3 d-block comment-image "src="{{comment.image.url}}">
+									{% endif %}
+								
+								</div>
 							</div>
-						</div>
-					{% endfor %}
+						{% endfor %}
+					</div>
+				  </div>
+				  <div class="tab-pane fade" id="liked" role="tabpanel" aria-labelledby="liked-tab">
+				  	
+				  	<div class="comments px-3" style="overflow-y: scroll; overflow-wrap: break-word; height: 65vh">
+						{% for comment in liked_comments_data %}
+							<div class="py-4 px-4 d-flex {% if forloop.counter0 == 0 %} my-3 {% else %} mb-3 {% endif %} comment" data-comment-id="comment-{{comment.id}}" data-code="{{comment.course_attr.code|lower}}" data-number="{{comment.course_attr.number}}">
+								{% if comment.user_attr != user %}<a href="{% url 'user' comment.user_attr.username %}">{% endif %}
+									<img class="user-pic-thumb" src="
+									{% if comment.user_attr.prof_pic %}
+										{{comment.user_attr.prof_pic.url}}
+									{% else %}
+										{% static 'reviewer/images/default_profile.png' %}
+									{% endif %}
+									">
+								{% if comment.user_attr != user %}</a>{% endif %}
+					
+								<div class="ml-4 w-100">
+									<div class="d-flex w-100 justify-content-between my-2">
+										<span class="d-inline-flex">
+											<strong class="comment-username my-auto">
+												{% if comment.user_attr != user %}<a href="{% url 'user' comment.user_attr.username %}" class="comment-username">{% endif %}
+													{{comment.user_attr.username}}
+												{% if comment.user_attr != user %}</a>{% endif %}
+											</strong> 
+											<a class="text-muted user-comment-course-link my-auto" href="{% url 'course' comment.course_attr.code|lower comment.course_attr.number  %}" >
+												<small class="d-inline-flex">
+													<i class="material-icons my-auto mx-1" style="font-size: 0.75em">arrow_forward</i>
+													<span class="my-auto">{{comment.course_attr.name}}</span>
+												</small>
+											</a>
+										</span>
+										<p class="my-auto">
+											<div class="d-inline-flex ml-auto">
+												<span class="mr-3 my-auto d-flex">
+													<i class="material-icons material-icon-sm {% if user.is_authenticated %}comment-like{%endif%}">
+														star_border
+													</i> 
+													<div class="my-auto ml-1 mr-2 comment-like-count inline-block">
+														{{ comment.likes_set.all.count }}
+													</div>
+													{% if user == comment.user_attr %}
+														<i class="material-icons  material-icon-sm comment-delete">delete</i>
+													{% endif %}
+												</span>
+												<small class="my-auto">{{comment.date_posted|date:"M d, Y, h:i A"}}</small>
+											</div>
+										</p>
+									</div>
+									<div class="comment-body">
+										{{comment.body| linebreaks}}
+									</div>
+									{% if comment.image %}
+										<img class="mt-3 d-block comment-image "src="{{comment.image.url}}">
+									{% endif %}
+								
+								</div>
+							</div>
+						{% endfor %}
+					</div>
+
+				  </div>
 				</div>
+
+
+				
 			</div>
 		</div>
 	</div>
@@ -195,6 +290,70 @@
 		{% if error %}
 			alert("{{error}}");
 		{% endif %}
+
+
+		// Visuals: Liked comments
+		var commentvisual = {{liked_comments}};
+
+		for(i = 0; i < commentvisual.length; i++){
+			$("[data-comment-id='comment-" + commentvisual[i] + "']").find(".comment-like").html("star");
+			$("[data-comment-id='comment-" + commentvisual[i] + "']").find(".comment-like").addClass("liked");
+		}
+
+		$(".course-comments").on("click", ".comment-like" , function(){
+
+			let clicked = $(this);
+
+			commentpass = $(this).parents(".comment");
+	 		commentpassid = commentpass.attr("data-comment-id");
+
+	 		let like_url = "{% url 'comment_like' '$course_code' 123456789 %}";
+
+	 		like_url = like_url.replace('$course_code', commentpass.attr("data-code"));
+	 		like_url = like_url.replace('123456789', commentpass.attr("data-number"));
+
+	 		if (request) {
+		        request.abort();
+		    }
+
+	 		request = $.ajax({
+		        url: like_url,
+		        type: "post",
+		        data: commentpassid,
+		        headers: {'X-CSRFToken': '{{ csrf_token }}'}
+		    });
+
+		    // Callback handler that will be called on success
+		    request.done(function (response, textStatus, jqXHR){
+		    	let icons = ["star_border", "star"];
+
+		    	response = JSON.parse(response);
+		    	console.log(response.state);
+
+		    	clicked.parent().children(".comment-like-count").html(response.count);
+
+		    	if (response.state){
+		    		clicked.html(icons[1]);
+		    		clicked.addClass("liked");
+		    	}
+		    	else{
+		    		clicked.html(icons[0]);
+		    		clicked.removeClass("liked");
+		    	}
+		    });
+		    
+
+		    // Callback handler that will be called on failure
+		    request.fail(function (jqXHR, textStatus, errorThrown){
+		        // Log the error to the console
+		        console.error(
+		            "The following error occurred: "+
+		            textStatus, errorThrown
+		        );
+		    });		 	
+		}); 
+
+
 
 	</script>
 

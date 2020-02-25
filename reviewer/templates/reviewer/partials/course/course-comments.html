@@ -125,18 +125,20 @@
 								</a> 
 							</span>
 							<p class="my-auto">
-								<small class="d-inline-flex">
-									<span class="mr-3 my-auto">
+								<div class="d-inline-flex ml-auto">
+									<span class="mr-3 my-auto d-flex">
 										<i class="material-icons material-icon-sm {% if user.is_authenticated %}comment-like{%endif%}">
 											star_border
 										</i> 
-										<span class="my-auto ml-1 mr-2 comment-like-count">{{ comment.likes_set.all.count }}</span>
+										<div class="my-auto ml-1 mr-2 comment-like-count inline-block">
+											{{ comment.likes_set.all.count }}
+										</div>
 										{% if user == comment.user_attr %}
 											<i class="material-icons  material-icon-sm comment-delete">delete</i>
 										{% endif %}
 									</span>
-									{{comment.date_posted}}
-								</small>
+									<small class="my-auto">{{comment.date_posted|date:"M d, Y, h:i A"}}</small>
+								</div>
 							</p>
 						</div>
 						<div class="comment-body">
