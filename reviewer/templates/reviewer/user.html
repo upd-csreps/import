@@ -79,7 +79,7 @@
 										{{user_filt.studentnum}}
 									{% else %}
 										<span class="text-muted d-inline-flex">
-											<i class="material-icons material-icon-sm my-auto mr-2">
+											<i class="material-icons material-icon-sm my-auto mr-2 info-help" title="Only you can see this information.">
 												visibility_off
 											</i>
 											<span class="my-auto">
@@ -100,7 +100,7 @@
 									{{user_filt.email}}
 								{% else %}
 									<span class="text-muted d-inline-flex">
-										<i class="material-icons material-icon-sm my-auto mr-2">
+										<i class="material-icons material-icon-sm my-auto mr-2 info-help" title="Only you can see this information.">
 											visibility_off
 										</i>
 										<span class="my-auto">
@@ -145,10 +145,40 @@
 							Comments
 						</h2>
 				  <li class="nav-item ml-auto">
-				    <a class="nav-link active" id="created-tab" data-toggle="tab" href="#created" role="tab" aria-controls="created" aria-selected="true">Created</a>
+				    <a class="nav-link active" id="created-tab" data-toggle="tab" href="#created" role="tab" aria-controls="created" aria-selected="true">
+
+				    		Created
+
+				    	<div class="ml-auto my-auto position-absolute active-visible">
+				    		<div class="d-flex position-relative" style="left: 3.4em; bottom:2.5em">
+								<i class="material-icons my-auto mr-2 import-font-primary">mode_comment</i> 
+								<div class="position-absolute d-flex" style="color: white; width: 1.5em"><small class="created-count position-relative m-auto font-weight-bold " style="top:0.05em">
+									{{ user_comments.count }}
+								</small></div>
+							</div>
+						</div>
+
+				    </a>
+
+				   
+
+
+
+
 				  </li>
 				  <li class="nav-item mr-2">
-				    <a class="nav-link" id="liked-tab" data-toggle="tab" href="#liked" role="tab" aria-controls="liked" aria-selected="false">Liked</a>
+				    <a class="nav-link" id="liked-tab" data-toggle="tab" href="#liked" role="tab" aria-controls="liked" aria-selected="false">Liked
+
+				    <div class="ml-auto my-auto position-absolute active-visible">
+			    		<div class="d-flex position-relative" style="left: 2.15em; bottom:2.5em">
+							<i class="material-icons my-auto mr-2 import-font-primary">mode_comment</i> 
+							<div class="position-absolute  d-flex" style="color: white; width: 1.5em"><small class="created-count position-relative m-auto font-weight-bold" style="top:0.05em">
+								{{ liked_comments_data|length }}
+							</small></div>
+						</div>
+					</div>
+
+				    </a>
 				  </li>
 				</ul>
 				<div class="tab-content" id="myTabContent">

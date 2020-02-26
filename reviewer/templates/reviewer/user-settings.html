@@ -8,159 +8,49 @@
 {% load static %}
 {% block content %}
 	<div class="container py-5">
-		<div class="row pt-5">
-			<div class="col-lg-4 d-flex">
-				<div class="mr-auto ml-lg-4 ml-auto d-flex flex-column">
-					<div class="mx-auto prof-pic" >
-						<img class="user-pic" src="
-						{% if user_filt.prof_pic %}
-							{{user_filt.prof_pic.url}}
-						{% else %}
-							{% static 'reviewer/images/default_profile.png' %}
-						{% endif %}
-						">
+		<div class="pt-5">
+			<h1>
+				<i class="material-icons my-auto">
+					settings
+				</i>
+				Settings
+			</h1>
+			<div class="info">
+				<h6>Username</h6>
+				<p>{{user.username}}</p>
 
-						{% if user.is_authenticated %}
-							{% if user.username == user_filt.username %}
-								<div class="d-flex position-absolute prof-pic-edit" style="z-index: 5">
-									<i class="material-icons m-auto p-0" style="font-size: 70px">
-										edit
-									</i>
-								</div>
-								<div class="d-flex position-absolute prof-pic-edit prof-pic-edit-overlay">
-								</div>
-							{% endif %}
-						{% endif %}
+				<h6>Password Data</h6>
+				<p>{{user.password}}</p>
+				<button>Change Password</button>
 
-						{% if user.fave_lang %}
-							<div class="position-absolute lang-badge">
-								<img class="position-relative" src="{{comment.user_attr.fave_lang.image.url}}">
-							</div>
-						{% endif %}
-					</div>
+				<h6>Favorite Language</h6>
+				<p>{{user.fave_lang}}</p>
 
-					{% if user.is_authenticated %}
-						{% if user.username == user_filt.username %}
-							<form action="{% url 'user' user_filt.username %}" method="post" enctype="multipart/form-data" class="d-none position-absolute" id="user-pic-form">
-									{% csrf_token %}    
-								    <input type="file" name="image" id="user-pic-upload"/>
-								    <input type="submit" value="Save Changes" name="save" />        
-							</form>
-						{% endif %}
-					{% endif %}
-					<h3 class="h3 mx-auto my-3"><strong>{{user_filt.username}}</strong></h3>
-					<p class="mx-auto">Experience Points: {{user_filt.exp}}</p>
+				<h6>First Name</h6>
+				<p>{{user.first_name}}</p>
 
-					<small>
-					<div class="row">
-						<div class="col-6">
-							<p class="font-weight-bold mb-1">First Name</p>
-							<p class="d-inline-flex">
-								<span class="my-auto">{{user_filt.first_name}}</span>
-							</p>
+				<h6>Last Name</h6>
+				<p>{{user.last_name}}</p>
 
-							{% if user_filt.middle_name != None %}
-								<p class="font-weight-bold mb-1">Middle Name</p>
-								<p class="d-inline-flex">
-									<span class="my-auto">{{user_filt.middle_name}}</span>
-								</p>
-							{% endif %}
+				<h6>Suffix</h6>
+				<p>{{user.suffix}}</p>
 
-							<p class="font-weight-bold mb-1">Last Name</p>
-							<p class="d-inline-flex">
-								<span class="my-auto">{{user_filt.last_name}}</span>
-							</p>
-						</div>
-						<div class="col-6">
-							{% if user_filt.studentnum != None %}
-								<p class="font-weight-bold mb-1">Student Number</p>
-								<p>
-									{% if user_filt.show_studentnum %} 
-										{{user_filt.studentnum}}
-									{% else %}
-										<span class="text-muted d-inline-flex">
-											<i class="material-icons material-icon-sm my-auto mr-2">
-												visibility_off
-											</i>
-											<span class="my-auto">Hidden</span>
-										</span>
-									{% endif %}
-									</p>
-							{% endif %}
+				<h6>Student Number</h6>
+				<p>{{user.studentnum}}</p>
+				<p>{{user.show_studentnum}}</p>
 
-							<p class="font-weight-bold mb-1">E-mail</p>
-							<p>
-								{% if user_filt.show_email %} 
-									{{user_filt.email}}
-								{% else %}
-									<span class="text-muted d-inline-flex">
-										<i class="material-icons material-icon-sm my-auto mr-2">
-											visibility_off
-										</i>
-										<span class="my-auto">Hidden</span>
-									</span>
-								{% endif %}
-							</p>
+				<h6>E-mail</h6>
+				<p>{{user.email}}</p>
+				<p>{{user.show_email}}</p>
 
-							{% if user_filt.course != None or user_filt.course != "" %}
-								<p class="font-weight-bold mb-1">Degree Program</p>
-								<p>{{user_filt.course}}</p>
-							{% endif %}
-						</div>
-					</div>
-					</small>
+				<h6>Course</h6>
+				<p>{{user.course}}</p>
 
-					{% if user.username == user_filt.username %}
-						<a class="mx-auto mt-2" href="{% url 'user_settings' %}">
-							<button  type="button" class="btn btn-light px-3 d-flex btn-sm">
-								<div class="my-auto d-flex">
-									<i class="material-icons material-icon-sm my-auto">
-										settings
-									</i>
-									<span class="my-auto ml-1 d-none d-md-block">
-									Edit Profile Settings</span>	
-								</div>
-							</button>
-						</a>
-					{% endif %}
-				</div>
-			</div>
-			<div class="col-lg-8" >
-				<h2>Comments</h2>
-				<div class="comments px-3" style="overflow-y: scroll; overflow-wrap: break-word; height: 65vh">
-					{% for comment in user_comments %}
-						<div class="py-4 px-4 d-flex {% if forloop.counter0 == 0 %} my-3 {% else %} mb-3 {% endif %} comment">
-							<img class="user-pic-thumb" src="
-							{% if user_filt.prof_pic %}
-								{{user_filt.prof_pic.url}}
-							{% else %}
-								{% static 'reviewer/images/default_profile.png' %}
-							{% endif %}
+				<h6>Dark Mode</h6>
+				<p>{{user.dark_mode}}</p>
 
-							">
-							<div class="ml-4" style="width:85%">
-								<div class="d-flex w-100 justify-content-between">
-									<span>
-										<strong>{{comment.user_attr.username}}</strong> 
-										<a class="text-muted user-comment-course-link" href="{% url 'course' comment.course_attr.code|lower comment.course_attr.number  %}">
-											<small>
-												<i class="material-icons" style="font-size: 0.75em">arrow_forward</i> {{comment.course_attr.name}}
-											</small>
-										</a>
-									</span>
-									<p><small>{{comment.date_posted}}</small></p>
-								</div>
-								<div class="comment-body">
-									{{comment.body| linebreaks}}
-								</div>
-								{% if comment.image %}
-									<img class="mt-3 d-block comment-image "src="{{comment.image.url}}">
-								{% endif %}
-							
-							</div>
-						</div>
-					{% endfor %}
-				</div>
+				<h6>E-mail Notifications</h6>
+				<p>{{user.notifications}}</p>
 			</div>
 		</div>
 	</div>
@@ -170,16 +60,5 @@
 
 {% block scripts %}
 
-	
-	<script>
-		$('.prof-pic').on('click', function(){
-			$("#user-pic-form input[type=file]").click();
-		});
-
-		$('#user-pic-upload').on("change", function(){ 
-			$("#user-pic-form").submit();
-		});
-
-	</script>
 
 {% endblock %}

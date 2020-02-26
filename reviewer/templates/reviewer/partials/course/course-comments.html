@@ -1,6 +1,6 @@
 {% load static %}
 <div class="m-3 d-flex py-3">
-		<div class="ml-auto page-count-parent my-auto">
+	<div class="mx-auto page-count-parent my-auto">
 			
 			{% if page_count > 1 %}
 
@@ -43,11 +43,6 @@
 		 {% endif %}
 				
 	</div>
-	<span class="ml-auto my-auto comme-count d-flex">
-		<i class="material-icons material-icon-sm my-auto mr-2">comment</i> 
-		<span class="my-auto">{{ course_comment_count }} comment{% if course_comment_count != 1 %}s
-		{% endif %}</span>
-	</span>
 </div>
 
 

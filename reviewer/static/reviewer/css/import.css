@@ -194,6 +194,19 @@ body{
 	pointer-events: none;
 }
 
+.info-help{
+	cursor: help;
+}
+
+.active-visible{
+	opacity: 0;
+	transition: 0.15s;
+}
+
+.active .active-visible{
+	opacity: 1;
+}
+
 .comment-delete, .comment-reply,.comment-like, .togglable{
 	cursor: pointer;
 }

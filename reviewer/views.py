@@ -354,11 +354,12 @@ def user_get(request, user_filter, error=None):
 
 	liked_comments_data = []
 
-	user_likes = Likes.objects.filter(user_attr=request.user)
 	user_page_likes = Likes.objects.filter(user_attr=user_filter[0])
 
-	for i in user_likes:
-		liked_comments.append(int(i.comment.id))
+	if request.user.is_authenticated:
+		user_likes = Likes.objects.filter(user_attr=request.user)
+		for i in user_likes:
+			liked_comments.append(int(i.comment.id))
 
 	for i in user_page_likes:
 		liked_comments_data.append(i.comment)
@@ -405,7 +406,14 @@ def user(request, username):
 
 def user_settings(request):
 
-	return redirect('index')
+	if request.user.is_authenticated:
+		if request.method == 'POST':
+			return redirect('index')
+		else:
+			context = {}
+			return render(request, 'reviewer/user-settings.html', context)
+	else:
+		return redirect('index')
 
 
 def register(request):
