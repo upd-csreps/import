@@ -7,7 +7,6 @@
 	    return file && file['type'].split('/')[0] === 'image';
 	}
 
-
 	// Comment Images
 
 		function clearImage(target, dragicon){
@@ -281,10 +280,7 @@
 			//Get Image
 			var log = $("." + image_drops[i].getAttribute("data-file-target") +" input[type=file]").val();
 
-			var dragicon = image_drops[i];
-
-			console.log($("#image-clear_id"))
-						
+			var dragicon = image_drops[i];						
 			var pic;
 
 
@@ -320,6 +316,7 @@
 	   		$(this).html(replace_url(content));
 
 	   });
+
 
 	   headerEffect();
 	   initPhotoLoad();

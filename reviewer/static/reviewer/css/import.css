@@ -200,8 +200,10 @@ body{
 
 .active-visible{
 	opacity: 0;
+	bottom: 0;
 	transition: 0.15s;
 }
+
 
 .active .active-visible{
 	opacity: 1;

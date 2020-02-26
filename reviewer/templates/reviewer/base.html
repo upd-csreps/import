@@ -63,5 +63,19 @@
 		<script src="{% static 'reviewer/js/import_generic.js' %}"></script>
 		{% block scripts %}
 		{% endblock %}
+
+		{% comment %}
+			<script>
+				$('a').each(function(){
+			   		let link_url = $(this).attr("href");
+			   		let current_url = {{ request.get_full_path }};
+
+			   		if (link_url == current_url){
+			   			$(this).addClass("import-font-primary");
+
+			   		}
+			   });
+			</script>
+			{% endcomment %}
 	</body>
 </html>

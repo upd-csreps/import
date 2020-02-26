@@ -5,7 +5,7 @@
 			{% if page_count > 1 %}
 
 				{% if cpage > 1 %} <a href="{% url 'course' course_filt.code|lower course_filt.number %}c/1">{% endif %}
-					<button class="btn btn-sm btn-light d-inline-flex" {% if cpage <= 1 %} disabled {%endif%}>
+					<button class="btn btn-sm btn-light d-inline-flex p-1" {% if cpage <= 1 %} disabled {%endif%}>
 	  				<i class="material-icons material-icon-sm my-auto">
 						first_page
 					</i>
@@ -13,7 +13,7 @@
 	  		{% if cpage > 1 %}</a>{%endif%}
 
 	  		{% if cpage > 1 %}<a href="{% url 'course' course_filt.code|lower course_filt.number %}c/{{prev_page}}">{% endif %}
-					<button class="btn btn-sm btn-light d-inline-flex"  {% if cpage <= 1 %} disabled {%endif%}>
+					<button class="btn btn-sm btn-light d-inline-flex p-1"  {% if cpage <= 1 %} disabled {%endif%}>
 	  				<i class="material-icons material-icon-sm my-auto">
 						chevron_left
 					</i>
@@ -24,7 +24,7 @@
 
 	  		{% if cpage < page_count %}
 		  		<a href="{% url 'course' course_filt.code|lower course_filt.number %}c/{{next_page}}"> {%endif%}
-  					<button class="btn btn-sm btn-light d-inline-flex" {% if cpage >= page_count %} disabled {%endif%}>
+  					<button class="btn btn-sm btn-light d-inline-flex p-1" {% if cpage >= page_count %} disabled {%endif%}>
 		  				<i class="material-icons material-icon-sm my-auto">
 							chevron_right
 						</i>
@@ -32,7 +32,7 @@
 		  	{% if cpage < page_count %}	</a> {%endif%}
 	  				
 		  	{% if cpage < page_count %}	<a href="{% url 'course' course_filt.code|lower course_filt.number %}c/{{page_count}}"> {%endif%}
-  					<button class="btn btn-sm btn-light d-inline-flex" {% if cpage >= page_count %} disabled {%endif%}>
+  					<button class="btn btn-sm btn-light d-inline-flex p-1" {% if cpage >= page_count %} disabled {%endif%}>
 		  				<i class="material-icons material-icon-sm my-auto">
 							last_page
 						</i>
@@ -129,7 +129,7 @@
 											{{ comment.likes_set.all.count }}
 										</div>
 										{% if user == comment.user_attr %}
-											<i class="material-icons  material-icon-sm comment-delete">delete</i>
+											<i class="material-icons  material-icon-sm comment-delete" title="Delete comment">delete</i>
 										{% endif %}
 									</span>
 									<small class="my-auto">{{comment.date_posted|date:"M d, Y, h:i A"}}</small>
