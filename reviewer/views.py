@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate,login
 from django.http import Http404, HttpResponse, HttpResponseForbidden
 from PIL import Image
 from django.contrib.auth import get_user_model
-from .models import Course, Announcement, ImportUser, Comment, Likes
+from .models import Course, Announcement, ImportUser, Comment, Likes, Language
 from .forms import CourseForm, CommentForm, ImportUserCreationForm
 import math
 import json
@@ -410,7 +410,26 @@ def user_settings(request):
 		if request.method == 'POST':
 			return redirect('index')
 		else:
-			context = {}
+
+			langlist = Language.objects.all()
+
+			userpassword = request.user.password.split("$")
+
+			userpassword[2] = list(userpassword[2])
+			userpassword[3] = list(userpassword[3])
+
+			for i in range(6, len(userpassword[2])):
+				userpassword[2][i] = '*'
+
+			for i in range(6, len(userpassword[3])):
+				userpassword[3][i] = '*'
+
+			context = {'userpassword_algo' : userpassword[0], 
+						'userpassword_iterations': userpassword[1],
+						'userpassword_salt' : ''.join(userpassword[2]), 
+						'userpassword_hash' : ''.join(userpassword[3]),
+						'langlist' : langlist,
+						'force_dark_mode' : True}
 			return render(request, 'reviewer/user-settings.html', context)
 	else:
 		return redirect('index')

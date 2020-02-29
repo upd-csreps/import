@@ -183,20 +183,28 @@
 
 	$("body").on("click", ".togglable" , function(){
 		$(this).toggleClass("active-button");
+		$(this).parent().find(".icaption").toggleClass("active-button");
 
 		var currenthtml = $(this).html().trim();
+		var caption = $(this).parent().find(".icaption").html().trim();
 
-		if (currenthtml == "visibility"){
-			$(this).html("visibility_off")
+		var activearray = ['visibility', 'check_box', 'brightness_3', 'notifications_active'];
+		var disabledarray = ['visibility_off', 'check_box_outline_blank', 'brightness_5', 'notifications_off'];
+		var activecaption = ["Shown", "On"];
+		var disabledcaption = ["Hidden", "Off"];
+
+		for (i = 0; i < activearray.length ; i++){
+			if (currenthtml == activearray[i])
+				$(this).html(disabledarray[i]);
+			else if (currenthtml == disabledarray[i])
+				$(this).html(activearray[i]);
 		}
-		else if (currenthtml == "visibility_off"){
-			$(this).html("visibility")
-		}
-		else if (currenthtml == "check_box_outline_blank"){
-			$(this).html("check_box")
-		}
-		else if (currenthtml == "check_box"){
-			$(this).html("check_box_outline_blank")
+
+		for (i = 0; i < activecaption.length ; i++){
+			if (caption == activecaption[i])
+				$(this).parent().find(".icaption").html(disabledcaption[i]);
+			else if (caption == disabledcaption[i])
+				$(this).parent().find(".icaption").html(activecaption[i]);
 		}
 
 	}); 

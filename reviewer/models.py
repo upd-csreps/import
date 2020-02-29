@@ -31,7 +31,7 @@ class Course(models.Model):
 
 
 def language_uploadto(instance, filename):
-	return 'language/{0}/{1}'.format(instance.name, filename)
+	return 'language/{0}/{1}'.format(instance.name.lower(), filename)
 
 class Language(models.Model):
 

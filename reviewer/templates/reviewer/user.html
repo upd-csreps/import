@@ -33,8 +33,7 @@
 						{% endif %}
 
 						{% if user.fave_lang %}
-							<div class="position-absolute lang-badge">
-								<img class="position-relative" src="{{comment.user_attr.fave_lang.image.url}}">
+							<div class="position-absolute lang-badge lang-badge-offset" style="background-image: url('{{user.fave_lang.image.url}}');">
 							</div>
 						{% endif %}
 					</div>

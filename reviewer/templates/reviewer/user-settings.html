@@ -2,7 +2,7 @@
 
 
 {% block title %}
-	{{user_filt.username}}
+	User Settings
 {% endblock %}
 
 {% load static %}
@@ -15,43 +15,189 @@
 				</i>
 				Settings
 			</h1>
-			<div class="info">
-				<h6>Username</h6>
-				<p>{{user.username}}</p>
+			<form class="info mt-3 form-row" action="{% url 'user_settings' %}" method="post">
+				<div class="col-lg-6 px-3">
+					
+					<div class="form-group">
+						<label><strong>Username</strong> <span class="import-font-primary">*</span></label>
+						<div class="input-group">
+							<input class="form-control pr-5" type="text" name="username" value="{{user.username}}" required>
+							  <div class="position-absolute w-100 h-100">
+							    <div class="position-relative float-right d-flex h-100">
+							    	<div class="my-auto mx-3">
+							    		<div class="bg-success" style="width: 8px;height:8px; border-radius: 100%">
+							    		</div>
+							    	</div>
+							    </div>
+							  </div>
+						</div>
+					</div>
 
-				<h6>Password Data</h6>
-				<p>{{user.password}}</p>
-				<button>Change Password</button>
+					<div class="form-group">
 
-				<h6>Favorite Language</h6>
-				<p>{{user.fave_lang}}</p>
+						<label><strong>Password Data</strong></label>
+						<div>
+							<small>
+								<div class="d-inline-flex flex-column">
+									<span class="mr-1"><strong>Algorithm:</strong> {{	userpassword_algo}}</span>
+									<span class="mr-1"><strong>Iterations:</strong> {{userpassword_iterations}}</span>
+								</div>
+								<div class="d-inline-flex flex-column">
+									<span class="mr-1"><strong>Salt:</strong> {{userpassword_salt}}</span>
+									<span class="mr-1"><strong>Hash:</strong> {{userpassword_hash}}</span>
+								</div>
+							</small>
+						</div>
+						<a href="{% url 'password_change' %}" class="my-3 d-block">
+							<button class="btn btn-primary btn-sm">Change Password</button>
+						</a>
+					</div>
 
-				<h6>First Name</h6>
-				<p>{{user.first_name}}</p>
+					<div class="form-group">
 
-				<h6>Last Name</h6>
-				<p>{{user.last_name}}</p>
+						<label><strong>Favorite Language</strong></label>
+						
+						<div class="d-flex">
+							<div class="lang-badge my-auto" {% if user.fave_lang %} style="background-image: url('{{user.fave_lang.image.url }}')" {% endif %}>
+							</div>
+							<select class="form-control ml-2 my-auto" name="fave_lang">
+								{% for language in langlist %}
+							  		<option {% if language.name == user.fave_lang.name %} selected="selected" {% endif %}>{{language}}</option>
+								{% endfor %}
+							</select>
+						</div>
 
-				<h6>Suffix</h6>
-				<p>{{user.suffix}}</p>
+					</div>
 
-				<h6>Student Number</h6>
-				<p>{{user.studentnum}}</p>
-				<p>{{user.show_studentnum}}</p>
 
-				<h6>E-mail</h6>
-				<p>{{user.email}}</p>
-				<p>{{user.show_email}}</p>
+					<div class="form-group">
+						<label><strong>First Name</strong> <span class="import-font-primary">*</span> </label>
+						<input class="form-control pr-5" type="text" name="first_name" value="{{user.first_name}}" required>
+					</div>
 
-				<h6>Course</h6>
-				<p>{{user.course}}</p>
+					<div class="form-group">
+						<label><strong>Middle Name</strong></label>
+						<input class="form-control pr-5" type="text" name="middle_name" value="{{user.middle_name}}">
+					</div>
 
-				<h6>Dark Mode</h6>
-				<p>{{user.dark_mode}}</p>
+					<div class="form-group">
+						<label><strong>Last Name</strong> <span class="import-font-primary">*</span> </label>
+						<input class="form-control pr-5" type="text" name="last_name" value="{{user.last_name}}" required>
+					</div>
+				</div>
 
-				<h6>E-mail Notifications</h6>
-				<p>{{user.notifications}}</p>
-			</div>
+				<div class="col-lg-6 px-3">
+
+					<div class="form-group">
+						<label><strong>Suffix</strong></label>
+						<input class="form-control pr-5" type="text" name="suffix" {% if user.suffix %} value="{{user.suffix}}" {% endif %} required>
+					</div>
+
+					<div class="form-group">
+						<label><strong>Student Number</strong></label>
+						<div class="d-flex">
+							<input class="form-control pr-5" type="text" name="studentnum" {% if user.studentnum %} value="{{user.studentnum}}" {% endif %} required>
+
+							<span class="d-none position-absolute my-auto sn-vis-val">
+								<input type="checkbox" name="show_studentnum" value="show" {% if user.show_studentnum.value %}checked{% endif %}>
+							</span>
+							<i class="material-icons my-auto togglable ml-3 mr-2 {% if user.show_studentnum.value %}active-button{% endif %}" onclick="$('.sn-vis-val input').click();">
+								visibility{% if not user.show_studentnum %}_off{%endif%}
+							</i>
+
+							<span class="icaption my-auto {% if user.show_studentnum.value %}active-button{% endif %}">
+								{% if user.show_studentnum.value %}
+									Shown
+								{% else %}
+									Hidden
+								{% endif %}
+							</span>
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label><strong>E-mail</strong> <span class="import-font-primary">*</span> </label>
+						<div class="d-flex">
+							<input class="form-control pr-5" type="text" name="e-mail" {% if user.email %} value="{{user.email}}" {% endif %} required>
+
+							<span class="d-none position-absolute my-auto em-vis-val">
+								<input type="checkbox" name="show_email" value="show" {% if user.show_email.value %}checked{% endif %}>
+							</span>
+							<i class="material-icons my-auto togglable ml-3 mr-2 {% if user.show_email.value %}active-button{% endif %}" onclick="$('.em-vis-val input').click();">
+								visibility{% if not user.show_email %}_off{%endif%}
+							</i>
+
+							<span class="icaption my-auto {% if user.show_email.value %}active-button{% endif %}">
+								{% if user.show_email.value %}
+									Shown
+								{% else %}
+									Hidden
+								{% endif %}
+							</span>
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label><strong>Course/Degree Program</strong> <span class="import-font-primary">*</span> </label>
+						<div class="d-flex">
+							<input class="form-control pr-5" type="text" name="course" {% if user.course %} value="{{user.course}}" {% endif %} required>
+						</div>
+					</div>
+
+					<hr>
+
+					<div class="form-group">
+						<div class="d-inline-flex">
+							<label class="my-auto mr-3"><strong>Dark Mode</strong></label>
+							<span class="my-auto d-none position-absolute dark-val">
+								<input type="checkbox" name="dark_mode" value="dark" {% if user.dark_mode.value %}checked{% endif %}>
+							</span>
+
+							<i class="material-icons my-auto togglable mr-2 {% if user.dark_mode.value %}active-button{% endif %}" onclick="$('.dark-val input').click(); DarkModeSwitch();">
+								{% if user.dark_mode.value %}
+									brightness_3
+								{% else %}
+									brightness_5
+								{% endif %}
+							</i>
+
+							<span class="icaption my-auto {% if user.dark_mode.value %}active-button{% endif %}">
+								{% if user.dark_mode.value %}
+									On
+								{% else %}
+									Off
+								{% endif %}
+							</span>
+						</div>
+					</div>
+
+					<div class="form-group">
+						<div class="d-inline-flex">
+							<label class="my-auto mr-3"><strong>E-mail Notifications</strong></label>
+							<span class="my-auto d-none position-absolute notif-val">
+								<input type="checkbox" name="em_notif" value="show" {% if user.notifications.value %}checked{% endif %}>
+							</span>
+
+							<i class="material-icons my-auto togglable mr-2 {% if user.notifications.value %}active-button{% endif %}" onclick="$('.notif-val input').click();">
+								{% if user.notifications.value %}
+									notifications_active
+								{% else %}
+									notifications_off
+								{% endif %}
+							</i>
+
+							<span class="icaption my-auto {% if user.notifications.value %}active-button{% endif %}">
+								{% if user.notifications.value %}
+									On
+								{% else %}
+									Off
+								{% endif %}
+							</span>
+						</div>
+					</div>
+
+				</div>
+			</form>
 		</div>
 	</div>
 
@@ -60,5 +206,48 @@
 
 {% block scripts %}
 
+	<script>
+
+	var darkelement;
+	var darkmatters;
+	var is_dark = {% if user.dark_mode.value %}true{% else %}false{%endif%};
+
+	function DarkModeSwitch(){
+  	
+    	if(is_dark){
+    		darkcontent.html("");
+    		is_dark = false;
+    	}	
+    	else{
+    		darkcontent.html(darkmatters);
+    		is_dark = true;
+    	}
+    }
+
+	var languagepic = {
+		{% for language in langlist %}
+	  		{% if forloop.counter0 != 0 %},{% endif %} '{{language.name}}' : '{{language.image.url}}' 
+		{% endfor %}
+	};
+
+	$(document).ready(function(){
+		//Initialize
+		$("head").children("style").each(function(){
+			if ($(this).attr("id") == "less:static-reviewer-css-import_dark"){
+  				darkcontent = $(this);
+  				darkmatters = $(this).html();
+  			}
+  		});	
+
+	   if (is_dark == false){
+			darkcontent.html("");
+		}
+	   
+	});
+
+
+
+	
+	</script>
 
 {% endblock %}
