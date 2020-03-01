@@ -19,9 +19,6 @@ def index(request):
 
 	return render(request, 'reviewer/index.html', context)
 
-def construction(request):
-	return render(request, 'reviewer/construction.html')
-
 def admin_course(request, purpose, course_id=""):
 	return admin_get_course(request, purpose, False, "", "")
 
@@ -403,12 +400,43 @@ def user(request, username):
 		return user_get(request, user_filter)
 		
 
+def user_settings_uname_is_unique(request, uname):
+	retval = False
+	filtername = ImportUser.objects.filter(username=uname)
+	
+	if (len(filtername) == 0 or uname == request.user.username):
+		retval = True
+	
+	return retval
+
 
 def user_settings(request):
 
 	if request.user.is_authenticated:
 		if request.method == 'POST':
-			return redirect('index')
+
+			queries = request.GET
+			data = request.POST
+			
+			if (queries["unamecheck"] == 'y'):
+
+				unamecheck_callback = {
+					'valid': 'n'
+				}
+
+				if (data["uname"] == ""):
+					unamecheck_callback['valid'] = 'e'
+				elif (user_settings_uname_is_unique(request, data["uname"])):
+					unamecheck_callback['valid'] = 'y'
+
+					if (data["uname"] == request.user.username):
+						unamecheck_callback['valid'] = 's'
+				
+				response = HttpResponse(json.dumps(unamecheck_callback))
+
+				return response
+			else:
+				return redirect('user', request.user.username)
 		else:
 
 			langlist = Language.objects.all()

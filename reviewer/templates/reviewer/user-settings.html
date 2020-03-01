@@ -21,15 +21,13 @@
 					<div class="form-group">
 						<label><strong>Username</strong> <span class="import-font-primary">*</span></label>
 						<div class="input-group">
-							<input class="form-control pr-5" type="text" name="username" value="{{user.username}}" required>
-							  <div class="position-absolute w-100 h-100">
-							    <div class="position-relative float-right d-flex h-100">
-							    	<div class="my-auto mx-3">
-							    		<div class="bg-success" style="width: 8px;height:8px; border-radius: 100%">
-							    		</div>
-							    	</div>
-							    </div>
-							  </div>
+							<input class="form-control pr-5 username-input" type="text" name="username" value="{{user.username}}" autocomplete="off" required>
+							<div class="valid-feedback">
+								Username is available.
+							</div>
+							<div class="invalid-feedback">
+								Username is already taken.
+							</div>
 						</div>
 					</div>
 
@@ -49,7 +47,7 @@
 							</small>
 						</div>
 						<a href="{% url 'password_change' %}" class="my-3 d-block">
-							<button class="btn btn-primary btn-sm">Change Password</button>
+							<button class="btn btn-primary btn-sm" type="button">Change Password</button>
 						</a>
 					</div>
 
@@ -60,7 +58,8 @@
 						<div class="d-flex">
 							<div class="lang-badge my-auto" {% if user.fave_lang %} style="background-image: url('{{user.fave_lang.image.url }}')" {% endif %}>
 							</div>
-							<select class="form-control ml-2 my-auto" name="fave_lang">
+							<select class="form-control ml-2 my-auto fave_lang" name="fave_lang">
+								<option>None</option>
 								{% for language in langlist %}
 							  		<option {% if language.name == user.fave_lang.name %} selected="selected" {% endif %}>{{language}}</option>
 								{% endfor %}
@@ -196,6 +195,11 @@
 						</div>
 					</div>
 
+					<hr>
+
+					<button class="btn btn-danger" type="button">Delete account</button>
+					<input type="submit" class="btn btn-primary float-right" value="Save changes">
+
 				</div>
 			</form>
 		</div>
@@ -212,24 +216,6 @@
 	var darkmatters;
 	var is_dark = {% if user.dark_mode.value %}true{% else %}false{%endif%};
 
-	function DarkModeSwitch(){
-  	
-    	if(is_dark){
-    		darkcontent.html("");
-    		is_dark = false;
-    	}	
-    	else{
-    		darkcontent.html(darkmatters);
-    		is_dark = true;
-    	}
-    }
-
-	var languagepic = {
-		{% for language in langlist %}
-	  		{% if forloop.counter0 != 0 %},{% endif %} '{{language.name}}' : '{{language.image.url}}' 
-		{% endfor %}
-	};
-
 	$(document).ready(function(){
 		//Initialize
 		$("head").children("style").each(function(){
@@ -242,7 +228,93 @@
 	   if (is_dark == false){
 			darkcontent.html("");
 		}
+
+		$(".fave_lang").val("{{user.fave_lang.name}}");
 	   
+	});
+
+	var languagepic = {
+		'None' : '',
+		{% for language in langlist %}
+	  		{% if forloop.counter0 != 0 %},{% endif %} '{{language.name}}' : '{{language.image.url}}' 
+		{% endfor %}
+	};
+
+	function DarkModeSwitch(){
+  	
+    	if(is_dark){
+    		darkcontent.html("");
+    		is_dark = false;
+    	}	
+    	else{
+    		darkcontent.html(darkmatters);
+    		is_dark = true;
+    	}
+    }
+
+
+	$(".username-input").change(function(){
+	  	{% if user.is_authenticated %}
+
+		    // Abort any pending request
+		    if (request) {
+		        request.abort();
+		    }
+		    // setup some local variables
+		    var unamecheck = $(this).val();
+
+
+		    // Fire off the request to url
+		    request =  $.ajax({
+	            type: 'post',
+	            url: "{% url 'user_settings' %}?unamecheck=y",
+	            data: {'uname': unamecheck},
+	            cache: false,
+	            headers: {'X-CSRFToken': '{{ csrf_token }}'}
+            });
+
+		    
+		     
+		    // Callback handler that will be called on success
+		    request.done(function (response, textStatus, jqXHR){
+		    	response = JSON.parse(response);
+		    	if (response.valid == 'y'){
+		    		$(".username-input").removeClass("is-invalid");
+		    		$(".username-input").addClass("is-valid");
+		    	}
+		    	else if (response.valid == 'n'){
+		    		$(".username-input").addClass("is-invalid");
+		    		$(".username-input").removeClass("is-valid");
+		    		$(".username-input").parent().find(".invalid-feedback").html("Username already taken.");
+		    	}
+		    	else if (response.valid == 'e'){
+		    		$(".username-input").addClass("is-invalid");
+		    		$(".username-input").removeClass("is-valid");
+		    		$(".username-input").parent().find(".invalid-feedback").html("Please enter a username.");
+		    	}
+		    	else if (response.valid == 's'){
+		    		$(".username-input").removeClass("is-invalid");
+		    		$(".username-input").removeClass("is-valid");
+		    	}
+		    });
+		    
+
+		    // Callback handler that will be called on failure
+		    request.fail(function (jqXHR, textStatus, errorThrown){
+		        // Log the error to the console
+		        console.error(
+		            "The following error occurred: "+
+		            textStatus, errorThrown
+		        );
+		    });
+
+    	{% endif %}
+	});
+
+	$(".fave_lang").change(function(){
+	  	{% if user.is_authenticated %}
+	  		$(".lang-badge").css("background-image", "url('" + languagepic[$(this).val()] +"')");
+    	{% endif %}
 	});
 
 

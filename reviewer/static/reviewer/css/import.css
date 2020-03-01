@@ -72,6 +72,10 @@ body{
 	background-color: transparent !important;
 }
 
+.btn-danger:hover{
+	color: #dc3545;
+}
+
 
 .form-control{
 	border-radius: 1px;

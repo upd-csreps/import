@@ -146,7 +146,14 @@
 				  	<fieldset>
 					{% for course in courses %}
 						<tr>
-					      <td scope="row">{{course.name}}</td>
+					      <td scope="row">
+					      	{{course.name}}
+					      	{% if not course.visible %}
+						      	<i class="material-icons my-auto ml-2">
+									visibility_off
+								</i>
+							{% endif %}
+					      </td>
 					      <td class="text-center">
 					      	<input type="checkbox" class="form-check-input prereq" name="prereq" value="{{course.id}}" id="id_prereq_{{forloop.counter0}}">
 					      </td>
