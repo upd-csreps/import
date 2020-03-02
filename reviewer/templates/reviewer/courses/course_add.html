@@ -102,8 +102,8 @@
 							{{ courseform.old_curr }}
 						</span>
 
-						<i class="material-icons my-auto togglable {% if courseform.old_curr.value %}active-button{% endif %}" onclick="$('.old-curr-val input').click()">
-							check_box{% if not courseform.old_curr.value %}_outline_blank{% endif %}
+						<i class="material-icons my-auto togglable {% if courseform.old_curr %}active-button{% endif %}" onclick="$('.old-curr-val input').click()">
+							check_box{% if not courseform.old_curr %}_outline_blank{% endif %}
 						</i>
 					
 						
@@ -117,8 +117,8 @@
 						<span class="d-none position-absolute my-auto course-vis-val">
 							{{ courseform.visible }}
 						</span>
-						<i class="material-icons my-auto togglable {% if courseform.visible.value %}active-button{% endif %}" onclick="$('.course-vis-val input').click()">
-							visibility{% if not courseform.visible.value %}_off{%endif%}
+						<i class="material-icons my-auto togglable {% if courseform.visible %}active-button{% endif %}" onclick="$('.course-vis-val input').click()">
+							visibility{% if not courseform.visible %}_off{%endif%}
 						</i>
 
 					</p>

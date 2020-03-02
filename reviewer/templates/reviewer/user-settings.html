@@ -16,6 +16,9 @@
 				Settings
 			</h1>
 			<form class="info mt-3 form-row" action="{% url 'user_settings' %}" method="post">
+
+				{% csrf_token %}
+
 				<div class="col-lg-6 px-3">
 					
 					<div class="form-group">
@@ -23,7 +26,7 @@
 						<div class="input-group">
 							<input class="form-control pr-5 username-input" type="text" name="username" value="{{user.username}}" autocomplete="off" required>
 							<div class="valid-feedback">
-								Username is available.
+								Username is available. Changing username may take some time.
 							</div>
 							<div class="invalid-feedback">
 								Username is already taken.
@@ -47,7 +50,12 @@
 							</small>
 						</div>
 						<a href="{% url 'password_change' %}" class="my-3 d-block">
-							<button class="btn btn-primary btn-sm" type="button">Change Password</button>
+							<button class="btn btn-primary btn-sm d-inline-flex px-3" type="button">
+								<i class="material-icons material-icon-sm my-auto mr-1">
+									settings
+								</i>
+								<span class="my=auto">Change Password</span>
+							</button>
 						</a>
 					</div>
 
@@ -72,8 +80,10 @@
 					<div class="form-group">
 						<label><strong>First Name</strong> <span class="import-font-primary">*</span> </label>
 						<input class="form-control pr-5" type="text" name="first_name" value="{{user.first_name}}" required>
+						<div class="invalid-feedback">
+							This field is required.
+						</div>
 					</div>
-
 					<div class="form-group">
 						<label><strong>Middle Name</strong></label>
 						<input class="form-control pr-5" type="text" name="middle_name" value="{{user.middle_name}}">
@@ -82,6 +92,9 @@
 					<div class="form-group">
 						<label><strong>Last Name</strong> <span class="import-font-primary">*</span> </label>
 						<input class="form-control pr-5" type="text" name="last_name" value="{{user.last_name}}" required>
+						<div class="invalid-feedback">
+							This field is required.
+						</div>
 					</div>
 				</div>
 
@@ -89,23 +102,25 @@
 
 					<div class="form-group">
 						<label><strong>Suffix</strong></label>
-						<input class="form-control pr-5" type="text" name="suffix" {% if user.suffix %} value="{{user.suffix}}" {% endif %} required>
+						<input class="form-control pr-5" type="text" name="suffix" {% if user.suffix %} value="{{user.suffix}}" {% endif %}>
 					</div>
 
 					<div class="form-group">
 						<label><strong>Student Number</strong></label>
 						<div class="d-flex">
-							<input class="form-control pr-5" type="text" name="studentnum" {% if user.studentnum %} value="{{user.studentnum}}" {% endif %} required>
-
+							<input class="form-control pr-5" type="text" name="studentnum" {% if user.studentnum %} value="{{user.studentnum}}" {% endif %}>
+							<div class="invalid-feedback">
+								This field is required.
+							</div>
 							<span class="d-none position-absolute my-auto sn-vis-val">
-								<input type="checkbox" name="show_studentnum" value="show" {% if user.show_studentnum.value %}checked{% endif %}>
+								<input type="checkbox" name="show_studentnum" value="show" {% if user.show_studentnum %}checked{% endif %}>
 							</span>
-							<i class="material-icons my-auto togglable ml-3 mr-2 {% if user.show_studentnum.value %}active-button{% endif %}" onclick="$('.sn-vis-val input').click();">
+							<i class="material-icons my-auto togglable ml-3 mr-2 {% if user.show_studentnum %}active-button{% endif %}" onclick="$('.sn-vis-val input').click();">
 								visibility{% if not user.show_studentnum %}_off{%endif%}
 							</i>
 
-							<span class="icaption my-auto {% if user.show_studentnum.value %}active-button{% endif %}">
-								{% if user.show_studentnum.value %}
+							<span class="icaption my-auto {% if user.show_studentnum %}active-button{% endif %}">
+								{% if user.show_studentnum %}
 									Shown
 								{% else %}
 									Hidden
@@ -118,16 +133,19 @@
 						<label><strong>E-mail</strong> <span class="import-font-primary">*</span> </label>
 						<div class="d-flex">
 							<input class="form-control pr-5" type="text" name="e-mail" {% if user.email %} value="{{user.email}}" {% endif %} required>
+							<div class="invalid-feedback">
+								This field is required.
+							</div>
 
 							<span class="d-none position-absolute my-auto em-vis-val">
-								<input type="checkbox" name="show_email" value="show" {% if user.show_email.value %}checked{% endif %}>
+								<input type="checkbox" name="show_email" value="show" {% if user.show_email %}checked{% endif %}>
 							</span>
-							<i class="material-icons my-auto togglable ml-3 mr-2 {% if user.show_email.value %}active-button{% endif %}" onclick="$('.em-vis-val input').click();">
+							<i class="material-icons my-auto togglable ml-3 mr-2 {% if user.show_email %}active-button{% endif %}" onclick="$('.em-vis-val input').click();">
 								visibility{% if not user.show_email %}_off{%endif%}
 							</i>
 
-							<span class="icaption my-auto {% if user.show_email.value %}active-button{% endif %}">
-								{% if user.show_email.value %}
+							<span class="icaption my-auto {% if user.show_email %}active-button{% endif %}">
+								{% if user.show_email %}
 									Shown
 								{% else %}
 									Hidden
@@ -140,28 +158,29 @@
 						<label><strong>Course/Degree Program</strong> <span class="import-font-primary">*</span> </label>
 						<div class="d-flex">
 							<input class="form-control pr-5" type="text" name="course" {% if user.course %} value="{{user.course}}" {% endif %} required>
+							<div class="invalid-feedback">
+								This field is required.
+							</div>
 						</div>
 					</div>
-
-					<hr>
 
 					<div class="form-group">
 						<div class="d-inline-flex">
 							<label class="my-auto mr-3"><strong>Dark Mode</strong></label>
 							<span class="my-auto d-none position-absolute dark-val">
-								<input type="checkbox" name="dark_mode" value="dark" {% if user.dark_mode.value %}checked{% endif %}>
+								<input type="checkbox" name="dark_mode" value="dark" {% if user.dark_mode %}checked{% endif %}>
 							</span>
 
-							<i class="material-icons my-auto togglable mr-2 {% if user.dark_mode.value %}active-button{% endif %}" onclick="$('.dark-val input').click(); DarkModeSwitch();">
-								{% if user.dark_mode.value %}
+							<i class="material-icons my-auto togglable mr-2 {% if user.dark_mode %}active-button{% endif %}" onclick="$('.dark-val input').click(); DarkModeSwitch();">
+								{% if user.dark_mode %}
 									brightness_3
 								{% else %}
 									brightness_5
 								{% endif %}
 							</i>
 
-							<span class="icaption my-auto {% if user.dark_mode.value %}active-button{% endif %}">
-								{% if user.dark_mode.value %}
+							<span class="icaption my-auto {% if user.dark_mode %}active-button{% endif %}">
+								{% if user.dark_mode %}
 									On
 								{% else %}
 									Off
@@ -174,19 +193,19 @@
 						<div class="d-inline-flex">
 							<label class="my-auto mr-3"><strong>E-mail Notifications</strong></label>
 							<span class="my-auto d-none position-absolute notif-val">
-								<input type="checkbox" name="em_notif" value="show" {% if user.notifications.value %}checked{% endif %}>
+								<input type="checkbox" name="em_notif" value="notif_on" {% if user.notifications %}checked{% endif %}>
 							</span>
 
-							<i class="material-icons my-auto togglable mr-2 {% if user.notifications.value %}active-button{% endif %}" onclick="$('.notif-val input').click();">
-								{% if user.notifications.value %}
+							<i class="material-icons my-auto togglable mr-2 {% if user.notifications %}active-button{% endif %}" onclick="$('.notif-val input').click();">
+								{% if user.notifications %}
 									notifications_active
 								{% else %}
 									notifications_off
 								{% endif %}
 							</i>
 
-							<span class="icaption my-auto {% if user.notifications.value %}active-button{% endif %}">
-								{% if user.notifications.value %}
+							<span class="icaption my-auto {% if user.notifications %}active-button{% endif %}">
+								{% if user.notifications %}
 									On
 								{% else %}
 									Off
@@ -197,8 +216,20 @@
 
 					<hr>
 
-					<button class="btn btn-danger" type="button">Delete account</button>
-					<input type="submit" class="btn btn-primary float-right" value="Save changes">
+					<button class="btn btn-danger d-inline-flex" type="button">
+						<i class="material-icons my-auto material-icon-sm ">
+						delete_forever
+						</i>
+						<span class="my-auto">Delete account</span>
+					</button>
+
+
+					<button class="btn btn-primary d-inline-flex float-right" type="submit">
+						<i class="material-icons my-auto material-icon-sm mr-2">
+							save
+						</i>
+						<span class="my-auto">Save changes</span>
+					</button>
 
 				</div>
 			</form>
@@ -212,9 +243,13 @@
 
 	<script>
 
+
+	{% if error %}
+	var errors = {{error}}
+	{% endif %}
 	var darkelement;
 	var darkmatters;
-	var is_dark = {% if user.dark_mode.value %}true{% else %}false{%endif%};
+	var is_dark = {% if user.dark_mode %}true{% else %}false{%endif%};
 
 	$(document).ready(function(){
 		//Initialize
@@ -315,6 +350,10 @@
 	  	{% if user.is_authenticated %}
 	  		$(".lang-badge").css("background-image", "url('" + languagepic[$(this).val()] +"')");
     	{% endif %}
+	});
+
+	$(".info").submit(function(){
+	  	request.abort();
 	});
 
 

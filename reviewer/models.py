@@ -95,16 +95,6 @@ class Comment(models.Model):
 		return	'Comment #{} - {}, {}'.format(self.id, self.course_attr, self.body[0:10])
 
 
-class Reply(models.Model):
-
-	comment = models.ForeignKey(Comment, on_delete=models.CASCADE)
-	user_attr = models.ForeignKey(ImportUser, on_delete=models.CASCADE)
-	body = models.CharField(max_length=140)
-	image = models.ImageField(verbose_name="Image", null=True, blank=True, upload_to=post_uploadto)
-	date_posted = models.DateTimeField("Date Posted", default=timezone.now)
-
-	def __str__(self):
-		return	'Reply to Comment #{} - {}, {}'.format(self.comment.id, self.id, self.course_attr, self.body[0:10])
 
 class Likes(models.Model):
 

@@ -72,7 +72,7 @@ body{
 	background-color: transparent !important;
 }
 
-.btn-danger:hover{
+.btn-danger:hover, .btn-danger:active {
 	color: #dc3545;
 }
 

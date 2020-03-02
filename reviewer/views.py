@@ -1,3 +1,7 @@
+import os
+from django.conf import settings
+import shutil
+
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate,login
 
@@ -351,19 +355,22 @@ def user_get(request, user_filter, error=None):
 
 	liked_comments_data = []
 
-	user_page_likes = Likes.objects.filter(user_attr=user_filter[0])
-
-	if request.user.is_authenticated:
-		user_likes = Likes.objects.filter(user_attr=request.user)
-		for i in user_likes:
-			liked_comments.append(int(i.comment.id))
-
-	for i in user_page_likes:
-		liked_comments_data.append(i.comment)
-
-	liked_comments_data.reverse()
+	
 
 	if (len(user_filter) > 0):
+
+		user_page_likes = Likes.objects.filter(user_attr=user_filter[0])
+
+		if request.user.is_authenticated:
+			user_likes = Likes.objects.filter(user_attr=request.user)
+			for i in user_likes:
+				liked_comments.append(int(i.comment.id))
+
+		for i in user_page_likes:
+			liked_comments_data.append(i.comment)
+
+		liked_comments_data.reverse()
+
 		comments = user_filter[0].comment_set.order_by('-date_posted')
 		context = {
 			'user_filt': user_filter[0],
@@ -412,13 +419,19 @@ def user_settings_uname_is_unique(request, uname):
 
 def user_settings(request):
 
+	willRender = True
+	error = []
+
 	if request.user.is_authenticated:
 		if request.method == 'POST':
 
 			queries = request.GET
 			data = request.POST
+
+			unmcheck = queries.get("unamecheck")
+			unmcheckbool = (unmcheck == 'y')
 			
-			if (queries["unamecheck"] == 'y'):
+			if (unmcheckbool):
 
 				unamecheck_callback = {
 					'valid': 'n'
@@ -436,8 +449,99 @@ def user_settings(request):
 
 				return response
 			else:
-				return redirect('user', request.user.username)
-		else:
+
+				emptyreqfields = []
+
+				if data["username"] == '':
+					emptyreqfields.append("username")
+				if data["first_name"] == '':
+					emptyreqfields.append("first_name")
+				if data["last_name"] == '':
+					emptyreqfields.append("last_name")
+				if data["e-mail"] == '':
+					emptyreqfields.append("e-mail")
+				if data["course"] == '':
+					emptyreqfields.append("course")
+
+				if len(emptyreqfields) == 0:
+
+					currentuname = request.user.username
+		
+					currentuser = request.user
+
+					username_valid = user_settings_uname_is_unique(request, data["username"])
+
+					if (username_valid):
+						currentuser.username = data["username"]
+						currentuser.first_name = data["first_name"]
+
+						if data["middle_name"] == "":
+							currentuser.middle_name = None
+						else:
+							currentuser.middle_name = data["middle_name"]
+						
+
+						
+						currentuser.last_name = data["last_name"]
+						currentuser.suffix = data["suffix"]
+
+						if data["studentnum"] == "":
+							currentuser.studentnum = None
+						else:
+							currentuser.studentnum = data["studentnum"]
+
+						currentuser.show_studentnum = (data.get("show_studentnum") == 'show')
+						currentuser.email = data["e-mail"]
+						currentuser.show_email = (data.get("show_email") == 'show')
+						currentuser.course = data["course"]
+						currentuser.fave_lang = Language.objects.get(name=data["fave_lang"])
+						currentuser.dark_mode = (data.get("dark_mode") == 'dark')
+						currentuser.notifications = (data.get("em_notif") == 'notif_on')
+		
+						currentuser.save()
+						if currentuname != data["username"]:
+							try:
+								oldUser = ImportUser.objects.get(username=currentuname)
+								filename = currentuser.prof_pic.name.split("/")[-1]
+
+								# Image Directory Replace
+								media_users_path = os.path.join(settings.MEDIA_ROOT, 'users')
+								old_path = os.path.join(media_users_path, currentuname)
+								new_path =  os.path.join(media_users_path, data["username"])
+
+								os.rename(old_path, new_path)
+								currentuser.prof_pic = 'users/{0}/{1}'.format(data["username"], filename)
+
+								user_page_likes = Likes.objects.filter(user_attr=oldUser)
+								user_comments = Comment.objects.filter(user_attr=oldUser)
+								user_announcements = Announcement.objects.filter(poster=oldUser)
+
+								for i in user_page_likes:
+									i.user_attr = currentuser
+									i.save()
+								for i in user_comments:
+									i.user_attr = currentuser
+									i.save()
+								for i in user_announcements:
+									i.poster = currentuser
+									i.save()
+
+								currentuser.save()
+								login(request, currentuser)
+								oldUser.delete()
+							except Exception as e:
+								# Atomicity
+								currentuser.delete()
+
+								print(e)
+
+						willRender = False
+
+						return redirect('user', request.user.username)
+				else:
+					error = emptyreqfields
+
+		if willRender:
 
 			langlist = Language.objects.all()
 
@@ -457,7 +561,9 @@ def user_settings(request):
 						'userpassword_salt' : ''.join(userpassword[2]), 
 						'userpassword_hash' : ''.join(userpassword[3]),
 						'langlist' : langlist,
-						'force_dark_mode' : True}
+						'force_dark_mode' : True,
+						'error' : error
+						}
 			return render(request, 'reviewer/user-settings.html', context)
 	else:
 		return redirect('index')
