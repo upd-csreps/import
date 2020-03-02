@@ -582,6 +582,9 @@ def register(request):
 
 			login(request, user)
 			return redirect('index')
+		else:
+			context = {'form': form}
+			return render(request, 'registration/register.html', context)
 	else:
 		if request.user.is_anonymous:
 			form = ImportUserCreationForm()

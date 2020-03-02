@@ -5,22 +5,49 @@
 	Register
 {% endblock %}
 
+{% load widget_tweaks %}
 {% block content %}
 	<div class="container py-5">
 		<div class="d-flex site-content">
-			<div class="m-auto">
+			<div class="mt-5 w-100">
 
 				<h1>Register</h1>
 				<form method="post" action="{% url 'register' %}">
 					{% csrf_token %}
 
 					{% if form.errors %}
-					<p>ERROR</p>
+						{% for field in form %}
+						 	{% for error in field.errors %}
+						 		<div class="alert alert-danger">
+						 			<strong>{{ error|escape }}</strong>
+						 		</div>
+						 	{% endfor %}
+						{% endfor %}
+						{% for error in form.non_field_errors %}
+							<div class="alert alert-danger">
+								<strong>{{ error|escape }}</strong>
+							</div>
+						{% endfor %}
 					{% endif %}
+
+					<div class="row">
+						<div class="col-lg-6">
+							<div class="form-group">
+								<label><strong>{{form.username.label_tag}}</strong> <span class="import-font-primary">*</span></label>
+								<div class="input-group">
+									{{form.username | add_class:"form-control"}}
+								</div>
+							</div>
+
+						</div>
+
+					</div>
+
+					
 
 					{{form.as_p}}
 
-					<p><input type="submit" value="Register"></p>
+					<p><button type="submit" class="btn btn-primary">Register</button>
 				</form>
 			</div>
 		</div>

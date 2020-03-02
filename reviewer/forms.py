@@ -64,9 +64,9 @@ class CommentForm(forms.Form):
 
 class ImportUserCreationForm(UserCreationForm):
 
-    class Meta(UserCreationForm):
-        model = ImportUser
-        fields = ('username', 'first_name', 'middle_name', 'last_name', 'suffix', 'studentnum', 'show_studentnum', 'email', 'show_email', 'course', 'fave_lang')
+	class Meta(UserCreationForm):
+		model = ImportUser
+		fields = ('username', 'first_name', 'middle_name', 'last_name', 'suffix', 'studentnum', 'show_studentnum', 'email', 'show_email', 'course', 'fave_lang')
 
 class ImportUserChangeForm(UserChangeForm):
 
