@@ -207,7 +207,7 @@
 							+ `</small>
 						</p>
 					</div>
-					<p>` + replace_url(bodystring) + `</p>` + hasImage(response, "comment") +`
+					<p>` + replace_url(replace_vid_url(bodystring)) + `</p>` + hasImage(response, "comment") +`
 					
 				</div>
 			</div>`;
@@ -218,16 +218,13 @@
 			
 			$(".course-comments").html(newcomment);
 			$(".the-new-comment").fadeIn(2000);
+			MathJax.typeset()
 			$(".the-new-comment").removeClass("the-new-comment");
 
 			coursect = coursect+1;
 
-			let countvalml = coursect + " comment";
-			if (coursect != 1){
-				countvalml = countvalml+"s";
-			}
 
-			$(".comme-count").html(countvalml);			
+			$(".comme-count").html(coursect);			
 			
 		}
 
@@ -350,12 +347,8 @@
 						$(".course-comments").html(halaml);
 			        }
 
-					let countvalml = coursect + " comment";
-					if (coursect != 1){
-						countvalml = countvalml+"s";
-					}
-
-					$(".comme-count").html(countvalml);	
+					
+					$(".comme-count").html(coursect);	
 
 
 			    	response = JSON.parse(response);
@@ -411,7 +404,7 @@
 														</small>
 													</p>
 												</div>
-												<p>`+  replace_url(response.body) +`</p>
+												<p>`+  replace_url(replace_vid_url(response.body)) +`</p>
 											` + hasImage(response, "comment") + `
 											</div>
 										</div>`)

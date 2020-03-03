@@ -210,28 +210,72 @@
 	}); 
 
 
-	
+	function replace_vid_url(content){
+		var pattern1 = /(?:http?s?:\/\/)?(?:www\.)?(?:vimeo\.com)\/?(.+)/g;
+	    var pattern2 = /(?:http?s?:\/\/)?(?:www\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=)?(.+)/g;
+	        //var pattern3 = /([-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?(?:jpg|jpeg|gif|png))/gi;
+	    
+	   // var replacement = '<iframe width="420" height="345" src="//player.vimeo.com/video/$1" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>';
+        //var new_content = content.replace(pattern1, replacement);
+
+        
+        var new_content = content.replace(pattern2, function(url){
+
+        	var newpattern2 = /(?:http?s?:\/\/)?(?:www\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=)?/g
+
+        	url = url.replace(newpattern2, '');
+
+        	var hotfix = url.includes('</p>');
+
+        	if(hotfix){
+        		url = url.replace('</p>', '');
+        	}
+        	
+        	var new_url = '<iframe class="mt-2" width="445" height="250" src="https://www.youtube.com/embed/' + url +'"" frameborder="0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+
+        	if (hotfix){
+        		new_url = new_url +'</p>';
+        	}
+
+        	return new_url;
+
+       	});
+
+        return new_content;
+
+	}	
 
 	//Hyperlink Support
 	 function replace_url(content){
+
 
 	  	   let url_length = 40;
 
 	  	   let linkico = ` <i class="material-icons link-ico my-auto ml-1 ">link</i>`;
 
-		   var exp_match = /(\b(https?|):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+		   var exp_match = /(\b[^\"](https?|):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
 		   var element_content=content.replace(exp_match, function(url){
 
-		   		url = url.trim()
+		   		hotfix = false;
+		   		if (url.charAt(0) == ">")
+		   			hotfix = true;
+
+		   		url = url.trim();
+		   		url = url.replace(/>/g, '');
 
 		   		let urltrim = url;
 
 		   		if (urltrim.length > url_length)
 		   			urltrim = urltrim.substring(0, url_length) + "..."
 
-		   		return ` <a class="d-inline-flex import-ex-link" target='_blank' href='` + url +`'>` 
+		   		var retval = ` <a class="d-inline-flex import-ex-link" target='_blank' href='` + url +`'>` 
 		   		+ `<img class="ml-1 mr-2 my-auto" src='http://s2.googleusercontent.com/s2/favicons?domain_url=` + url + 
-		   		`'>` + urltrim + linkico + `</a>` 
+		   		`'>` + urltrim + linkico + `</a>`;
+
+		   		if (hotfix)
+		   			retval = ">" + retval;
+
+		   		return retval;	
 
 		   });
 		   var new_exp_match =/(^|[^\/])(www\.[\S]+(\b|$))/gim;
@@ -316,24 +360,47 @@
 
     }
 
+
+    // Video Embed
+
+
+
+    // Final stuff after web Load
+
 	$(document).ready(function(){
+
 		//Initialize
 	   $('.comment-body').each(function(){
 
 	   		var content = $(this).html();
-	   		$(this).html(replace_url(content));
+	   		
+	   		$(this).html(replace_url(replace_vid_url(content)));
 
 	   });
 
 
 	   headerEffect();
 	   initPhotoLoad();
+
+
+		
+		
 	   
 	});
+
+	// Header Scroll
 
 	$(window).scroll(function (event) {
 	   headerEffect();    
 	});
 
+
+	
+
+
+
+
+
 	initSection();
 	
+

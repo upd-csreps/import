@@ -179,7 +179,7 @@
 				    <div class="ml-auto my-auto position-absolute active-visible">
 			    		<div class="d-flex position-relative" style="left: 2.15em; bottom:2.5em">
 							<i class="material-icons my-auto mr-2 import-font-primary">mode_comment</i> 
-							<div class="position-absolute  d-flex" style="color: white; width: 1.5em"><small class="created-count position-relative m-auto font-weight-bold" style="top:0.05em">
+							<div class="position-absolute  d-flex" style="color: white; width: 1.5em"><small class="liked-count position-relative m-auto font-weight-bold" style="top:0.05em">
 								{% if liked_comments_data|length  >= 1000000000 %}
 									{% widthratio liked_comments_data|length 1000000 1 %}B
 								{% elif liked_comments_data|length >= 1000000 %}
@@ -397,7 +397,6 @@
 
 		    	response = JSON.parse(response);
 
-
 		    	$("[data-comment-id='" + commentpassid +"']").find(".comment-like-count").html(response.count);
 
 		    	if (response.state){
@@ -419,6 +418,53 @@
 		            textStatus, errorThrown
 		        );
 		    });		 	
+		}); 
+
+		$(".course-comments").on("click", ".comment-delete" , function(){
+
+			let decision = confirm('Do you want to delete this comment?');
+
+			if(decision){
+				commentpass = $(this).parents(".comment");
+	 			commentpassid = commentpass.attr("data-comment-id");
+
+		 		if (request) {
+			        request.abort();
+			    }
+
+			    let del_url = "{% url 'course' '$course_code' 123456789 %}";
+
+		 		del_url = del_url.replace('$course_code', commentpass.attr("data-code"));
+		 		del_url = del_url.replace('123456789', commentpass.attr("data-number"));
+
+		 		request = $.ajax({
+			        url: del_url,
+			        type: "delete",
+			        data: commentpassid,
+			        headers: {'X-CSRFToken': '{{ csrf_token }}'}
+			    });
+
+			    // Callback handler that will be called on success
+			    request.done(function (response, textStatus, jqXHR){
+
+			        commentpass.remove();
+			        var commecount = parseInt($(".created-count").html());
+			        $(".created-count").html(commecount-1);
+
+			    });
+
+
+			    
+			    // Callback handler that will be called on failure
+			    request.fail(function (jqXHR, textStatus, errorThrown){
+			        // Log the error to the console
+			        console.error(
+			            "The following error occurred: "+
+			            textStatus, errorThrown
+			        );
+			    });
+
+		 	}
 		}); 
 
 
