@@ -50,32 +50,53 @@
 					<h3 class="h3 mx-auto my-3"><strong>{{user_filt.username}}</strong></h3>
 					<p class="mx-auto">Experience Points: {{user_filt.exp}}</p>
 
-					<small>
-					<div class="row">
-						<div class="col-6">
-							<p class="font-weight-bold mb-1">First Name</p>
-							<p class="d-inline-flex">
-								<span class="my-auto">{{user_filt.first_name}} {{user_filt.suffix}}</span>
-							</p>
-
-							{% if user_filt.middle_name != None %}
-								<p class="font-weight-bold mb-1">Middle Name</p>
+					<small class="mx-auto">
+						<div class="row">
+							<div class="col-6">
+								<p class="font-weight-bold mb-1">First Name</p>
 								<p class="d-inline-flex">
-									<span class="my-auto">{{user_filt.middle_name}}</span>
+									<span class="my-auto">{{user_filt.first_name}} {{user_filt.suffix}}</span>
 								</p>
-							{% endif %}
 
-							<p class="font-weight-bold mb-1">Last Name</p>
-							<p class="d-inline-flex">
-								<span class="my-auto">{{user_filt.last_name}}</span>
-							</p>
-						</div>
-						<div class="col-6">
-							{% if user_filt.studentnum != None %}
-								<p class="font-weight-bold mb-1">Student Number</p>
+								{% if user_filt.middle_name != None %}
+									<p class="font-weight-bold mb-1">Middle Name</p>
+									<p class="d-inline-flex">
+										<span class="my-auto">{{user_filt.middle_name}}</span>
+									</p>
+								{% endif %}
+
+								<p class="font-weight-bold mb-1">Last Name</p>
+								<p class="d-inline-flex">
+									<span class="my-auto">{{user_filt.last_name}}</span>
+								</p>
+							</div>
+							<div class="col-6">
+								{% if user_filt.studentnum != None %}
+									<p class="font-weight-bold mb-1">Student Number</p>
+									<p>
+										{% if user_filt.show_studentnum %} 
+											{{user_filt.studentnum}}
+										{% else %}
+											<span class="text-muted d-inline-flex">
+												<i class="material-icons material-icon-sm my-auto mr-2 info-help" title="Only you can see this information.">
+													visibility_off
+												</i>
+												<span class="my-auto">
+													{% if user.username == user_filt.username %}
+														{{user_filt.studentnum}}
+													{% else %}
+														Hidden
+													{% endif %}
+												</span>
+											</span>
+										{% endif %}
+										</p>
+								{% endif %}
+
+								<p class="font-weight-bold mb-1">E-mail</p>
 								<p>
-									{% if user_filt.show_studentnum %} 
-										{{user_filt.studentnum}}
+									{% if user_filt.show_email %} 
+										{{user_filt.email}}
 									{% else %}
 										<span class="text-muted d-inline-flex">
 											<i class="material-icons material-icon-sm my-auto mr-2 info-help" title="Only you can see this information.">
@@ -83,42 +104,21 @@
 											</i>
 											<span class="my-auto">
 												{% if user.username == user_filt.username %}
-													{{user_filt.studentnum}}
+													{{user_filt.email }}
 												{% else %}
 													Hidden
 												{% endif %}
 											</span>
 										</span>
 									{% endif %}
-									</p>
-							{% endif %}
+								</p>
 
-							<p class="font-weight-bold mb-1">E-mail</p>
-							<p>
-								{% if user_filt.show_email %} 
-									{{user_filt.email}}
-								{% else %}
-									<span class="text-muted d-inline-flex">
-										<i class="material-icons material-icon-sm my-auto mr-2 info-help" title="Only you can see this information.">
-											visibility_off
-										</i>
-										<span class="my-auto">
-											{% if user.username == user_filt.username %}
-												{{user_filt.email }}
-											{% else %}
-												Hidden
-											{% endif %}
-										</span>
-									</span>
+								{% if user_filt.course != None or user_filt.course != "" %}
+									<p class="font-weight-bold mb-1">Degree Program</p>
+									<p>{{user_filt.course}}</p>
 								{% endif %}
-							</p>
-
-							{% if user_filt.course != None or user_filt.course != "" %}
-								<p class="font-weight-bold mb-1">Degree Program</p>
-								<p>{{user_filt.course}}</p>
-							{% endif %}
+							</div>
 						</div>
-					</div>
 					</small>
 
 					{% if user.username == user_filt.username %}
@@ -128,7 +128,7 @@
 									<i class="material-icons material-icon-sm my-auto">
 										settings
 									</i>
-									<span class="my-auto ml-1 d-none d-md-block">
+									<span class="my-auto ml-1">
 									Edit Profile Settings</span>	
 								</div>
 							</button>
@@ -199,113 +199,136 @@
 				<div class="tab-content" id="myTabContent">
 				  <div class="tab-pane fade show active" id="created" role="tabpanel" aria-labelledby="created-tab">
 				  	<div class="comments px-3" style="overflow-y: scroll; overflow-wrap: break-word; height: 65vh">
-						{% for comment in user_comments %}
-							<div class="py-4 px-4 d-flex {% if forloop.counter0 == 0 %} my-3 {% else %} mb-3 {% endif %} comment" data-comment-id="comment-{{comment.id}}" data-code="{{comment.course_attr.code|lower}}" data-number="{{comment.course_attr.number}}">
-								<img class="user-pic-thumb" src="
-								{% if user_filt.prof_pic %}
-									{{user_filt.prof_pic.url}}
-								{% else %}
-									{% static 'reviewer/images/default_profile.png' %}
-								{% endif %}
+			  			{% if user_comments.count == 0 %}
 
-								">
-								<div class="ml-4 w-100">
-									<div class="d-flex w-100 justify-content-between my-2">
-										<span class="d-inline-flex">
-											<strong class="comment-username my-auto">{{comment.user_attr.username}}</strong> 
-											<a class="text-muted user-comment-course-link my-auto" href="{% url 'course' comment.course_attr.code|lower comment.course_attr.number  %}" >
-												<small class="d-inline-flex">
-													<i class="material-icons my-auto mx-1" style="font-size: 0.75em">arrow_forward</i>
-													<span class="my-auto">{{comment.course_attr.name}}</span>
-												</small>
-											</a>
-										</span>
-										<p class="my-auto">
-											<div class="d-inline-flex ml-auto">
-												<span class="mr-3 my-auto d-flex">
-													<i class="material-icons material-icon-sm {% if user.is_authenticated %}comment-like{%endif%}">
-														star_border
-													</i> 
-													<div class="my-auto ml-1 mr-2 comment-like-count inline-block">
-														{{ comment.likes_set.all.count }}
-													</div>
-													{% if user == comment.user_attr %}
-														<i class="material-icons  material-icon-sm comment-delete" title="Delete comment">delete</i>
-													{% endif %}
-												</span>
-												<small class="my-auto">{{comment.date_posted|date:"M d, Y, h:i A"}}</small>
-											</div>
-										</p>
-									</div>
-									<div class="comment-body">
-										{{comment.body| linebreaks}}
-									</div>
-									{% if comment.image %}
-										<img class="mt-3 d-block comment-image "src="{{comment.image.url}}">
-									{% endif %}
-								
-								</div>
+			  				<div class="mt-3 d-inline-flex">
+				  				<i class="material-icons my-auto mr-2">
+								comment
+								</i>
+								<span class="my-auto">{{user_filt.username}} has not made any comments.</span>
 							</div>
-						{% endfor %}
+
+						{% else %}
+							{% for comment in user_comments %}
+								<div class="py-4 px-4 d-flex {% if forloop.counter0 == 0 %} my-3 {% else %} mb-3 {% endif %} comment" data-comment-id="comment-{{comment.id}}" data-code="{{comment.course_attr.code|lower}}" data-number="{{comment.course_attr.number}}">
+									<img class="user-pic-thumb" src="
+									{% if user_filt.prof_pic %}
+										{{user_filt.prof_pic.url}}
+									{% else %}
+										{% static 'reviewer/images/default_profile.png' %}
+									{% endif %}
+
+									">
+									<div class="ml-4 w-100">
+										<div class="d-flex w-100 justify-content-between my-2">
+											<span class="d-inline-flex">
+												<strong class="comment-username my-auto">{{comment.user_attr.username}}</strong> 
+												<a class="text-muted user-comment-course-link my-auto" href="{% url 'course' comment.course_attr.code|lower comment.course_attr.number  %}" >
+													<small class="d-inline-flex">
+														<i class="material-icons my-auto mx-1" style="font-size: 0.75em">arrow_forward</i>
+														<span class="my-auto">{{comment.course_attr.name}}</span>
+													</small>
+												</a>
+											</span>
+											<p class="my-auto">
+												<div class="d-inline-flex ml-auto">
+													<span class="mr-3 my-auto d-flex">
+														<i class="material-icons material-icon-sm {% if user.is_authenticated %}comment-like{%endif%}">
+															star_border
+														</i> 
+														<div class="my-auto ml-1 mr-2 comment-like-count inline-block">
+															{{ comment.likes_set.all.count }}
+														</div>
+														{% if user == comment.user_attr %}
+															<i class="material-icons  material-icon-sm comment-delete" title="Delete comment">delete</i>
+														{% endif %}
+													</span>
+													<small class="my-auto">{{comment.date_posted|date:"M d, Y, h:i A"}}</small>
+												</div>
+											</p>
+										</div>
+										<div class="comment-body">
+											{{comment.body| linebreaks}}
+										</div>
+										{% if comment.image %}
+											<img class="mt-3 d-block comment-image "src="{{comment.image.url}}">
+										{% endif %}
+									
+									</div>
+								</div>
+							{% endfor %}
+						{% endif %}
+						
 					</div>
 				  </div>
 				  <div class="tab-pane fade" id="liked" role="tabpanel" aria-labelledby="liked-tab">
 				  	
 				  	<div class="comments px-3" style="overflow-y: scroll; overflow-wrap: break-word; height: 65vh">
-						{% for comment in liked_comments_data %}
-							<div class="py-4 px-4 d-flex {% if forloop.counter0 == 0 %} my-3 {% else %} mb-3 {% endif %} comment" data-comment-id="comment-{{comment.id}}" data-code="{{comment.course_attr.code|lower}}" data-number="{{comment.course_attr.number}}">
-								{% if comment.user_attr != user %}<a href="{% url 'user' comment.user_attr.username %}">{% endif %}
-									<img class="user-pic-thumb" src="
-									{% if comment.user_attr.prof_pic %}
-										{{comment.user_attr.prof_pic.url}}
-									{% else %}
-										{% static 'reviewer/images/default_profile.png' %}
-									{% endif %}
-									">
-								{% if comment.user_attr != user %}</a>{% endif %}
-					
-								<div class="ml-4 w-100">
-									<div class="d-flex w-100 justify-content-between my-2">
-										<span class="d-inline-flex">
-											<strong class="comment-username my-auto">
-												{% if comment.user_attr != user %}<a href="{% url 'user' comment.user_attr.username %}" class="comment-username">{% endif %}
-													{{comment.user_attr.username}}
-												{% if comment.user_attr != user %}</a>{% endif %}
-											</strong> 
-											<a class="text-muted user-comment-course-link my-auto" href="{% url 'course' comment.course_attr.code|lower comment.course_attr.number  %}" >
-												<small class="d-inline-flex">
-													<i class="material-icons my-auto mx-1" style="font-size: 0.75em">arrow_forward</i>
-													<span class="my-auto">{{comment.course_attr.name}}</span>
-												</small>
-											</a>
-										</span>
-										<p class="my-auto">
-											<div class="d-inline-flex ml-auto">
-												<span class="mr-3 my-auto d-flex">
-													<i class="material-icons material-icon-sm {% if user.is_authenticated %}comment-like{%endif%}">
-														star_border
-													</i> 
-													<div class="my-auto ml-1 mr-2 comment-like-count inline-block">
-														{{ comment.likes_set.all.count }}
-													</div>
-													{% if user == comment.user_attr %}
-														<i class="material-icons  material-icon-sm comment-delete" title="Delete comment">delete</i>
-													{% endif %}
-												</span>
-												<small class="my-auto">{{comment.date_posted|date:"M d, Y, h:i A"}}</small>
-											</div>
-										</p>
-									</div>
-									<div class="comment-body">
-										{{comment.body| linebreaks}}
-									</div>
-									{% if comment.image %}
-										<img class="mt-3 d-block comment-image "src="{{comment.image.url}}">
-									{% endif %}
-								
-								</div>
+
+				  		{% if liked_comments_data|length == 0 %}
+				  			<div class="mt-3 d-inline-flex">
+				  				<i class="material-icons my-auto mr-2">
+									star
+								</i>
+								<span class="my-auto">{{user_filt.username}} has not liked any comments.</span>
 							</div>
-						{% endfor %}
+						{% else %}
+							{% for comment in liked_comments_data %}
+								<div class="py-4 px-4 d-flex {% if forloop.counter0 == 0 %} my-3 {% else %} mb-3 {% endif %} comment" data-comment-id="comment-{{comment.id}}" data-code="{{comment.course_attr.code|lower}}" data-number="{{comment.course_attr.number}}">
+									{% if comment.user_attr != user %}<a href="{% url 'user' comment.user_attr.username %}">{% endif %}
+										<img class="user-pic-thumb" src="
+										{% if comment.user_attr.prof_pic %}
+											{{comment.user_attr.prof_pic.url}}
+										{% else %}
+											{% static 'reviewer/images/default_profile.png' %}
+										{% endif %}
+										">
+									{% if comment.user_attr != user %}</a>{% endif %}
+						
+									<div class="ml-4 w-100">
+										<div class="d-flex w-100 justify-content-between my-2">
+											<span class="d-inline-flex">
+												<strong class="comment-username my-auto">
+													{% if comment.user_attr != user %}<a href="{% url 'user' comment.user_attr.username %}" class="comment-username">{% endif %}
+														{{comment.user_attr.username}}
+													{% if comment.user_attr != user %}</a>{% endif %}
+												</strong> 
+												<a class="text-muted user-comment-course-link my-auto" href="{% url 'course' comment.course_attr.code|lower comment.course_attr.number  %}" >
+													<small class="d-inline-flex">
+														<i class="material-icons my-auto mx-1" style="font-size: 0.75em">arrow_forward</i>
+														<span class="my-auto">{{comment.course_attr.name}}</span>
+													</small>
+												</a>
+											</span>
+											<p class="my-auto">
+												<div class="d-inline-flex ml-auto">
+													<span class="mr-3 my-auto d-flex">
+														<i class="material-icons material-icon-sm {% if user.is_authenticated %}comment-like{%endif%}">
+															star_border
+														</i> 
+														<div class="my-auto ml-1 mr-2 comment-like-count inline-block">
+															{{ comment.likes_set.all.count }}
+														</div>
+														{% if user == comment.user_attr %}
+															<i class="material-icons  material-icon-sm comment-delete" title="Delete comment">delete</i>
+														{% endif %}
+													</span>
+													<small class="my-auto">{{comment.date_posted|date:"M d, Y, h:i A"}}</small>
+												</div>
+											</p>
+										</div>
+										<div class="comment-body">
+											{{comment.body| linebreaks}}
+										</div>
+										{% if comment.image %}
+											<img class="mt-3 d-block comment-image "src="{{comment.image.url}}">
+										{% endif %}
+									
+									</div>
+								</div>
+							{% endfor %}
+				  		{% endif %}
+						
 					</div>
 
 				  </div>

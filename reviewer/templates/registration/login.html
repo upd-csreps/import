@@ -5,13 +5,20 @@
 	Login
 {% endblock %}
 
+{% load static %}
 {% block content %}
 
 	{% if user.is_authenticated %}
 
 		<div class="container py-5 d-flex site-container">
 			<div class="m-auto d-flex flex-column">
-				<a href="{% url 'user' user.username %}" class="m-auto"> <img src="{{user.prof_pic.url}}" style="height: 10em; width:10em; border-radius: 100%"></a>
+				<a href="{% url 'user' user.username %}" class="m-auto"> <img src="
+					{% if user.prof_pic %}
+						{{user.prof_pic.url}}
+					{% else %}
+						{% static 'reviewer/images/default_profile.png' %}
+					{% endif %}
+					" style="height: 10em; width:10em; border-radius: 100%"></a>
 				<p class="mt-4 text-center">You are currently logged in as: <strong>{{user.username}}</strong></p>
 				<a href="{% url 'user' user.username %}" class="m-auto">
 					<button class="btn btn-primary d-flex justify-content-center" type="submit">
@@ -24,7 +31,7 @@
 		</div>
 
 	{% else %}
-		<div class="container py-5">
+		<div class="container py-4">
 			<div class="d-flex site-content">
 				<div class="m-auto w-50">
 					{% if form.errors %}
@@ -52,9 +59,21 @@
 			                {{ field.errors }}
 				        {% endfor %}
 
-				        <button class="btn btn-primary d-flex justify-content-center" type="submit">
-							<span class="my-auto">Login</span>
-						</button>
+				        <div class="d-flex justify-content-between">
+					      
+							<a href="{% url 'register' %}" class="text-muted my-auto">
+								Register
+							</a>
+
+							 <button class="btn btn-primary d-flex justify-content-center my-auto" type="submit">
+
+								<span class="my-auto">Login</span>
+
+								<i class="material-icons material-icon-sm my-auto">
+									arrow_forward
+								</i>
+							</button>
+						</div>
 						
 						<input type="hidden" name="next" value="{{next}}">
 					</form>

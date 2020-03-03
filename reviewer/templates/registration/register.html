@@ -6,6 +6,7 @@
 {% endblock %}
 
 {% load widget_tweaks %}
+{% load static %}
 {% block content %}
 	<div class="container py-5">
 		<div class="d-flex site-content">
@@ -16,13 +17,6 @@
 					{% csrf_token %}
 
 					{% if form.errors %}
-						{% for field in form %}
-						 	{% for error in field.errors %}
-						 		<div class="alert alert-danger">
-						 			<strong>{{ error|escape }}</strong>
-						 		</div>
-						 	{% endfor %}
-						{% endfor %}
 						{% for error in form.non_field_errors %}
 							<div class="alert alert-danger">
 								<strong>{{ error|escape }}</strong>
@@ -33,24 +27,365 @@
 					<div class="row">
 						<div class="col-lg-6">
 							<div class="form-group">
-								<label><strong>{{form.username.label_tag}}</strong> <span class="import-font-primary">*</span></label>
+								<label for="{{ form.username.id_for_label }}"><strong>{{form.username.label_tag}}</strong> <span class="import-font-primary">*</span></label>
+
+								{% if form.username.errors %}
+									<div class="inline-flex">
+										
+										<small class="text-danger my-auto font-weight-bold">	{{form.username.errors}} </small>
+									</div>
+								{% endif %}
 								<div class="input-group">
-									{{form.username | add_class:"form-control"}}
+									{{form.username | add_class:"form-control username-input" |attr:"autocomplete:off"}}
+
+									<div class="valid-feedback">
+										Username is available.
+									</div>
+									<div class="invalid-feedback">
+										Username is already taken.
+									</div>
+								</div>
+								
+							</div>
+
+							<div class="row">
+								<div class="form-group col-6">
+									<label for="{{ form.first_name.id_for_label }}">
+										<strong>{{form.first_name.label_tag}}</strong> 
+										<span class="import-font-primary">*</span>
+									</label>
+
+									{% if form.first_name.errors %}
+										<div class="inline-flex">
+											<i class="material-icons material-icon-sm text-danger my-auto">
+												error_outline
+											</i>
+											<small class="text-danger my-auto font-weight-bold">	{{form.first_name.errors}} </small>
+										</div>
+									{% endif %}
+
+									<div class="input-group">
+										{{form.first_name | add_class:"form-control"}}
+									</div>
+								</div>
+
+								<div class="form-group col-6">
+									<label for="{{ form.middle_name.id_for_label }}">
+										<strong>{{form.middle_name.label_tag}}</strong> 
+									</label>
+
+									{% if form.middle_name.errors %}
+										<div class="inline-flex">
+											<i class="material-icons material-icon-sm text-danger my-auto">
+												error_outline
+											</i>
+											<small class="text-danger my-auto font-weight-bold">	{{form.middle_name.errors}} </small>
+										</div>
+									{% endif %}
+
+									<div class="input-group">
+										{{form.middle_name | add_class:"form-control"}}
+									</div>
+								</div>
+
+								<div class="form-group col-6">
+									<label for="{{ form.last_name.id_for_label }}">
+										<strong>{{form.last_name.label_tag}}</strong> 
+										<span class="import-font-primary">*</span>
+									</label>
+
+									{% if form.last_name.errors %}
+										<div class="inline-flex">
+											<i class="material-icons material-icon-sm text-danger my-auto">
+												error_outline
+											</i>
+											<small class="text-danger my-auto font-weight-bold">	{{form.last_name.errors}} </small>
+										</div>
+									{% endif %}
+
+									<div class="input-group">
+										{{form.last_name | add_class:"form-control"}}
+									</div>
+								</div>
+
+								<div class="form-group col-6">
+									<label for="{{ form.suffix.id_for_label }}">
+										<strong>{{form.suffix.label_tag}}</strong> 
+									</label>
+
+									{% if form.suffix.errors %}
+										<div class="inline-flex">
+											<i class="material-icons material-icon-sm text-danger my-auto">
+												error_outline
+											</i>
+											<small class="text-danger my-auto font-weight-bold">	{{form.suffix.errors}} </small>
+										</div>
+									{% endif %}
+
+									<div class="input-group">
+										{{form.suffix | add_class:"form-control"}}
+									</div>
+								</div>
+
+							</div>
+
+
+							<div class="form-group">
+								<label for="{{ form.studentnum.id_for_label }}">
+									<strong>{{form.studentnum.label_tag}}</strong> 
+									<span class="import-font-primary">*</span>
+								</label>
+
+								{% if form.studentnum.errors %}
+									<div class="inline-flex">
+										
+										<small class="text-danger my-auto font-weight-bold">	{{form.studentnum.errors}} </small>
+									</div>
+								{% endif %}
+
+								<div class="input-group">
+									{{form.studentnum | add_class:"form-control"}}
 								</div>
 							</div>
+
+							<div class="form-group d-none">
+								<label for="{{ form.show_studentnum.id_for_label }}">
+									<strong>{{form.show_studentnum.label_tag}}</strong> 
+									<span class="import-font-primary">*</span>
+								</label>
+
+								{% if form.show_studentnum.errors %}
+									<div class="inline-flex">
+										
+										<small class="text-danger my-auto font-weight-bold">	{{form.show_studentnum.errors}} </small>
+									</div>
+								{% endif %}
+
+								<div class="form-check">
+									{{form.show_studentnum | add_class:"form-check-input"}}
+								</div>
+							</div>
+
+							<div class="form-group">
+								<label for="{{ form.email.id_for_label }}">
+									<strong>{{form.email.label_tag}}</strong> 
+									<span class="import-font-primary">*</span>
+								</label>
+
+								{% if form.email.errors %}
+									<div class="inline-flex">
+										
+										<small class="text-danger my-auto font-weight-bold">	{{form.email.errors}} </small>
+									</div>
+								{% endif %}
+
+								<div class="input-group">
+									{{form.email | add_class:"form-control"}}
+								</div>
+							</div>
+
+							<div class="form-group d-none">
+								<label for="{{ form.show_email.id_for_label }}">
+									<strong>{{form.show_email.label_tag}}</strong> 
+									<span class="import-font-primary">*</span>
+								</label>
+
+								{% if form.show_email.errors %}
+									<div class="inline-flex">
+										
+										<small class="text-danger my-auto font-weight-bold">	{{form.show_email.errors}} </small>
+									</div>
+								{% endif %}
+
+								<div class="form-check">
+									{{form.show_email | add_class:"form-check-input"}}
+								</div>
+							</div>
+
+						
+						</div>
+
+						<div class="col-lg-6">
+
+							<div class="form-group">
+								<label for="{{ form.course.id_for_label }}">
+									<strong>{{form.course.label_tag}}</strong> 
+									<span class="import-font-primary">*</span>
+								</label>
+
+								{% if form.course.errors %}
+									<div class="inline-flex">
+										
+										<small class="text-danger my-auto font-weight-bold">	{{form.course.errors}} </small>
+									</div>
+								{% endif %}
+
+								<div class="input-group">
+									{{form.course | add_class:"form-control"}}
+								</div>
+							</div>	
+
+
+
+							<div class="form-group">
+								<label for="{{ form.fave_lang.id_for_label }}">
+									<strong>{{form.fave_lang.label_tag}}</strong> 
+									<span class="import-font-primary">*</span>
+								</label>
+
+								{% if form.fave_lang.errors %}
+									<div class="inline-flex">
+										
+										<small class="text-danger my-auto font-weight-bold">	{{form.fave_lang.errors}} </small>
+									</div>
+								{% endif %}
+
+								<div class="input-group d-flex">
+									<div class="lang-badge my-auto"  style="background-image: url('')">
+									</div>
+									{{form.fave_lang | add_class:"form-control my-auto ml-3 fave_lang"}}
+								</div>
+							</div>	
+
+
+							<div class="form-group">
+								<label for="{{ form.password1.id_for_label }}"><strong>{{form.password1.label_tag}}</strong> <span class="import-font-primary">*</span></label>
+
+								{% if form.password1.errors %}
+									<div class="inline-flex">
+										
+										<small class="text-danger my-auto font-weight-bold">	{{form.password1.errors}} </small>
+									</div>
+								{% endif %}
+
+								<div class="input-group">
+									{{form.password1 | add_class:"form-control"}}
+								</div>
+
+								<div class="text-muted mt-3">
+									<small>
+										{{ form.password1.help_text }}
+									</small>
+								</div>
+								
+							</div>
+
+
+							<div class="form-group">
+								<label for="{{ form.password2.id_for_label }}"><strong>{{form.password2.label_tag}}</strong> <span class="import-font-primary">*</span></label>
+
+								{% if form.password2.errors %}
+									<div class="inline-flex">
+										
+										<small class="text-danger my-auto font-weight-bold">	{{form.password2.errors}} </small>
+									</div>
+								{% endif %}
+
+								<div class="input-group">
+									{{form.password2 | add_class:"form-control"}}
+								</div>
+
+								<div class="text-muted mt-3">
+									<small>
+										{{ form.password2.help_text }}
+									</small>
+								</div>	
+								
+							</div>
+
 
 						</div>
 
 					</div>
 
-					
+					<hr>
 
-					{{form.as_p}}
-
-					<p><button type="submit" class="btn btn-primary">Register</button>
+					<button type="submit" class="btn btn-primary float-right">
+						Register
+					</button>
 				</form>
 			</div>
 		</div>
 	</div>
+
+{% endblock %}
+
+{% block scripts %}
+
+	<script>
+
+		{% if error %}
+		var errors = {{error}};
+		{% endif %}
+
+		var languagepic = {
+			'---------' : '',
+			{% for language in langlist %}
+		  		{% if forloop.counter0 != 0 %},{% endif %} '{{forloop.counter}}' : '{{language.image.url}}' 
+			{% endfor %}
+		};
+
+
+		$(".username-input").change(function(){
+
+			    // Abort any pending request
+			    if (request) {
+			        request.abort();
+			    }
+			    // setup some local variables
+			    var unamecheck = $(this).val();
+
+
+			    // Fire off the request to url
+			    request =  $.ajax({
+		            type: 'post',
+		            url: "{% url 'register' %}?unamecheck=y",
+		            data: {'uname': unamecheck},
+		            cache: false,
+		            headers: {'X-CSRFToken': '{{ csrf_token }}'}
+	            });
+
+			    
+			     
+			    // Callback handler that will be called on success
+			    request.done(function (response, textStatus, jqXHR){
+			    	response = JSON.parse(response);
+			    	if (response.valid == 'y'){
+			    		$(".username-input").removeClass("is-invalid");
+			    		$(".username-input").addClass("is-valid");
+			    	}
+			    	else if (response.valid == 'n'){
+			    		$(".username-input").addClass("is-invalid");
+			    		$(".username-input").removeClass("is-valid");
+			    		$(".username-input").parent().find(".invalid-feedback").html("Username already taken.");
+			    	}
+			    	else if (response.valid == 'e'){
+			    		$(".username-input").addClass("is-invalid");
+			    		$(".username-input").removeClass("is-valid");
+			    		$(".username-input").parent().find(".invalid-feedback").html("Please enter a username.");
+			    	}
+			    	else if (response.valid == 's'){
+			    		$(".username-input").removeClass("is-invalid");
+			    		$(".username-input").removeClass("is-valid");
+			    	}
+			    });
+			    
+
+			    // Callback handler that will be called on failure
+			    request.fail(function (jqXHR, textStatus, errorThrown){
+			        // Log the error to the console
+			        console.error(
+			            "The following error occurred: "+
+			            textStatus, errorThrown
+			        );
+			    });
+
+		});
+
+		$(".fave_lang").change(function(){
+		  	$(".lang-badge").css("background-image", "url('" + languagepic[$(this).val()] +"')");
+		});
+	
+	</script>
 
 {% endblock %}

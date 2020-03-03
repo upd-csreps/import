@@ -3,7 +3,7 @@ from django.conf import settings
 import shutil
 
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate,login
+from django.contrib.auth import authenticate,login,logout
 
 from django.http import Http404, HttpResponse, HttpResponseForbidden
 from PIL import Image
@@ -448,6 +448,18 @@ def user_settings(request):
 				response = HttpResponse(json.dumps(unamecheck_callback))
 
 				return response
+
+			elif (queries.get("delete") == 'true'):
+
+				userauth = authenticate(username=request.user.username, password=data.get("password"))
+				willRender = False
+
+				if userauth == request.user:
+					logout(request)
+					userauth.delete()
+					return redirect('index')
+				else:
+					return redirect('user_settings')
 			else:
 
 				emptyreqfields = []
@@ -541,6 +553,8 @@ def user_settings(request):
 				else:
 					error = emptyreqfields
 
+	
+
 		if willRender:
 
 			langlist = Language.objects.all()
@@ -570,25 +584,57 @@ def user_settings(request):
 
 
 def register(request):
-	
+
+	langlist = Language.objects.all()
+
 	if request.method == 'POST':
-		form = ImportUserCreationForm(request.POST)
+		
+		queries = request.GET
+		data = request.POST
 
-		if form.is_valid():
-			form.save()
-			username = form.cleaned_data['username']
-			password = form.cleaned_data['password1']
-			user = authenticate(username=username, password=password)
+		unmcheck = queries.get("unamecheck")
+		unmcheckbool = (unmcheck == 'y')
+		
+		if (unmcheckbool):
 
-			login(request, user)
-			return redirect('index')
+			unamecheck_callback = {
+				'valid': 'n'
+			}
+
+			if (data["uname"] == ""):
+				unamecheck_callback['valid'] = 'e'
+			elif (user_settings_uname_is_unique(request, data["uname"])):
+				unamecheck_callback['valid'] = 'y'
+
+				if (data["uname"] == request.user.username):
+					unamecheck_callback['valid'] = 's'
+			
+			response = HttpResponse(json.dumps(unamecheck_callback))
+
+			return response
+
 		else:
-			context = {'form': form}
-			return render(request, 'registration/register.html', context)
+
+			form = ImportUserCreationForm(request.POST)
+			if form.is_valid():
+				username = form.cleaned_data['username']
+				password = form.cleaned_data['password1']
+				if (user_settings_uname_is_unique(request, username)):
+					form.save()
+					user = authenticate(username=username, password=password)
+
+					login(request, user)
+					return redirect('index')
+				else:
+					context = {'form': form, 'langlist' : langlist}
+					return render(request, 'registration/register.html', context)
+			else:
+				context = {'form': form, 'langlist' : langlist}
+				return render(request, 'registration/register.html', context)
 	else:
 		if request.user.is_anonymous:
 			form = ImportUserCreationForm()
-			context = {'form': form}
+			context = {'form': form, 'langlist' : langlist}
 			return render(request, 'registration/register.html', context)
 		else:
 			return redirect('login')

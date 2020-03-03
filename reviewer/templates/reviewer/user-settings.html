@@ -34,75 +34,37 @@
 						</div>
 					</div>
 
-					<div class="form-group">
+					
+					<hr>
 
-						<label><strong>Password Data</strong></label>
-						<div>
-							<small>
-								<div class="d-inline-flex flex-column">
-									<span class="mr-1"><strong>Algorithm:</strong> {{	userpassword_algo}}</span>
-									<span class="mr-1"><strong>Iterations:</strong> {{userpassword_iterations}}</span>
-								</div>
-								<div class="d-inline-flex flex-column">
-									<span class="mr-1"><strong>Salt:</strong> {{userpassword_salt}}</span>
-									<span class="mr-1"><strong>Hash:</strong> {{userpassword_hash}}</span>
-								</div>
-							</small>
-						</div>
-						<a href="{% url 'password_change' %}" class="my-3 d-block">
-							<button class="btn btn-primary btn-sm d-inline-flex px-3" type="button">
-								<i class="material-icons material-icon-sm my-auto mr-1">
-									settings
-								</i>
-								<span class="my=auto">Change Password</span>
-							</button>
-						</a>
-					</div>
-
-					<div class="form-group">
-
-						<label><strong>Favorite Language</strong></label>
-						
-						<div class="d-flex">
-							<div class="lang-badge my-auto" {% if user.fave_lang %} style="background-image: url('{{user.fave_lang.image.url }}')" {% endif %}>
+					<h5 class="mb-3">Personal Information</h5>
+					
+					<div class="row">
+						<div class="form-group col-6">
+							<label><strong>First Name</strong> <span class="import-font-primary">*</span> </label>
+							<input class="form-control pr-5" type="text" name="first_name" value="{{user.first_name}}" required>
+							<div class="invalid-feedback">
+								This field is required.
 							</div>
-							<select class="form-control ml-2 my-auto fave_lang" name="fave_lang">
-								<option>None</option>
-								{% for language in langlist %}
-							  		<option {% if language.name == user.fave_lang.name %} selected="selected" {% endif %}>{{language}}</option>
-								{% endfor %}
-							</select>
+						</div>
+						<div class="form-group col-6">
+							<label><strong>Middle Name</strong></label>
+							<input class="form-control pr-5" type="text" name="middle_name" value="{{user.middle_name}}">
 						</div>
 
-					</div>
-
-
-					<div class="form-group">
-						<label><strong>First Name</strong> <span class="import-font-primary">*</span> </label>
-						<input class="form-control pr-5" type="text" name="first_name" value="{{user.first_name}}" required>
-						<div class="invalid-feedback">
-							This field is required.
+						<div class="form-group col-6">
+							<label><strong>Last Name</strong> <span class="import-font-primary">*</span> </label>
+							<input class="form-control pr-5" type="text" name="last_name" value="{{user.last_name}}" required>
+							<div class="invalid-feedback">
+								This field is required.
+							</div>
 						</div>
-					</div>
-					<div class="form-group">
-						<label><strong>Middle Name</strong></label>
-						<input class="form-control pr-5" type="text" name="middle_name" value="{{user.middle_name}}">
-					</div>
 
-					<div class="form-group">
-						<label><strong>Last Name</strong> <span class="import-font-primary">*</span> </label>
-						<input class="form-control pr-5" type="text" name="last_name" value="{{user.last_name}}" required>
-						<div class="invalid-feedback">
-							This field is required.
+
+						<div class="form-group col-6">
+							<label><strong>Suffix</strong></label>
+							<input class="form-control pr-5" type="text" name="suffix" {% if user.suffix %} value="{{user.suffix}}" {% endif %}>
 						</div>
-					</div>
-				</div>
-
-				<div class="col-lg-6 px-3">
-
-					<div class="form-group">
-						<label><strong>Suffix</strong></label>
-						<input class="form-control pr-5" type="text" name="suffix" {% if user.suffix %} value="{{user.suffix}}" {% endif %}>
 					</div>
 
 					<div class="form-group">
@@ -163,6 +125,55 @@
 							</div>
 						</div>
 					</div>
+				</div>
+
+				<div class="col-lg-6 px-3">
+
+					<h5 class="mb-3">Preferences</h5>
+
+					
+					<div class="form-group">
+
+						<label><strong>Password Data</strong></label>
+						<div>
+							<small>
+								<div class="d-inline-flex flex-column">
+									<span class="mr-1"><strong>Algorithm:</strong> {{	userpassword_algo}}</span>
+									<span class="mr-1"><strong>Iterations:</strong> {{userpassword_iterations}}</span>
+								</div>
+								<div class="d-inline-flex flex-column">
+									<span class="mr-1"><strong>Salt:</strong> {{userpassword_salt}}</span>
+									<span class="mr-1"><strong>Hash:</strong> {{userpassword_hash}}</span>
+								</div>
+							</small>
+						</div>
+						<a href="{% url 'password_change' %}" class="my-3 d-block">
+							<button class="btn btn-primary btn-sm d-inline-flex px-3" type="button">
+								<i class="material-icons material-icon-sm my-auto mr-1">
+									settings
+								</i>
+								<span class="my=auto">Change Password</span>
+							</button>
+						</a>
+					</div>					
+
+					<div class="form-group">
+
+						<label><strong>Favorite Language</strong></label>
+						
+						<div class="d-flex">
+							<div class="lang-badge my-auto" {% if user.fave_lang %} style="background-image: url('{{user.fave_lang.image.url }}')" {% endif %}>
+							</div>
+							<select class="form-control ml-2 my-auto fave_lang" name="fave_lang">
+								<option>None</option>
+								{% for language in langlist %}
+							  		<option {% if language.name == user.fave_lang.name %} selected="selected" {% endif %}>{{language}}</option>
+								{% endfor %}
+							</select>
+						</div>
+
+					</div>
+
 
 					<div class="form-group">
 						<div class="d-inline-flex">
@@ -215,24 +226,60 @@
 					</div>
 
 					<hr>
+					<div class="d-flex mt-4">
 
-					<button class="btn btn-danger d-inline-flex" type="button">
-						<i class="material-icons my-auto material-icon-sm ">
-						delete_forever
-						</i>
-						<span class="my-auto">Delete account</span>
-					</button>
+						<div class="mx-auto">
+
+							<a href="#" >
+								<button class="btn btn-danger d-inline-flex" type="button" data-toggle="modal" data-target="#PasswordModalCenter">
+									<i class="material-icons my-auto material-icon-sm ">
+									delete_forever
+									</i>
+									<span class="my-auto">Delete account</span>
+								</button>
+							</a>
 
 
-					<button class="btn btn-primary d-inline-flex float-right" type="submit">
-						<i class="material-icons my-auto material-icon-sm mr-2">
-							save
-						</i>
-						<span class="my-auto">Save changes</span>
-					</button>
+							<button class="btn btn-primary d-inline-flex" type="submit">
+								<i class="material-icons my-auto material-icon-sm mr-2">
+									save
+								</i>
+								<span class="my-auto">Save changes</span>
+							</button>
+						</div>
+					</div>
 
 				</div>
 			</form>
+
+			<div class="modal fade" id="PasswordModalCenter" tabindex="-1" role="dialog" aria-labelledby="PasswordModalCenterTitle" aria-hidden="true">
+			  <div class="modal-dialog modal-dialog-centered" role="document">
+			    <div class="modal-content">
+			      <div class="modal-header">
+			        <h5 class="modal-title">Confirm action</h5>
+			        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			          <span aria-hidden="true">&times;</span>
+			        </button>
+			      </div>
+			      <form class="p-3" action="{% url 'user_settings' %}?delete=true" method="post">
+			      		{% csrf_token %}
+				      <div class="modal-body">
+				        Please enter your password below.
+					    <input class="form-control my-3" type="password" name="password" required>
+					   
+				      </div>
+				      <div class="modal-footer">
+				        <button class="btn btn-danger d-inline-flex delete-account" type="submit" >
+							<i class="material-icons my-auto material-icon-sm ">
+							delete_forever
+							</i>
+							<span class="my-auto">Delete account</span>
+						</button>
+				      </div>
+				   </form>
+			    </div>
+			  </div>
+			</div>
 		</div>
 	</div>
 
@@ -357,6 +404,27 @@
 	});
 
 
+	$('.delete-account').on('click', function () {
+       
+	
+
+		//Password check as data then delete account
+ 		if (request) {
+	        request.abort();
+	    }
+
+	    /*
+ 		request = $.ajax({
+	        url: "{% url 'user_settings' %}",
+	        type: "delete",
+	        data: {},
+	        headers: {'X-CSRFToken': '{{ csrf_token }}'}
+	    });
+
+	    */
+
+	
+    });
 
 	
 	</script>
