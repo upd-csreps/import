@@ -37,6 +37,7 @@ class Language(models.Model):
 
 	name = models.CharField(max_length=20)
 	image = models.ImageField(verbose_name="Icon", upload_to=language_uploadto)
+	color = models.CharField(max_length=6, default="868686")
 
 	def __str__(self):
 		return	'{}'.format(self.name)
@@ -178,4 +179,21 @@ class Reference(models.Model):
 	def __str__(self):
 		return	'{}: {}'.format(self.course, self.title)
 
+class LessonStats(models.Model):
+	
+	lesson_attr = models.ForeignKey(Course, on_delete=models.CASCADE)
+	user_attr = models.ForeignKey(ImportUser, on_delete=models.CASCADE)
+	date_made = models.DateTimeField("Date", default=timezone.now)
+	skips = models.PositiveSmallIntegerField(default=0)
+	mistakes = models.PositiveSmallIntegerField(default=0)
 
+	def __str__(self):
+		return	'{0} on {1}| {2}'.format(self.user_attr, self.lesson_attr, self.date_made)
+
+class SiteSettings(models.Model):
+
+	name = models.CharField(max_length=50)
+	body = models.CharField(max_length=300)
+
+	def __str__(self):
+		return	'{}'.format(self.name)

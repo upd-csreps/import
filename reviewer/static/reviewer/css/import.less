@@ -64,12 +64,20 @@ body{
 	border-color: @ImportPrimary;
 }
 
-.btn-primary:hover, .btn-primary:focus{
+.btn-primary:hover{
+	background-color: @ImportPrimary !important;
+	border-color: @ImportPrimary;
+	color: @ImportSecondary;
+}
+
+.btn-primary:focus{
+	background-color: transparent !important;
 	color: @ImportPrimary;
 	border-color: @ImportPrimary;
 }
 
 .btn-primary:active{
+
 	color: @ImportPrimary !important;
 }
 
@@ -148,6 +156,15 @@ footer{
 .lang-badge{
 	background-color: @HeaderScroll;
 	border: 0.45em solid @HeaderScroll;
+}
+
+.nav-pills a{
+	color: @TextColor;
+}
+
+.nav-pills .nav-link.active, .nav-pills .show>.nav-link, .dropdown-item:active, .dropdown-item:focus{
+	background-color: @ImportPrimary;
+	color: white !important; 
 }
 
 

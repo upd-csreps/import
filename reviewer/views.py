@@ -8,20 +8,136 @@ from django.contrib.auth import authenticate,login,logout
 from django.http import Http404, HttpResponse, HttpResponseForbidden
 from PIL import Image
 from django.contrib.auth import get_user_model
-from .models import Course, Announcement, ImportUser, Comment, Likes, Language
+from .models import Course, Announcement, ImportUser, Comment, Likes, Language, LessonStats
 from .forms import CourseForm, CommentForm, ImportUserCreationForm
-import math
+from math import ceil
+import datetime
 import json
 
 
 # Create your views here.
 
 def index(request):
-	announcements = Announcement.objects.order_by('datepost')
+	announcements = Announcement.objects.order_by('-datepost')
 
 	context = {'announcements': announcements, 'ann_len': len(announcements)}
 
 	return render(request, 'reviewer/index.html', context)
+
+def admin(request):
+	return redirect('admin_dashboard')
+
+def admin_dashboard(request):
+
+	current_page = "dashboard"
+	if request.user.is_anonymous:
+		return redirect('login')
+	else:
+		if request.user.is_superuser:
+			# Top Users
+			topusers = ImportUser.objects.order_by('-exp')[0:5]
+
+			# Language Pref
+
+			lang_stat = {}
+			languages = Language.objects.order_by('name')
+
+			for language in languages:
+				lang_stat[language.name]= [language.name, language.image.url, '#'+str(language.color), language.importuser_set.all().count()]
+				
+
+			# 30 Days Engagement
+
+			dateoftoday = datetime.datetime.today()
+			last_month = dateoftoday - datetime.timedelta(days=30)
+			activities = LessonStats.objects.filter(date_made__gt=last_month).order_by('date_made')
+			activ_obj = {}
+			user_obj = {}
+			skip_obj = {}
+			mistakes_obj = {}
+			activity_date_data = [0] * 30
+
+			if len(activities) == 0:
+				activ_obj = None
+				user_obj = None
+				skip_obj = None
+				mistakes_obj = None
+			else:
+				for activity in activities:
+
+					# Course Data
+					if activity.lesson_attr.course.name in activ_obj:
+						activ_obj[activity.lesson_attr.course.name] = activ_obj[activity.lesson_attr.course.name]+1
+					else:
+						activ_obj[activity.lesson_attr.course.name] = 1
+
+					# User Data
+					if activity.user_attr in user_obj:
+						user_obj[activity.user_attr] = user_obj[activity.user_attr]+1
+					else:
+						user_obj[activity.user_attr] = 1
+
+					# Skipped Data
+					if activity.skips > 0:
+						if activity.lesson_attr.id in skip_obj:
+							skip_obj[activity.lesson_attr.id] = skip_obj[activity.lesson_attr.id] + activity.skips
+						else:
+							skip_obj[activity.lesson_attr.id] = activity.skips
+
+					# Mistakes Data
+					if activity.mistakes > 0:
+						if activity.lesson_attr.id in mistakes_obj:
+							mistakes_obj[activity.lesson_attr.id] = mistakes_obj[activity.lesson_attr.id] + activity.mistakes
+						else:
+							mistakes_obj[activity.lesson_attr.id] = activity.mistakes
+
+					# Full Activity
+					diff = 30-(dateoftoday-activity.date_made)
+					activity_date_data[diff.days] = activity_date_data[diff.days] + 1
+
+				activ_obj = sorted(activ_obj.items(), key = lambda kv:(kv[1], kv[0]), reverse=True)[0:5]
+				user_obj = sorted(user_obj.items(), key = lambda kv:(kv[1], kv[0]), reverse=True)[0:5]
+				skip_obj = sorted(skip_obj.items(), key = lambda kv:(kv[1], kv[0]), reverse=True)[0:5]
+				mistakes_obj = sorted(mistakes_obj.items(), key = lambda kv:(kv[1], kv[0]), reverse=True)[0:5]
+
+
+			context = {
+				'topusers' : topusers,
+				'lang_stat' : lang_stat,
+				'course_eng' : activ_obj,
+				'active_users' : user_obj,
+				'activities' : activity_date_data,
+				'skip_data' : skip_obj,
+				'mistakes_data' : mistakes_obj,
+				'activity_total' : activities.count(),
+				'currpage' : current_page
+			}
+
+		else:
+			context = {'currpage' : current_page}
+
+		return render(request, 'reviewer/admin/dashboard.html', context)
+
+def admin_users(request):
+
+	current_page = "users"
+	if request.user.is_anonymous:
+		return redirect('login')
+	else:
+		if request.user.is_superuser:
+			# Users
+			users = ImportUser.objects.order_by('username')[0:5]
+
+			context = {
+				'users' : users,
+				'currpage' : current_page
+			}
+
+		else:
+			context = {'currpage' : current_page}
+
+		return render(request, 'reviewer/admin/users.html', context)
+
 
 def admin_course(request, purpose, course_id=""):
 	return admin_get_course(request, purpose, False, "", "")
@@ -114,6 +230,7 @@ def admin_get_course(request, purpose, ajax=True, course_subj="", course_num="")
 						if ((image_uploaded != None) or (data.get('imagehascleared', False) != False )):
 							edit_course.image = image_uploaded
 
+						edit_course.lastupdated = datetime.datetime.now()
 						edit_course.save()
 						edit_course.prereqs.set(Course.objects.filter(id__in=prereq_list))
 						edit_course.coreqs.set(Course.objects.filter(id__in=coreq_list))
@@ -170,7 +287,8 @@ def admin_get_course(request, purpose, ajax=True, course_subj="", course_num="")
 			if ajax == True:
 				return render(request, 'reviewer/courses/course_add.html', context)
 			else:	
-				return render(request, 'reviewer/admin.html', context)
+				context["currpage"] = "courses"
+				return render(request, 'reviewer/admin/course_admin.html', context)
 		
 	else:
 		raise HttpResponseForbidden()
@@ -208,7 +326,7 @@ def coursecpage(request, csubj, cnum, catchar = 'l', cpage = 1):
 		course_comments_filtered = coursefilter[0].comment_set.order_by('-date_posted')[startindex:startindex+page_ct_limit]
 		course_commentstotal = len(coursefilter[0].comment_set.order_by('-date_posted'))
 
-		page_ct = int(math.ceil(course_commentstotal/page_ct_limit))
+		page_ct = int(ceil(course_commentstotal/page_ct_limit))
 
 		if (cpage > page_ct and page_ct != 0):
 			return redirect('course', csubj, cnum)
@@ -346,7 +464,6 @@ def comment_like(request, csubj, cnum):
 		return response
 
 
-
 # User Views
 
 def user_get(request, user_filter, error=None):
@@ -354,8 +471,6 @@ def user_get(request, user_filter, error=None):
 	liked_comments = []
 
 	liked_comments_data = []
-
-	
 
 	if (len(user_filter) > 0):
 
@@ -379,7 +494,7 @@ def user_get(request, user_filter, error=None):
 			'liked_comments': str(liked_comments) ,
 			'liked_comments_data' : liked_comments_data
 		}
-		return render(request, 'reviewer/user.html', context)
+		return render(request, 'reviewer/user/user.html', context)
 	else:
 		raise Http404("User does not exist.")
 
@@ -493,7 +608,6 @@ def user_settings(request):
 							currentuser.middle_name = data["middle_name"]
 						
 
-						
 						currentuser.last_name = data["last_name"]
 						currentuser.suffix = data["suffix"]
 
@@ -578,7 +692,7 @@ def user_settings(request):
 						'force_dark_mode' : True,
 						'error' : error
 						}
-			return render(request, 'reviewer/user-settings.html', context)
+			return render(request, 'reviewer/user/user-settings.html', context)
 	else:
 		return redirect('index')
 

@@ -1,0 +1,56 @@
+{% extends 'reviewer/base.html' %}
+
+{% load static %}
+
+
+{% block content %}
+	<div class="container pt-5">
+		<div class="my-5 py-3">
+			<div class="row">
+				{% if user.is_authenticated and user.is_superuser %}
+
+					<div class="col-lg-3">
+						<div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+						  <a href="{% url 'admin_dashboard' %}"class="nav-link {% if currpage == "dashboard" %}active{% endif %}" id="v-pills-dashboard-tab" role="tab" aria-controls="v-pills-dashboard" aria-selected="{% if currpage == "dashboard" %}true{% else %}false{% endif %}">
+						  	Dashboard
+						  </a>
+						  <a href="{% url 'admin_users' %}" class="nav-link  {% if currpage == "users" %}active{% endif %}" id="v-pills-users-tab" role="tab" aria-controls="v-pills-users" aria-selected="{% if currpage == "users" %}true{% else %}false{% endif %}">
+						  	Users
+						  </a>
+						  <a class="nav-link {% if currpage == "courses" %}active{% endif %}" id="v-pills-courses-tab" data-toggle="pill" role="tab" aria-controls="v-pills-courses" aria-selected="{% if currpage == "courses" %}true{% else %}false{% endif %}">
+						  	Courses
+						  </a>
+						   <a class="nav-link" id="v-pills-languages-tab" data-toggle="pill" href="#v-pills-languages" role="tab" aria-controls="v-pills-languages" aria-selected="false">
+						  	Languages
+						  </a>
+						  <a class="nav-link" id="v-pills-announcements-tab" data-toggle="pill" href="#v-pills-announcements" role="tab" aria-controls="v-pills-announcements" aria-selected="false">
+						  	Announcements
+						  </a>
+						   <a class="nav-link" id="v-pills-partners-tab" data-toggle="pill" href="#v-pills-partners" role="tab" aria-controls="v-pills-partners" aria-selected="false">
+						  	Partners
+						  </a>
+						  <a class="nav-link" id="v-pills-ssettings-tab" data-toggle="pill" href="#v-pills-ssetings" role="tab" aria-controls="v-pills-ssettings" aria-selected="false">
+						  	Site Settings
+						  </a>
+						</div>
+					</div>
+					<div class="col-lg-9">
+						<div class="tab-content" id="v-pills-tabContent">
+							{% block admin_side %}
+
+
+							{% endblock %}
+						</div>
+					</div>
+
+				{% else %}
+
+					<div class="col-12">
+						You are not authorized to access this page.
+					</div>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+
+{% endblock %}

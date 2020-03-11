@@ -133,23 +133,7 @@
 			  		{% include 'reviewer/partials/course/course-comments.html' %}
 			  </div>
 			  <div class="tab-pane fade {% if section == 'r' %} show active{%endif%}" id="ref" role="tabpanel" aria-labelledby="ref-tab">
-			  		<div class="course-ref mt-3">
-			  			<div class="p-3 d-flex justify-content-between">
-			  				<div class="d-flex">
-			  					<i class="material-icons my-auto import-font-primary">
-									insert_drive_file
-								</i>
-								<h5 class="my-auto ml-3">Quiwa Book</h5>
-
-			  				</div>
-			  				
-			  				<div>
-					  				<i class="material-icons">
-										open_in_new
-									</i>
-							</div>
-			  			</div>
-			  		</div>
+			  		{% include 'reviewer/partials/course/course-references.html' %}
 			  </div>
 			</div>
 		</div>
@@ -157,6 +141,32 @@
 {% endblock %}
 
 {% block scripts %}
+
+	<!-- References -->
+	<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.2.228/build/pdf.min.js"></script>
+	<script>
+		let pdfurl = "https://drive.google.com/u/0/uc?id=1CEID1w9qkpusXMHM7XBFLGH9kvqCXwk4";
+
+		let pdfDoc = null, pageisRendering = false, pagenumpend = null, pagenum = 1;
+
+		const scale = 1.5,
+		canvas =document.querySelector("#ref-1"),
+		ctx = canvas.getContext('2d');
+
+		const RenderPage = num =>{
+
+		};
+
+		//Get Document
+
+		pdfjsLib.getDocument(pdfurl).promise.then(pdfDoc_ =>{
+			pdfDoc = pdfDoc_;
+			console.log(pdfDoc);
+		});
+	</script>
+
+
+	<!-- Comments -->
 	<script class="d-none">
 		var coursect =  {{course_comment_count}};
 

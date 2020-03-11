@@ -32,8 +32,8 @@
 							{% endif %}
 						{% endif %}
 
-						{% if user.fave_lang %}
-							<div class="position-absolute lang-badge lang-badge-offset" style="background-image: url('{{user.fave_lang.image.url}}');">
+						{% if user_filt.fave_lang %}
+							<div class="position-absolute lang-badge lang-badge-offset" style="background-image: url('{{user_filt.fave_lang.image.url}}');">
 							</div>
 						{% endif %}
 					</div>

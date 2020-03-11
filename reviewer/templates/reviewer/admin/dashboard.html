@@ -1,0 +1,193 @@
+{% extends 'reviewer/admin/admin.html' %}
+
+{% load static %}
+{% block title %}
+	Admin Dashboard
+{% endblock %}
+
+
+{% block admin_side %}
+	<div class="tab-pane fade show active" id="v-pills-dashboard" role="tabpanel" aria-labelledby="v-pills-dashboard-tab">
+
+		<div class="alert alert-light alert-dismissible fade show p-3 mb-3" role="alert">
+			<div class="d-flex">
+				<div class="d-flex rounded-circle import-bg-primary my-auto align-items-center" style="width:50px;height:50px;">
+						<i class="material-icons import-font-secondary">
+					verified_user
+					</i>
+
+				</div>
+
+				<span class="m-auto">Welcome to the administrator menu.</span>
+			</div>
+
+		  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+		    <span aria-hidden="true">&times;</span>
+		  </button>
+		</div>
+
+		<h2 class="font-weight-bold mb-3">Statistics</h2>
+
+		<div class="row">
+			<div class="col-lg-6">
+				<small class="font-weight-bold">User Language Preference</small>
+				<div class="chart-container p-2" style="width: 280px; height:210px;">
+					<canvas id="LangChart" width="280" height="210"></canvas>
+				</div>
+			</div>
+			<div class="col-lg-6">
+				<div class="mb-2"><small class="font-weight-bold">Top {{ topusers.count }} Users</small></div>
+				{% for top_user in topusers %}
+					<div class="d-flex py-2">
+						<span class="my-auto">{{forloop.counter}}</span>
+						<a href="{% url 'user' top_user.username %}" class="d-inline-flex">
+							<div class="mx-3 my-auto">
+								<img class="user-pic my-auto" src="
+								{% if top_user.prof_pic %}
+									{{top_user.prof_pic.url}}
+								{% else %}
+									{% static 'reviewer/images/default_profile.png' %}
+								{% endif %}
+
+								" style="width:40px;height:40px">
+							</div>
+							<span class="my-auto font-weight-bold comment-username">{{top_user.username}}</span>
+						</a>
+						<small class="ml-auto my-auto">{{top_user.exp}} pts</small>
+					</div>
+				{% endfor %}
+			</div>
+		</div>
+
+
+		<h3 class="mt-3">Insights since 30 days ago</h3>
+
+		<div class="">
+			<small class="font-weight-bold">Site Activity</small>
+			<div class="d-flex">
+				<div class="chart-container p-2 mt-2 mb-auto" style="width: 350px; height:320px;">
+					<canvas id="ActivityChart" width="350" height="320"></canvas>
+				</div>
+				<div class="my-auto ml-3 text-center text-lg-left">
+					<h1 class="h1 import-font-primary mb-1">{{activity_total}}</h1> 
+					<small>total site activities</small>
+				</div>
+			</div>
+		</div>
+
+		<hr>
+		<div class="row mt-3">
+			<div class="col-lg-6">
+				<div class="mb-2"><small class="font-weight-bold">Top 5 Active Users</small></div>
+				{% if active_users %}
+
+				{% else %}
+					No data to show.
+				{% endif %}
+			</div>
+			
+			<div class="col-lg-6">
+				<div class="mb-2"><small class="font-weight-bold">Most Answered Courses</small></div>
+				{% if course_eng %}
+
+				{% else %}
+					No data to show.
+				{% endif %}
+			</div>
+		</div>
+
+
+		<div class="row mt-3">
+			<div class="col-lg-6">
+				<div class="mb-2"><small class="font-weight-bold">Most Skipped Lessons</small></div>
+				{% if skip_data %}
+
+				{% else %}
+					No data to show.
+				{% endif %}
+			</div>
+			<div class="col-lg-6">
+				<div class="mb-2"><small class="font-weight-bold">Lessons with Most Mistakes</small></div>
+				{% if mistakes_data %}
+
+				{% else %}
+					No data to show.
+				{% endif %}
+			</div>
+		</div>
+	</div>
+
+{% endblock %}
+
+
+{% block scripts %}
+
+	<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3"></script>
+	<script>
+
+		var lang_stat = {{lang_stat|safe}};
+
+		var lang_data = {
+			datasets: [{
+				data: [],
+				backgroundColor: []
+			}],
+			labels: []
+		};
+
+
+		for (var lang in lang_stat){
+
+			lang_data.datasets[0].data.push(lang_stat[lang][3]);
+			lang_data.datasets[0].backgroundColor.push(lang_stat[lang][2])
+			lang_data.labels.push(lang_stat[lang][0])
+		};
+
+		lang_options = {
+			legend: {position: 'left'},
+			cutoutPercentage: 65,
+			
+		};
+
+		console.log(lang_options.colors)
+
+		var langctx = document.getElementById('LangChart').getContext('2d');
+
+		Chart.defaults.global.defaultFontFamily = 'SpaceGrotesk';
+
+		var LangChart = new Chart(langctx, {
+			type: 'doughnut',
+			data: lang_data,
+			options: lang_options
+		});
+
+		var actsctx = document.getElementById('ActivityChart').getContext('2d');
+
+		var acti_data = {
+			datasets: [{
+				data: {{activities}},
+				backgroundColor: '#f8ef60',
+				borderColor: '#ff9172'
+			}],
+			labels: ['30 days ago', 'Now']
+		};
+
+		var siteActivity = new Chart(actsctx, {
+		    type: 'line',
+		    data: acti_data,
+		    options: {
+		    	legend:{display: false},
+		        scales: {
+		            yAxes: [{
+		                ticks: {
+		                    beginAtZero: true,
+		                    precision: 0
+		                }
+		            }]
+		        }
+		    }
+		});
+
+	</script>
+
+{% endblock %}

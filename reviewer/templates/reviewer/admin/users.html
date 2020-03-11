@@ -1,0 +1,40 @@
+{% extends 'reviewer/admin/admin.html' %}
+
+{% load static %}
+{% block title %}
+	All Users
+{% endblock %}
+
+
+{% block admin_side %}
+	<div class="tab-pane fade show active" id="v-pills-users" role="tabpanel" aria-labelledby="v-pills-users-tab">
+
+		<h2 class="font-weight-bold">All Users</h2>
+		<div class="mb-4">
+			<small class="text-muted">Users will only be read-only in the admin side for proper access control.</small>
+		</div>
+
+		{% for user_filt in users %}
+			<div class="p-4 mb-3 d-flex" style="background-color: white; {% if user == user_filt %} border-left: 2px solid red{% endif %}">
+				<img class="user-pic-thumb my-auto" src="
+				{% if user_filt.prof_pic %}
+					{{user_filt.prof_pic.url}}
+				{% else %}
+					{% static 'reviewer/images/default_profile.png' %}
+				{% endif %}
+
+				">
+				<div class="my-auto mx-3 d-flex flex-column">
+					<span class="font-weight-bold">{{user_filt.username}}</span>
+					<small class="text-muted">{{user_filt.last_name}}, {{user_filt.first_name}}</small>
+				</div>
+
+				<div class="ml-auto my-auto">
+					Make superuser
+				</div>
+			</div>
+		{% endfor %}
+
+	</div>
+
+{% endblock %}
