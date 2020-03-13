@@ -102,10 +102,6 @@ body{
 	border: 1px solid transparent;
 }
 
-.header-toggle{
-	cursor:pointer;
-}
-
 .header-toggle .dropdown-toggle::after{
     margin-left: .5em;
     top: 0.75em;
@@ -232,7 +228,7 @@ body{
 	opacity: 1;
 }
 
-.comment-delete, .comment-reply,.comment-like, .togglable{
+.comment-delete, .comment-reply,.comment-like, .togglable, .header-toggle, .pointer-cursor{
 	cursor: pointer;
 }
 
@@ -343,7 +339,7 @@ body{
 	background-position: center;
 }
 
-.togglable{
+.togglable, .disabled-color{
 	color: #777;
 }
 
@@ -359,3 +355,8 @@ body{
 .nav-pills .nav-link{
 	border-radius: 30px;
 }
+
+.nav-pills .nav-link.active{
+	font-weight: 500;
+}
+

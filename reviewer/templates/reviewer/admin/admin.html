@@ -9,28 +9,74 @@
 			<div class="row">
 				{% if user.is_authenticated and user.is_superuser %}
 
-					<div class="col-lg-3">
+					<div class="col-lg-3 pl-1">
 						<div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-						  <a href="{% url 'admin_dashboard' %}"class="nav-link {% if currpage == "dashboard" %}active{% endif %}" id="v-pills-dashboard-tab" role="tab" aria-controls="v-pills-dashboard" aria-selected="{% if currpage == "dashboard" %}true{% else %}false{% endif %}">
-						  	Dashboard
+						  <a href="{% url 'admin_dashboard' %}"class="nav-link {% if currpage == "dashboard" %}active{% endif %} d-flex justify-content-between" id="v-pills-dashboard-tab" role="tab" aria-controls="v-pills-dashboard" aria-selected="{% if currpage == "dashboard" %}true{% else %}false{% endif %}">
+						  	<span class="my-auto">Dashboard</span>
+						  	<div class="menu-icon d-flex align-items-center">
+						  		<i class="material-icons material-icon-sm">
+									assessment
+								</i>
+						  	</div>
+						  	
 						  </a>
-						  <a href="{% url 'admin_users' %}" class="nav-link  {% if currpage == "users" %}active{% endif %}" id="v-pills-users-tab" role="tab" aria-controls="v-pills-users" aria-selected="{% if currpage == "users" %}true{% else %}false{% endif %}">
-						  	Users
+						  <a href="{% url 'admin_users' %}" class="nav-link  {% if currpage == "users" %}active{% endif %} d-flex justify-content-between" id="v-pills-users-tab" role="tab" aria-controls="v-pills-users" aria-selected="{% if currpage == "users" %}true{% else %}false{% endif %}">
+						  	<span class="my-auto">Users</span>
+						  	<div class="menu-icon d-flex align-items-center">
+						  		<i class="material-icons material-icon-sm">
+									supervisor_account
+								</i>
+						  	</div>
+					
 						  </a>
-						  <a class="nav-link {% if currpage == "courses" %}active{% endif %}" id="v-pills-courses-tab" data-toggle="pill" role="tab" aria-controls="v-pills-courses" aria-selected="{% if currpage == "courses" %}true{% else %}false{% endif %}">
-						  	Courses
+						  <a href="{% url 'admin_course_list' %}" class="nav-link {% if currpage == "courses" %}active{% endif %} d-flex justify-content-between" id="v-pills-courses-tab" role="tab" aria-selected="{% if currpage == "courses" %}true{% else %}false{% endif %}">
+						  	<span class="my-auto">Courses</span>
+						  	<div class="menu-icon d-flex align-items-center">
+						  		<i class="material-icons material-icon-sm">
+									assignment
+								</i>
+						  	</div>
 						  </a>
-						   <a class="nav-link" id="v-pills-languages-tab" data-toggle="pill" href="#v-pills-languages" role="tab" aria-controls="v-pills-languages" aria-selected="false">
-						  	Languages
+
+						   <a class="nav-link {% if currpage == "languages" %}active{% endif %} d-flex justify-content-between" id="v-pills-languages-tab" data-toggle="pill" href="#v-pills-languages" role="tab" aria-controls="v-pills-languages" aria-selected="{% if currpage == "languages" %}true{% else %}false{% endif %}">
+						  	<span class="my-auto">Languages</span>
+						  	<div class="menu-icon d-flex align-items-center">
+						  		<i class="material-icons material-icon-sm">
+									code
+								</i>
+						  	</div>
 						  </a>
-						  <a class="nav-link" id="v-pills-announcements-tab" data-toggle="pill" href="#v-pills-announcements" role="tab" aria-controls="v-pills-announcements" aria-selected="false">
-						  	Announcements
+						   <a class="nav-link {% if currpage == "refs" %}active{% endif %} d-flex justify-content-between" id="v-pills-references-tab" data-toggle="pill" href="#v-pills-references" role="tab" aria-controls="v-pills-references"aria-selected="{% if currpage == "refs" %}true{% else %}false{% endif %}">
+						  	<span class="my-auto">References</span>
+						  	<div class="menu-icon d-flex align-items-center">
+						  		<i class="material-icons material-icon-sm">
+									insert_drive_file
+								</i>
+						  	</div>
 						  </a>
-						   <a class="nav-link" id="v-pills-partners-tab" data-toggle="pill" href="#v-pills-partners" role="tab" aria-controls="v-pills-partners" aria-selected="false">
-						  	Partners
+						  <a class="nav-link {% if currpage == "announcements" %}active{% endif %} d-flex justify-content-between" id="v-pills-announcements-tab" data-toggle="pill" href="#v-pills-announcements" role="tab" aria-controls="v-pills-announcements" aria-selected="{% if currpage == "announcements" %}true{% else %}false{% endif %}">
+						  	<span class="my-auto">Announcements</span>
+						  	<div class="menu-icon d-flex align-items-center">
+						  		<i class="material-icons material-icon-sm">
+									announcement
+								</i>
+						  	</div>
 						  </a>
-						  <a class="nav-link" id="v-pills-ssettings-tab" data-toggle="pill" href="#v-pills-ssetings" role="tab" aria-controls="v-pills-ssettings" aria-selected="false">
-						  	Site Settings
+						   <a class="nav-link {% if currpage == "partners" %}active{% endif %} d-flex justify-content-between" id="v-pills-partners-tab" data-toggle="pill" href="#v-pills-partners" role="tab" aria-controls="v-pills-partners" aria-selected="{% if currpage == "partners" %}true{% else %}false{% endif %}">
+						  		<span class="my-auto">Partners</span>
+							  	<div class="menu-icon d-flex align-items-center">
+							  		<i class="material-icons material-icon-sm">
+										perm_contact_calendar
+									</i>
+							  	</div>
+						  </a>
+						  <a class="nav-link {% if currpage == "ssetings" %}ssettings{% endif %} d-flex justify-content-between" id="v-pills-ssettings-tab" data-toggle="pill" href="#v-pills-ssetings" role="tab" aria-controls="v-pills-ssettings" aria-selected="{% if currpage == "ssettings" %}true{% else %}false{% endif %}">
+						  	<span class="my-auto">Site Settings</span>
+							  	<div class="menu-icon d-flex align-items-center">
+							  		<i class="material-icons material-icon-sm">
+										web
+									</i>
+							  	</div>
 						  </a>
 						</div>
 					</div>

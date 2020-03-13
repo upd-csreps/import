@@ -1,6 +1,6 @@
-<h1 class="admin-title mb-3 mt-3 h1">
+<h2 class="admin-title mb-3 h2">
 	<span class="d-inline-flex">
-		<i class="material-icons my-auto mr-2 import-font-primary" style="font-size: inherit;">
+		<i class="material-icons my-auto mx-3 import-font-primary" style="font-size: inherit;">
 			{% if title == 'Add Course'%}
 					library_add
 			{% elif title == 'Edit Course' %}
@@ -8,13 +8,13 @@
 			{% endif %}
 		</i>
 		<span class="my-auto">
-			{{title}}
+			<span class="font-weight-bold">{{title}}</span>
 			{% if title == 'Edit Course' %}
 				<p class="h6 text-muted">{{courseform.name.value}}</p>
 			{% endif %}
 		</span>
 	</span>
-</h1>
+</h2>
 
 {% if error %}
 	<div class="w-100 alert-danger p-3 d-flex">
@@ -27,9 +27,9 @@
 <div class="d-flex flex-column p-3 pb-0">
 	<form class="form-group mb-0" method="POST" action="
 		{% if title == 'Add Course' %}
-			{% url 'admin_course' 'add' %}
+			{% url 'admin_course' %}
 		{% else %}
-			{% url 'admin_course_id' 'edit' course_subj course_num %}
+			{% url 'admin_course_id' course_subj course_num 'edit' %}
 		{% endif %}
 		" enctype="multipart/form-data">
 		{% csrf_token %}
@@ -37,12 +37,12 @@
 		<div class="row">
 			<div class="col-lg-6">
 				<div class="form-control-group mb-3">
-					<h5>Course Code & No.</h5>
+					<h6 class="font-weight-bold">Course Code & No.</h6>
 					{{ courseform.name }}
 				</div>
 
 				<div class="form-control-group mb-3">
-					<h5>Course Title</h5>
+					<h6 class="font-weight-bold">Course Title</h6>
 					{{ courseform.title }}
 				</div>				
 				
@@ -50,7 +50,7 @@
 
 			<div class="col-lg-6">
 				<div class="form-control-group mb-3">
-					<h5>Course Description</h5>
+					<h6 class="font-weight-bold">Course Description</h6>
 					{{ courseform.description }}
 				</div>
 
@@ -70,7 +70,7 @@
 					</div>
 				</div>
 				
-				<h5>Photo</h5>
+				<h6 class="font-weight-bold">Photo</h6>
 				<button class="mx-auto border-dashed import-image-drag {% if user.is_authenticated %}import-image-drag-enabled{%else%}-disabled{%endif%}" data-file-target="course-image-upload" style="border-width: 1px" type="button">
 					{% if user.is_authenticated %}
 						<div class="addphoto-popper ml-2 p-3">
@@ -95,15 +95,22 @@
 			<div class="mt-4">
 				<div class="form-group mb-2">
 					<div class="d-inline-flex">
-						<span class="my-auto mr-3">
+						<span class="my-auto mr-3 font-weight-bold">
 						Old Course?
 						</span> 
 						<span class="my-auto d-none position-absolute old-curr-val">
 							{{ courseform.old_curr }}
 						</span>
 
-						<i class="material-icons my-auto togglable {% if courseform.old_curr %}active-button{% endif %}" onclick="$('.old-curr-val input').click()">
-							check_box{% if not courseform.old_curr %}_outline_blank{% endif %}
+						<i class="material-icons my-auto togglable {% if courseform.old_curr.value %}active-button{% endif %}" onclick="
+							if ($('#id_old_curr').prop('checked')){
+								$('#id_old_curr').removeAttr('checked');
+							}
+							else{
+								$('#id_old_curr').attr('checked', 'checked');
+							}
+						">
+							check_box{% if not courseform.old_curr.value %}_outline_blank{% endif %}
 						</i>
 					
 						
@@ -113,14 +120,23 @@
 
 				<div class="form-group">
 					<p class="d-inline-flex">
-						<span class="mr-3 my-auto">Visibility</span> 
+						<span class="mr-3 my-auto font-weight-bold">Visibility</span> 
 						<span class="d-none position-absolute my-auto course-vis-val">
 							{{ courseform.visible }}
 						</span>
-						<i class="material-icons my-auto togglable {% if courseform.visible %}active-button{% endif %}" onclick="$('.course-vis-val input').click()">
-							visibility{% if not courseform.visible %}_off{%endif%}
+						<i class="material-icons my-auto togglable {% if courseform.visible.value %}active-button{% endif %} " onclick="
+							if ($('#id_visible').prop('checked')){
+								$('#id_visible').removeAttr('checked');
+							}
+							else{
+								$('#id_visible').attr('checked', 'checked');
+							}
+						">
+							visibility{% if not courseform.visible.value %}_off{%endif%}
 						</i>
 
+
+					
 					</p>
 				</div>
 
@@ -129,7 +145,7 @@
 
 		<div class="d-flex mt-3">
 			<div class="mx-auto w-100">
-				<h4>Prequisites and Corequisites</h4>
+				<h5>Prequisites and Corequisites</h5>
 
 				<button class="btn btn-primary d-flex" type="button" onclick="$('table').fadeToggle()"><i class="material-icons material-icon-sm my-auto mr-2">library_books</i> <span class="my-auto">Toggle prerequisites/corequisites</span></button>
 
@@ -169,16 +185,27 @@
 
 
 			<script>
-				var prereq_values = {{course_prereq}};
-				var coreq_values = {{course_coreq}};
+				{% if course_prereq %} 
+				var prereq_values = {{course_prereq}} ;
 
 				for (i = 0; i < prereq_values.length ; i++){
 					document.querySelector(".prereq[value='" + prereq_values[i] + "']").setAttribute('checked', 'checked');
 				}
 
-				for (i = 0; i < coreq_values.length ; i++){
-					document.querySelector(".coreq[value='" + coreq_values[i] + "']").setAttribute('checked', 'checked');
-				}
+				{% endif %}
+				
+				{% if course_coreq %} 
+					var coreq_values  = {{course_coreq}};
+					for (i = 0; i < coreq_values.length ; i++){
+						document.querySelector(".coreq[value='" + coreq_values[i] + "']").setAttribute('checked', 'checked');
+					}
+				{% endif%}
+
+				
+
+				
+
+				
 			</script>
 		</div>
 
@@ -186,7 +213,7 @@
 		<div class="w-100 d-flex mt-3">
 			<div class="mr-auto form-group w-50 my-auto">
 				<h6 class="font-weight-bold d-inline-flex mr-2">
-					<i class="material-icons my-auto">
+					<i class="material-icons my-auto material-icon-sm mr-1">
 						verified_user
 					</i>
 					<span class="my-auto">

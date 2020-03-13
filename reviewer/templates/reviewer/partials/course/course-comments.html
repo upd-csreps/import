@@ -100,15 +100,15 @@
 		{% else %}
 	  		{% for comment in course_comments %}
 				<div class="py-4 px-4 d-flex mb-3 comment" id="comment-{{comment.id}}">
-						<a href="{% url 'user' comment.user_attr.username %}">
-							<img class="user-pic-thumb" src="
-							{% if comment.user_attr.prof_pic %}
-								{{comment.user_attr.prof_pic.url}}
-							{% else %}
-								{% static 'reviewer/images/default_profile.png' %}
-							{% endif %}
-							">
-						</a>
+					<a href="{% url 'user' comment.user_attr.username %}">
+						<img class="user-pic-thumb" src="
+						{% if comment.user_attr.prof_pic %}
+							{{comment.user_attr.prof_pic.url}}
+						{% else %}
+							{% static 'reviewer/images/default_profile.png' %}
+						{% endif %}
+						">
+					</a>
 					
 					<div class="ml-4 w-100">
 						<div class="d-flex w-100 justify-content-between my-2">
@@ -119,22 +119,24 @@
 									</strong>
 								</a> 
 							</span>
-							<p class="my-auto">
-								<div class="d-inline-flex ml-auto">
-									<span class="mr-3 my-auto d-flex">
-										<i class="material-icons material-icon-sm {% if user.is_authenticated %}comment-like{%endif%}">
-											star_border
-										</i> 
-										<div class="my-auto ml-1 mr-2 comment-like-count inline-block">
-											{{ comment.likes_set.all.count }}
-										</div>
-										{% if user == comment.user_attr %}
-											<i class="material-icons  material-icon-sm comment-delete" title="Delete comment">delete</i>
-										{% endif %}
-									</span>
-									<small class="my-auto">{{comment.date_posted|date:"M d, Y, h:i A"}}</small>
+							<div class="my-auto float-right">
+								<div class="position-relative py-1 px-2 comment-action d-flex">
+									<div class="d-inline-flex ml-auto my-auto">
+										<span class="mr-3 my-auto d-flex">
+											<i class="material-icons material-icon-sm {% if user.is_authenticated %}comment-like{%endif%}">
+												star_border
+											</i> 
+											<div class="my-auto ml-1 mr-2 comment-like-count inline-block">
+												{{ comment.likes_set.all.count }}
+											</div>
+											{% if user == comment.user_attr %}
+												<i class="material-icons  material-icon-sm comment-delete" title="Delete comment">delete</i>
+											{% endif %}
+										</span>
+										<small class="my-auto">{{comment.date_posted|date:"M d, Y, h:i A"}}</small>
+									</div>
 								</div>
-							</p>
+							</div>
 						</div>
 						<div class="comment-body">
 							{{comment.body|linebreaks}}

@@ -112,6 +112,9 @@ body{
 	transition: @TransTime;
 }
 
+.layer-container{
+	background-color:white;
+}
 
 .liked{
 	color: @ImportPrimary;
@@ -165,6 +168,31 @@ footer{
 .nav-pills .nav-link.active, .nav-pills .show>.nav-link, .dropdown-item:active, .dropdown-item:focus{
 	background-color: @ImportPrimary;
 	color: white !important; 
+}
+
+.nav-link .menu-icon{
+	opacity: 0;
+	transition: 0.15s;
+	width: 30px;
+	height: 30px;
+}
+
+.nav-link.active .menu-icon{
+	opacity: 1;
+	border-radius: 100%;
+	border: 2px solid @ImportSecondary;
+	color: @ImportSecondary;
+}
+
+
+.comment-action{
+	bottom: 2em;
+	right: -1.5em;
+	border-bottom-left-radius: 20px;
+	border-top-right-radius: 3px;
+	background-color: #f8f8f8;
+	border-left: 6px solid @BackgroundColor;
+	border-bottom: 6px solid @BackgroundColor;
 }
 
 

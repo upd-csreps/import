@@ -4,6 +4,7 @@ import shutil
 
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate,login,logout
+from django.utils import timezone
 
 from django.http import Http404, HttpResponse, HttpResponseForbidden
 from PIL import Image
@@ -23,6 +24,9 @@ def index(request):
 	context = {'announcements': announcements, 'ann_len': len(announcements)}
 
 	return render(request, 'reviewer/index.html', context)
+
+
+# Admin Views
 
 def admin(request):
 	return redirect('admin_dashboard')
@@ -48,7 +52,7 @@ def admin_dashboard(request):
 
 			# 30 Days Engagement
 
-			dateoftoday = datetime.datetime.today()
+			dateoftoday = timezone.now()
 			last_month = dateoftoday - datetime.timedelta(days=30)
 			activities = LessonStats.objects.filter(date_made__gt=last_month).order_by('date_made')
 			activ_obj = {}
@@ -125,24 +129,60 @@ def admin_users(request):
 		return redirect('login')
 	else:
 		if request.user.is_superuser:
-			# Users
+
 			users = ImportUser.objects.order_by('username')[0:5]
 
-			context = {
-				'users' : users,
-				'currpage' : current_page
-			}
+			if (request.method == "POST"):
+
+				data = request.POST
+				confirm = authenticate(username=request.user.username, password=data["password"])
+				message = ""
+
+				if confirm == request.user:
+
+					find_uname = ImportUser.objects.get(username=data["username"])
+					find_uname.is_superuser = not find_uname.is_superuser
+					find_uname.save()
+
+					message = "You have changed " + data["username"] + "'s superuser status."
+
+				else:
+					message = "You entered the wrong password."
+
+				context = {
+					'users' : users,
+					'currpage' : current_page,
+					'message' : message
+				}
+
+
+			else:
+
+				context = {
+					'users' : users,
+					'currpage' : current_page
+				}
+
+			return render(request, 'reviewer/admin/users.html', context)
 
 		else:
 			context = {'currpage' : current_page}
 
-		return render(request, 'reviewer/admin/users.html', context)
+			return render(request, 'reviewer/admin/users.html', context)
 
 
-def admin_course(request, purpose, course_id=""):
-	return admin_get_course(request, purpose, False, "", "")
+def admin_course_list(request):
 
-def admin_course_id(request, purpose, course_subj="", course_num =""):
+	courselist = Course.objects.order_by('code', 'number_len', 'number')
+	currpage = "courses"
+	
+	context = {'courselist': courselist, 'currpage': currpage}
+	return render(request, 'reviewer/admin/course-list.html', context)
+
+def admin_course(request, course_id=""):
+	return admin_get_course(request, "add", False, "", "")
+
+def admin_course_id(request, course_subj="", course_num ="", purpose="edit"):
 	return admin_get_course(request, purpose, False, course_subj, course_num)
 
 def admin_get_course(request, purpose, ajax=True, course_subj="", course_num=""):
@@ -170,7 +210,7 @@ def admin_get_course(request, purpose, ajax=True, course_subj="", course_num="")
 
 				if tempnum.isnumeric():
 					temp_oldcurr = data.get('old_curr', False)
-					temp_visible = data.get('visible', True)
+					temp_visible = data.get('visible', False)
 
 					if temp_oldcurr == 'on':
 						temp_oldcurr = True
@@ -230,7 +270,7 @@ def admin_get_course(request, purpose, ajax=True, course_subj="", course_num="")
 						if ((image_uploaded != None) or (data.get('imagehascleared', False) != False )):
 							edit_course.image = image_uploaded
 
-						edit_course.lastupdated = datetime.datetime.now()
+						edit_course.lastupdated = timezone.now()
 						edit_course.save()
 						edit_course.prereqs.set(Course.objects.filter(id__in=prereq_list))
 						edit_course.coreqs.set(Course.objects.filter(id__in=coreq_list))

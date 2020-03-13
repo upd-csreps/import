@@ -2,48 +2,57 @@
 
 {% load static %}
 {% block title %}
-	All Users
+	Course List
 {% endblock %}
 
 
 {% block admin_side %}
 	<div class="tab-pane fade show active" id="v-pills-users" role="tabpanel" aria-labelledby="v-pills-users-tab">
 
-		<h2 class="font-weight-bold">All Users</h2>
-		<div class="mb-4">
-			<small class="text-muted">Users will only be read-only in the admin side for proper access control.</small>
+		<div class="d-flex justify-content-between">
+			<h2 class="font-weight-bold mb-4">Course List</h2>
+			<div class="d-inline-block">
+
+					<a href="{% url 'admin_course' %}">
+						<button type="button" class="btn btn-light px-3 d-flex" >
+							<div class="my-auto d-flex">
+								<i class="material-icons">
+									library_add
+								</i>
+								<span class="my-auto ml-1 d-none d-md-block">
+								Add Course</span>	
+							</div>
+						</button>
+					</a>
+				</div>
 		</div>
+		
+		{% for course in courselist %}
+			<div class="p-4 mb-3 row layer-container">
+				<div class="col-8">
+					<a href="{% url 'course' course.code|lower course.number %}" class="d-flex flex-wrap">
+						<div class="my-auto mr-3 course-thumb" style="{% if course.image %}background-image: url('{{course.image.url}}'); {%endif%}">
+						</div>
+						<div class="my-auto mx-3 d-inline-flex flex-column">
+							<span class="font-weight-bold comment-username">
+								{{course.name}}
 
-		{% for user_filt in users %}
-			<div class="p-4 mb-3 row layer-container" {% if user == user_filt %}style="border-left: 2px solid green"{% endif %}>
-				<div class="col-4">
-					<a href="{% url 'user' user_filt.username %}" class="d-flex">
-						<img class="user-pic-thumb my-auto" src="
-						{% if user_filt.prof_pic %}
-							{{user_filt.prof_pic.url}}
-						{% else %}
-							{% static 'reviewer/images/default_profile.png' %}
-						{% endif %}
-
-						">
-						<div class="my-auto mx-3 d-flex flex-column">
-							<span class="font-weight-bold comment-username">{{user_filt.username}}</span>
-							<small class="text-muted">{{user_filt.last_name}}, {{user_filt.first_name}}</small>
+								{% if not course.visible %}
+								<i class="material-icons">
+									visibility_off
+								</i>
+								{% endif %}
+							</span>
+							<small class="text-muted">{{course.title}}</small>
 						</div>
 					</a>
 				</div>
 
-				<div class="m-auto d-flex flex-column col-4">
-					<small class="mb-2 font-weight-bold">E-mail</small>
-					{{user_filt.email}}
-
-				</div>
 
 				<div class="col-4 d-flex">
 					<div class="ml-auto my-auto d-flex flex-column">
-						<small class="mb-2 font-weight-bold">Superuser Status</small>
-						<i class="superbutton pointer-cursor material-icons disabled-color my-auto {% if user_filt.is_superuser %}active-button{% endif %} " data-toggle="modal" data-target="#PasswordModalCenter" data-username="{{user_filt.username}}">
-							verified_user
+						<i class="togglable material-icons disabled-color my-auto">
+							visible
 						</i>
 
 					</div>

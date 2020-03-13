@@ -72,7 +72,7 @@
 
 							{% if  user.is_superuser %}
 								<div class="ml-auto mt-lg-auto mt-0 mb-auto mb-lg-0 col-lg-4 d-flex">
-									<a class="ml-auto" href="{% url 'admin_course_id' 'edit' course_filt.code|lower course_filt.number %}">
+									<a class="ml-auto" href="{% url 'admin_course_id' course_filt.code|lower course_filt.number  'edit' %}">
 										<button  type="button" class="btn btn-light px-3 d-flex">
 											<div class="my-auto d-flex">
 												<i class="material-icons">
@@ -84,7 +84,7 @@
 										</button>
 									</a>
 
-									<a class="ml-2 delete-course" href="{% url 'admin_course_id' 'delete' course_filt.code|lower course_filt.number %}">
+									<a class="ml-2 delete-course" href="{% url 'admin_course_id'  course_filt.code|lower course_filt.number 'delete' %} ">
 										<button  type="button" class="btn btn-light px-3 d-flex">
 											<div class="my-auto d-flex">
 												<i class="material-icons">

@@ -40,7 +40,7 @@ a:hover {
 	background: #212121;
 }
 
-.comment-username{
+.comment-username, {
 	color:@TextColor;
 }
 
@@ -83,8 +83,26 @@ footer{
 	border: 0.45em solid @HeaderScroll;
 }
 
-.nav-pills .a{
+.nav-pills a{
 	color: @TextColor;
+}
+
+.dropdown-menu, .layer-container{
+	background-color: @HeaderScroll;
+}
+
+.dropdown-menu a:hover{
+	color: @HeaderScroll !important;
+}
+
+.dropdown-divider{
+	border-top-color: #b4b4b4;
+}
+
+.comment-action{
+	background-color: #232323;
+	border-left: 6px solid @BackgroundColor;
+	border-bottom: 6px solid @BackgroundColor;
 }
 
 /* MathJax  Support */

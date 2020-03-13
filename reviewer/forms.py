@@ -1,5 +1,5 @@
 from django import forms
-import datetime
+from django.utils import timezone
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from .models import ImportUser, Course
 
@@ -17,7 +17,7 @@ class CourseForm(forms.Form):
 	old_curr = forms.BooleanField(widget=forms.CheckboxInput(attrs={ 'class': 'form-check-input' }), required=False, initial=False)
 	visible = forms.BooleanField(widget=forms.CheckboxInput(attrs={ 'class': 'form-check-input' }), required=False, initial=True)
 	imagehascleared = forms.BooleanField(widget=forms.CheckboxInput(attrs={ 'class': 'form-check-input' }), required=False,initial=False)
-	lastupdated = datetime.datetime.now()
+	lastupdated = timezone.now()
 	image = forms.ImageField(required=False)
 
 
@@ -34,7 +34,7 @@ class CourseForm(forms.Form):
 
 class CommentForm(forms.Form):
 	
-	date_posted = datetime.datetime.now()
+	date_posted = timezone.now()
 
 	def __init__(self, *args, **kwargs):
 		self.request = kwargs.pop("request")

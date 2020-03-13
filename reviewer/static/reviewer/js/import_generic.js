@@ -182,11 +182,19 @@
 
 
 	$("body").on("click", ".togglable" , function(){
+
+
+		var captexists = ($(this).parent().find(".icaption").length > 0)
 		$(this).toggleClass("active-button");
-		$(this).parent().find(".icaption").toggleClass("active-button");
+
+		if (captexists){
+			$(this).parent().find(".icaption").toggleClass("active-button");
+			var caption = $(this).parent().find(".icaption").html().trim();
+		}
+		
 
 		var currenthtml = $(this).html().trim();
-		var caption = $(this).parent().find(".icaption").html().trim();
+		
 
 		var activearray = ['visibility', 'check_box', 'brightness_3', 'notifications_active'];
 		var disabledarray = ['visibility_off', 'check_box_outline_blank', 'brightness_5', 'notifications_off'];
@@ -200,11 +208,13 @@
 				$(this).html(activearray[i]);
 		}
 
-		for (i = 0; i < activecaption.length ; i++){
-			if (caption == activecaption[i])
-				$(this).parent().find(".icaption").html(disabledcaption[i]);
-			else if (caption == disabledcaption[i])
-				$(this).parent().find(".icaption").html(activecaption[i]);
+		if (captexists){
+			for (i = 0; i < activecaption.length ; i++){
+				if (caption == activecaption[i])
+					$(this).parent().find(".icaption").html(disabledcaption[i]);
+				else if (caption == disabledcaption[i])
+					$(this).parent().find(".icaption").html(activecaption[i]);
+			}
 		}
 
 	}); 
