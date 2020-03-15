@@ -40,20 +40,18 @@
 					<h6 class="font-weight-bold">Name</h6>
 					{{ langform.name }}
 				</div>
-			
-
-				<div class="form-control-group course-image-upload d-none position-absolute">
-					<div>
-						{{ langform.imagehascleared }}
-					</div>
-					<div>
-						{{ langform.image }}
-					</div>
-				</div>
-				
-
+							
 				<div class="d-flex">
 					<div class="mr-3">
+
+						<div class="form-control-group course-image-upload d-none position-absolute">
+							<div>
+								{{ langform.imagehascleared }}
+							</div>
+							<div>
+								{{ langform.image }}
+							</div>
+						</div>
 						<h6 class="font-weight-bold">Photo</h6>
 						<button class="mx-auto border-dashed import-image-drag {% if user.is_authenticated %}import-image-drag-enabled{%else%}-disabled{%endif%}" data-file-target="course-image-upload" style="border-width: 1px" type="button">
 							{% if user.is_authenticated %}

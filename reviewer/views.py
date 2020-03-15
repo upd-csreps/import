@@ -389,9 +389,11 @@ def admin_lang(request, purpose, id=""):
 						
 						edit_lang = Language.objects.get(id=id)
 
-						edit_lang["name"] = data["name"]
-						edit_lang["color"] = data["color"][1:]
-						edit_lang["image"] = image_uploaded
+						edit_lang.name = data["name"]
+						edit_lang.color = data["color"][1:]
+						
+						if ((image_uploaded != None) or (data.get('imagehascleared', False) != False )):
+							edit_course.image = image_uploaded
 
 						edit_lang.save()
 
@@ -401,41 +403,39 @@ def admin_lang(request, purpose, id=""):
 				else:
 					return redirect(request.META['HTTP_REFERER'])
 
-
-
 			else:
 				pass
 
-			context = {}
-			if purpose == "add":
+				context = {}
+				if purpose == "add":
 
-				langform = LanguageForm(initial= {'color' : '868686'})
-
-
-				context['langform'] = langform
-				context['title'] = "Add Language"
-			elif purpose == "edit":
-				edit_lang = Language.objects.get(id=id)
-
-				initialvalue = {				
-					'name' : edit_lang.name,
-					'color' : edit_lang.color
-				}
-
-				if edit_lang.image:
-					initialvalue['image'] = edit_lang.image
+					langform = LanguageForm(initial= {'color' : '868686'})
 
 
-				langform = LanguageForm(initial=initialvalue)
+					context['langform'] = langform
+					context['title'] = "Add Language"
+				elif purpose == "edit":
+					edit_lang = Language.objects.get(id=id)
 
-				context = {'langform': langform, 'edit_lang' : edit_lang }
-				context['title'] = "Edit Language"
+					initialvalue = {				
+						'name' : edit_lang.name,
+						'color' : '#'+edit_lang.color
+					}
 
-			if (request.method == "POST") and (request.user.check_password(request.POST['password']) == False):
-				context['error'] = "You entered the wrong password."
+					if edit_lang.image:
+						initialvalue['image'] = edit_lang.image
 
-			context["currpage"] = "languages"
-			return render(request, 'reviewer/admin/language/language.html', context)
+
+					langform = LanguageForm(initial=initialvalue)
+
+					context = {'langform': langform, 'edit_lang' : edit_lang }
+					context['title'] = "Edit Language"
+
+				if (request.method == "POST") and (request.user.check_password(request.POST['password']) == False):
+					context['error'] = "You entered the wrong password."
+
+				context["currpage"] = "languages"
+				return render(request, 'reviewer/admin/language/language.html', context)
 		
 	else:
 		raise HttpResponseForbidden()
