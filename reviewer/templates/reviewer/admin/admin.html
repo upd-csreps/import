@@ -33,12 +33,12 @@
 						  	<span class="my-auto">Courses</span>
 						  	<div class="menu-icon d-flex align-items-center">
 						  		<i class="material-icons material-icon-sm">
-									assignment
+									library_books
 								</i>
 						  	</div>
 						  </a>
 
-						   <a class="nav-link {% if currpage == "languages" %}active{% endif %} d-flex justify-content-between" id="v-pills-languages-tab" data-toggle="pill" href="#v-pills-languages" role="tab" aria-controls="v-pills-languages" aria-selected="{% if currpage == "languages" %}true{% else %}false{% endif %}">
+						   <a href="{% url 'admin_langlist' %}" class="nav-link {% if currpage == "languages" %}active{% endif %} d-flex justify-content-between" id="v-pills-languages-tab" role="tab" aria-controls="v-pills-languages" aria-selected="{% if currpage == "languages" %}true{% else %}false{% endif %}">
 						  	<span class="my-auto">Languages</span>
 						  	<div class="menu-icon d-flex align-items-center">
 						  		<i class="material-icons material-icon-sm">
@@ -67,6 +67,14 @@
 							  	<div class="menu-icon d-flex align-items-center">
 							  		<i class="material-icons material-icon-sm">
 										perm_contact_calendar
+									</i>
+							  	</div>
+						  </a>
+						   <a class="nav-link {% if currpage == "bugs" %}bugs{% endif %} d-flex justify-content-between" id="v-pills-bugs-tab" data-toggle="pill" href="#v-pills-bugs" role="tab" aria-controls="v-pills-bugs" aria-selected="{% if currpage == "bugs" %}true{% else %}false{% endif %}">
+						  	<span class="my-auto">Bug Reports</span>
+							  	<div class="menu-icon d-flex align-items-center">
+							  		<i class="material-icons material-icon-sm">
+										bug_report
 									</i>
 							  	</div>
 						  </a>

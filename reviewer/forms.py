@@ -73,3 +73,11 @@ class ImportUserChangeForm(UserChangeForm):
     class Meta:
         model = ImportUser
         fields = ('username', 'first_name', 'middle_name', 'last_name', 'suffix', 'studentnum', 'show_studentnum', 'email', 'show_email', 'course', 'fave_lang', 'dark_mode')
+
+class LanguageForm(forms.Form):
+
+	name = forms.CharField(max_length=20, widget=forms.TextInput(attrs={'class': 'form-control', 'autocomplete': 'off'}))
+	image = forms.ImageField(required=False)
+	imagehascleared = forms.BooleanField(widget=forms.CheckboxInput(attrs={ 'class': 'form-check-input' }), required=False,initial=False)
+	color = forms.CharField(max_length=7, widget=forms.TextInput(attrs={'class': 'color-picker', 'autocomplete': 'off'}))
+	

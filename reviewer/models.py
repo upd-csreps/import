@@ -190,6 +190,18 @@ class LessonStats(models.Model):
 	def __str__(self):
 		return	'{0} on {1}| {2}'.format(self.user_attr, self.lesson_attr, self.date_made)
 
+
+class BugReport(models.Model):
+
+	name = models.CharField("Title", max_length=50)
+	body = models.CharField("Body", max_length=300)
+	status = models.PositiveSmallIntegerField("Status", default=0)
+	lastupdated = models.DateTimeField("Last Updated", default=timezone.now)
+	admin = models.ForeignKey(ImportUser, null=True, on_delete=models.SET_NULL)
+
+	def __str__(self):
+		return	'{} [{}]'.format(self.name, self.status)
+
 class SiteSettings(models.Model):
 
 	name = models.CharField(max_length=50)

@@ -10,7 +10,7 @@ from django.http import Http404, HttpResponse, HttpResponseForbidden
 from PIL import Image
 from django.contrib.auth import get_user_model
 from .models import Course, Announcement, ImportUser, Comment, Likes, Language, LessonStats
-from .forms import CourseForm, CommentForm, ImportUserCreationForm
+from .forms import CourseForm, CommentForm, ImportUserCreationForm, LanguageForm
 from math import ceil
 import datetime
 import json
@@ -189,6 +189,8 @@ def admin_get_course(request, purpose, ajax=True, course_subj="", course_num="")
 
 	error = None
 
+	referer = request.META['HTTP_REFERER']
+
 	if request.user.is_superuser:
 		
 		if purpose == "delete":
@@ -196,7 +198,10 @@ def admin_get_course(request, purpose, ajax=True, course_subj="", course_num="")
 			del_course = Course.objects.get(code__iexact=course_subj, number__iexact=course_num)
 			del_course.delete()
 
-			return redirect('courselist')
+			if "/su/" in referer:
+				return redirect('admin_course_list')				
+			else:
+				return redirect('courselist')
 		else:
 
 			if request.method == "POST" and request.user.check_password(request.POST['password']):
@@ -266,7 +271,6 @@ def admin_get_course(request, purpose, ajax=True, course_subj="", course_num="")
 						except:
 							image_uploaded = None
 
-						print(data.get('imagehascleared', False))
 						if ((image_uploaded != None) or (data.get('imagehascleared', False) != False )):
 							edit_course.image = image_uploaded
 
@@ -333,6 +337,108 @@ def admin_get_course(request, purpose, ajax=True, course_subj="", course_num="")
 	else:
 		raise HttpResponseForbidden()
 
+
+def admin_langlist(request):
+
+	langlist = Language.objects.order_by('name')
+	currpage = "languages"
+	
+	context = {'langlist': langlist, 'currpage': currpage}
+	return render(request, 'reviewer/admin/language/lang-list.html', context)
+
+
+def admin_lang_add(request):
+	return admin_lang(request, "add", "")
+
+def admin_lang(request, purpose, id=""):
+
+	error = None
+
+	if request.user.is_superuser:
+		
+		if purpose == "delete":
+
+			del_lang = Language.objects.get(id=id)
+			del_lang.delete()
+
+			return redirect('admin_langlist')
+		else:
+
+			if request.method == "POST" and request.user.check_password(request.POST['password']):
+				data = request.POST
+
+				tempname = data['name']
+			
+				if len(tempname) > 0:
+
+					image_uploaded = request.FILES.get('image', None)
+
+					try:
+						image_test =  Image.open(image_uploaded)
+						image_test.verify()
+						
+					except:
+						image_uploaded = None
+
+					# Add input validation
+					if purpose == "add":
+						new_lang = Language(name=data['name'], color=data['color'][1:], image=image_uploaded)
+						new_lang.save()
+
+					elif purpose == "edit":
+						
+						edit_lang = Language.objects.get(id=id)
+
+						edit_lang["name"] = data["name"]
+						edit_lang["color"] = data["color"][1:]
+						edit_lang["image"] = image_uploaded
+
+						edit_lang.save()
+
+
+					return redirect('admin_langlist')
+
+				else:
+					return redirect(request.META['HTTP_REFERER'])
+
+
+
+			else:
+				pass
+
+			context = {}
+			if purpose == "add":
+
+				langform = LanguageForm(initial= {'color' : '868686'})
+
+
+				context['langform'] = langform
+				context['title'] = "Add Language"
+			elif purpose == "edit":
+				edit_lang = Language.objects.get(id=id)
+
+				initialvalue = {				
+					'name' : edit_lang.name,
+					'color' : edit_lang.color
+				}
+
+				if edit_lang.image:
+					initialvalue['image'] = edit_lang.image
+
+
+				langform = LanguageForm(initial=initialvalue)
+
+				context = {'langform': langform, 'edit_lang' : edit_lang }
+				context['title'] = "Edit Language"
+
+			if (request.method == "POST") and (request.user.check_password(request.POST['password']) == False):
+				context['error'] = "You entered the wrong password."
+
+			context["currpage"] = "languages"
+			return render(request, 'reviewer/admin/language/language.html', context)
+		
+	else:
+		raise HttpResponseForbidden()
 
 def courselist(request):
 

@@ -1,0 +1,30 @@
+{% extends 'reviewer/admin/admin.html' %}
+
+{% load static %}
+{% block title %}
+	{{title}}
+{% endblock %}
+
+{% block admin_side %}
+	<div style="color: #131313">
+		{% include 'reviewer/admin/language/lang_add.html' %}
+	</div>
+</div>
+{% endblock %}
+
+{% block styles %}
+	<link href="{% static 'reviewer/css/spectrum.css' %}"  rel="stylesheet"/>
+{% endblock %}
+
+{% block scripts %}
+	<script src="{% static 'reviewer/js/spectrum.js' %}"></script>
+
+	<script>
+		$(".color-picker").spectrum({
+    		color: '#{% if edit_lang.color %}{{edit_lang.color}}{% else %}868686{% endif %}',
+    		showInput: true,
+    		showInitial: true,
+    		preferredFormat: "hex"
+		});
+	</script>
+{% endblock %}

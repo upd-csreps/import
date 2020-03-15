@@ -12,12 +12,15 @@ urlpatterns = [
 
     # Super User URLs
     path('su/', views.admin , name="admin"),
-    path('su/dashboard', views.admin_dashboard , name="admin_dashboard"),
-    path('su/users', views.admin_users , name="admin_users"),
-    path('su/course', views.admin_course_list , name="admin_course_list"),
+    path('su/dashboard/', views.admin_dashboard , name="admin_dashboard"),
+    path('su/users/', views.admin_users , name="admin_users"),
+    path('su/course/', views.admin_course_list , name="admin_course_list"),
     path('su/course/<str:purpose>/get/', views.admin_get_course, name="admin_get_course"),
     path('su/course/<str:course_subj>/<str:course_num>/<str:purpose>/', views.admin_course_id, name="admin_course_id"),
-    path('su/course/add', views.admin_course, name="admin_course"),
+    path('su/course/add/', views.admin_course, name="admin_course"),
+    path('su/language/', views.admin_langlist , name="admin_langlist"),
+    path('su/language/add/', views.admin_lang_add , name="admin_lang_add"),
+    path('su/language/<str:id>/<str:purpose>', views.admin_lang , name="admin_lang"),
 
     # User URLs
     path('u/register/', views.register, name="register"),
