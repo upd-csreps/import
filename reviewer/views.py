@@ -1,6 +1,5 @@
 import os
 from django.conf import settings
-import shutil
 
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate,login,logout
@@ -12,7 +11,7 @@ from django.contrib.auth import get_user_model
 from .models import Course, Announcement, ImportUser, Comment, Likes, Language, LessonStats
 from .forms import CourseForm, CommentForm, ImportUserCreationForm, LanguageForm
 from math import ceil
-import datetime
+from datetime import timedelta
 import json
 
 
@@ -53,7 +52,7 @@ def admin_dashboard(request):
 			# 30 Days Engagement
 
 			dateoftoday = timezone.now()
-			last_month = dateoftoday - datetime.timedelta(days=30)
+			last_month = dateoftoday - timedelta(days=30)
 			activities = LessonStats.objects.filter(date_made__gt=last_month).order_by('date_made')
 			activ_obj = {}
 			user_obj = {}
@@ -436,6 +435,104 @@ def admin_lang(request, purpose, id=""):
 
 				context["currpage"] = "languages"
 				return render(request, 'reviewer/admin/language/language.html', context)
+		
+	else:
+		raise HttpResponseForbidden()
+
+
+def admin_announcement(request):
+
+	announcements = Announcement.objects.order_by('-datepost')
+
+	context = {'announcements' : announcements, 'currpage': 'announcements'}
+
+	return render(request, 'reviewer/admin/announcement/announcement-list.html', context)
+
+def admin_announcement_create(request):
+	return admin_announcement_update(request, "add", "")
+
+def admin_announcement_update(request, purpose, id=""):
+
+	error = None
+
+	if request.user.is_superuser:
+		
+		if purpose == "delete":
+
+			del_lang = Language.objects.get(id=id)
+			del_lang.delete()
+
+			return redirect('admin_langlist')
+		else:
+
+			if request.method == "POST" and request.user.check_password(request.POST['password']):
+				data = request.POST
+
+				tempname = data['name']
+			
+				if len(tempname) > 0:
+
+					image_uploaded = request.FILES.get('image', None)
+
+					try:
+						image_test =  Image.open(image_uploaded)
+						image_test.verify()
+						
+					except:
+						image_uploaded = None
+
+					# Add input validation
+					if purpose == "add":
+						new_lang = Language(name=data['name'], color=data['color'][1:], image=image_uploaded)
+						new_lang.save()
+
+					elif purpose == "edit":
+						
+						edit_lang = Language.objects.get(id=id)
+
+						edit_lang.name = data["name"]
+						edit_lang.color = data["color"][1:]
+						
+						if ((image_uploaded != None) or (data.get('imagehascleared', False) != False )):
+							edit_course.image = image_uploaded
+
+						edit_lang.save()
+
+
+					return redirect('admin_langlist')
+
+				else:
+					return redirect(request.META['HTTP_REFERER'])
+
+			else:
+				pass
+
+				context = {}
+				if purpose == "add":
+
+					context['title'] = "Create Announcement"
+				elif purpose == "edit":
+					edit_lang = Language.objects.get(id=id)
+
+					initialvalue = {				
+						'name' : edit_lang.name,
+						'color' : '#'+edit_lang.color
+					}
+
+					if edit_lang.image:
+						initialvalue['image'] = edit_lang.image
+
+
+					langform = LanguageForm(initial=initialvalue)
+
+					context = {'langform': langform, 'edit_lang' : edit_lang }
+					context['title'] = "Edit Announcement"
+
+				if (request.method == "POST") and (request.user.check_password(request.POST['password']) == False):
+					context['error'] = "You entered the wrong password."
+
+				context["currpage"] = "announcements"
+				return render(request, 'reviewer/admin/announcement/announcement.html', context)
 		
 	else:
 		raise HttpResponseForbidden()

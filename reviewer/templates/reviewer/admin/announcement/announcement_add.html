@@ -1,0 +1,43 @@
+<h2 class="admin-title mb-3 h2">
+	<span class="d-inline-flex">
+		<i class="material-icons my-auto mx-3 import-font-primary" style="font-size: inherit;">
+			{% if title == 'Create Announcement'%}
+					add
+			{% elif title == 'Edit Announcement' %}
+					edit
+			{% endif %}
+		</i>
+		<span class="my-auto">
+			<span class="font-weight-bold">{{title}}</span>
+			{% if title == 'Edit Announcement' %}
+				<p class="h6 text-muted">{{edit_lang.name}}</p>
+			{% endif %}
+		</span>
+	</span>
+</h2>
+
+{% if error %}
+	<div class="w-100 alert-danger p-3 d-flex">
+		<i class="material-icons mr-3 my-auto ml-0">
+		error_outline
+		</i>
+		<span class="my-auto">{{error}}</span>
+	</div>
+{% endif %}
+<div class="d-flex flex-column p-3 pb-0">
+	<form class="form-group mb-0" method="POST" action="
+		{% if title == 'Create Announcement' %}
+			{% url 'admin_lang_add' %}
+		{% else %}
+			{% url 'admin_lang' edit_lang.id 'edit' %}
+		{% endif %}
+		" enctype="multipart/form-data">
+		{% csrf_token %}
+
+	
+
+
+		<hr>
+			
+	</form>
+</div>

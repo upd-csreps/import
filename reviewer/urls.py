@@ -21,6 +21,8 @@ urlpatterns = [
     path('su/language/', views.admin_langlist , name="admin_langlist"),
     path('su/language/add/', views.admin_lang_add , name="admin_lang_add"),
     path('su/language/<str:id>/<str:purpose>', views.admin_lang , name="admin_lang"),
+    path('su/announcements/', views.admin_announcement , name="admin_announcement"),
+    path('su/announcements/add', views.admin_announcement_create , name="admin_announcement_create"),
 
     # User URLs
     path('u/register/', views.register, name="register"),

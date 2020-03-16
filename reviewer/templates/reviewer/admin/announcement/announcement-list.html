@@ -2,7 +2,7 @@
 
 {% load static %}
 {% block title %}
-	Course List
+	Announcements
 {% endblock %}
 
 
@@ -10,17 +10,17 @@
 	<div class="tab-pane fade show active" id="v-pills-users" role="tabpanel" aria-labelledby="v-pills-users-tab">
 
 		<div class="d-flex justify-content-between">
-			<h2 class="font-weight-bold mb-4">Course List</h2>
+			<h2 class="font-weight-bold mb-4">Announcements</h2>
 			<div class="d-inline-block">
 
-					<a href="{% url 'admin_course' %}">
+					<a href="{% url 'admin_announcement_create' %}">
 						<button type="button" class="btn btn-light px-3 d-flex" >
 							<div class="my-auto d-flex">
 								<i class="material-icons">
-									library_add
+									create
 								</i>
 								<span class="my-auto ml-1 d-none d-md-block">
-								Add Course</span>	
+								Create Announcement</span>	
 							</div>
 						</button>
 
@@ -29,7 +29,7 @@
 				</div>
 		</div>
 		
-		{% for course in courselist %}
+		{% for announcement in announcements %}
 			<div class="p-4 mb-3 row layer-container">
 				<div class="col-8">
 					<a href="{% url 'course' course.code|lower course.number %}" class="d-flex flex-wrap">

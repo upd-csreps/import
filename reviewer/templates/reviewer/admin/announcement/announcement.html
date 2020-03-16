@@ -1,0 +1,13 @@
+{% extends 'reviewer/admin/admin.html' %}
+
+{% load static %}
+{% block title %}
+	{{title}}
+{% endblock %}
+
+{% block admin_side %}
+	<div style="color: #131313">
+		{% include 'reviewer/admin/announcement/announcement_add.html' %}
+	</div>
+</div>
+{% endblock %}
