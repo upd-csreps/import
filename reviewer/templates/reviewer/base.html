@@ -65,6 +65,14 @@
 			<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
 			<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 			<script src="{% static 'reviewer/js/import_generic.js' %}"></script>
+			{% if user.is_authenticated %}
+				{% if not user.email %}
+					<script>
+						UserFieldCheck("{% url 'user_redirect_info' %}", "{{ csrf_token }}");
+					</script>
+				{% endif %}
+			{% endif %}
+			
 			{% block scripts %}
 			{% endblock %}
 

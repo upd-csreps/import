@@ -33,7 +33,14 @@
 				<div class="col-lg-8 course-list">
 					<hr class="mb-3">
 					{% if course_count == 0 %}
-						<p>No courses available</p>
+						<div class="text-center mt-4 d-flex">
+							<div class="mx-auto d-flex"> 
+								<i class="material-icons my-auto ml-0 mr-2">
+									library_books
+								</i>
+								<span class="my-auto">No courses available to show</span>
+							</div>
+						</div>
 					{% else %}
 					
 						{% for course in courselist %}

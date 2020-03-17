@@ -4,7 +4,7 @@ from django.conf import settings
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate,login,logout
 from django.utils import timezone
-
+from django.urls import reverse
 from django.http import Http404, HttpResponse, HttpResponseForbidden
 from PIL import Image
 from django.contrib.auth import get_user_model
@@ -863,7 +863,12 @@ def user_settings(request):
 						currentuser.email = data["e-mail"]
 						currentuser.show_email = (data.get("show_email") == 'show')
 						currentuser.course = data["course"]
-						currentuser.fave_lang = Language.objects.get(name=data["fave_lang"])
+
+						try:
+							currentuser.fave_lang = Language.objects.get(name=data["fave_lang"])
+						except Language.DoesNotExist:
+							currentuser.fave_lang = None
+
 						currentuser.dark_mode = (data.get("dark_mode") == 'dark')
 						currentuser.notifications = (data.get("em_notif") == 'notif_on')
 		
@@ -927,17 +932,58 @@ def user_settings(request):
 			for i in range(6, len(userpassword[3])):
 				userpassword[3][i] = '*'
 
+
+			hasEmptyFields = False
+
+			
+			if request.user.username == '' or request.user.username == None:
+				hasEmptyFields = True
+			elif request.user.first_name == '' or request.user.first_name == None:
+				hasEmptyFields = True
+			elif request.user.last_name == '' or request.user.last_name == None:
+				hasEmptyFields = True
+			elif request.user.email == '' or request.user.email == None:
+				hasEmptyFields = True
+
 			context = {'userpassword_algo' : userpassword[0], 
 						'userpassword_iterations': userpassword[1],
 						'userpassword_salt' : ''.join(userpassword[2]), 
 						'userpassword_hash' : ''.join(userpassword[3]),
 						'langlist' : langlist,
 						'force_dark_mode' : True,
-						'error' : error
+						'error' : error,
+						'emptyfields': hasEmptyFields
 						}
 			return render(request, 'reviewer/user/user-settings.html', context)
 	else:
 		return redirect('index')
+
+
+def user_redirect_info(request):
+
+	usr = request.user
+
+	if usr.is_authenticated and request.method == "POST":
+		currURL = request.POST["url"]
+		settings_url = reverse('user_settings')
+
+		willRedirect = False
+
+		if (currURL != settings_url):
+			if usr.username == '' or usr.username == None:
+				willRedirect = True
+			elif usr.first_name == '' or usr.first_name == None:
+				willRedirect = True
+			elif usr.last_name == '' or usr.last_name == None:
+				willRedirect = True
+			elif usr.email == '' or usr.email == None:
+				willRedirect = True
+
+		data = {'field_redirect': willRedirect, 'url_redirect': settings_url }
+
+		return HttpResponse( json.dumps(data) )
+	else:
+		return Http404()
 
 
 def register(request):
@@ -981,7 +1027,7 @@ def register(request):
 					user = authenticate(username=username, password=password)
 
 					login(request, user)
-					return redirect('index')
+					return redirect('user_settings')
 				else:
 					context = {'form': form, 'langlist' : langlist}
 					return render(request, 'registration/register.html', context)

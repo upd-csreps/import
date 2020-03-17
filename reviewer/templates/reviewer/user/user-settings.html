@@ -15,6 +15,22 @@
 				</i>
 				<span class="font-weight-bold">Settings</span>
 			</h1>
+
+
+			{% if emptyfields %}
+			<div class="alert alert-warning alert-dismissible fade show layer-container my-3 d-flex" role="alert">
+				<div class="d-inline-flex my-auto">
+					<i class="material-icons import-font-primary my-auto mr-3">
+						error_outline
+					</i>
+					<span class="font-weight-bold my-auto">Please fill the necessary details before proceeding.</span>
+				</div>
+				 <button type="button" class="close my-auto" data-dismiss="alert" aria-label="Close">
+				    <span aria-hidden="true">&times;</span>
+				  </button>
+			</div>
+			{% endif %}
+
 			<form class="info mt-3 form-row" action="{% url 'user_settings' %}" method="post">
 
 				{% csrf_token %}
@@ -49,7 +65,7 @@
 						</div>
 						<div class="form-group col-6">
 							<label><strong>Middle Name</strong></label>
-							<input class="form-control pr-5" type="text" name="middle_name" value="{{user.middle_name}}">
+							<input class="form-control pr-5" type="text" name="middle_name" {%if user.middle_name %} value="{{user.middle_name}}" {% endif %}>
 						</div>
 
 						<div class="form-group col-6">

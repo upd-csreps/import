@@ -371,9 +371,40 @@
     }
 
 
-    // Video Embed
+   // Redirect for Fields
 
+   function UserFieldCheck(target_url, csrf){
 
+   		if (request) {
+	        request.abort();
+	    }
+
+	    // Fire off the request to url
+	    request =  $.ajax({
+	        type: 'post',
+	        url: target_url,
+	        data: {'url' : window.location.pathname},
+	        headers: {'X-CSRFToken': csrf}
+        });
+
+		    
+		request.done(function (response, textStatus, jqXHR){
+	    	response = JSON.parse(response);
+
+	     	if(response.field_redirect){
+	     		window.location.href = window.location.protocol+"//"+window.location.host + response.url_redirect;
+	     	}
+	    });
+	    
+
+	    request.fail(function (jqXHR, textStatus, errorThrown){
+	        console.error(
+	            "The following error occurred: "+
+	            textStatus, errorThrown
+	        );
+	    });
+
+   }
 
     // Final stuff after web Load
 
@@ -406,6 +437,8 @@
 
 
 	
+	// User Redirect if Fields
+
 
 
 

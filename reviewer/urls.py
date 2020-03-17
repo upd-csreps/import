@@ -28,4 +28,5 @@ urlpatterns = [
     path('u/register/', views.register, name="register"),
     path('u/settings/', views.user_settings, name="user_settings"),
     path('u/*/<str:username>/', views.user, name="user"),
+    path('u/field_check/', views.user_redirect_info, name="user_redirect_info"),
 ]
