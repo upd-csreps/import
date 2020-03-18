@@ -142,7 +142,7 @@
 
 {% block scripts %}
 
-	<!-- References -->
+	<!-- References 
 	<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.2.228/build/pdf.min.js"></script>
 	<script>
 		let pdfurl = "https://drive.google.com/u/0/uc?id=1CEID1w9qkpusXMHM7XBFLGH9kvqCXwk4";
@@ -164,6 +164,7 @@
 			console.log(pdfDoc);
 		});
 	</script>
+	-->
 
 
 	<!-- Comments -->
@@ -186,35 +187,50 @@
 		function addCommentDisplay(response, datestring, bodystring){
 		
 			var newcomment = 
-			`<div class="py-4 px-4 d-flex mb-3 comment the-new-comment" id="comment-`+ response.commentid + `" style="display:none;">
-				 <img class="user-pic-thumb" src="
-				{%if user.prof_pic %}
-					{{ user.prof_pic.url }}
-				{% else %}
-					{% static 'reviewer/images/default_profile.png' %}
-				{% endif %}
 
-				">
+			`<div class="py-4 px-4 d-flex mb-3 comment the-new-comment" id="comment-`+ response.commentid + `" style="display:none;">
+				<a href="#">
+					<img class="user-pic-thumb" src="
+						{%if user.prof_pic %}
+							{{ user.prof_pic.url }}
+						{% else %}
+							{% static 'reviewer/images/default_profile.png' %}
+						{% endif %}
+					">
+				</a>
+				
 				<div class="ml-4 w-100">
 					<div class="d-flex w-100 justify-content-between my-2">
 						<span class="my-auto">
-							<strong>{{ user.username }}</strong> 
+							<a href="{% url 'user' user.username %}" class="comment-username">
+								<strong>
+									{{ user.username }}
+								</strong>
+							</a> 
 						</span>
-						<p class="my-auto">
-							<small class="d-inline-flex">
-								<span class="mr-3 my-auto">
-									<i class="material-icons material-icon-sm {% if user.is_authenticated %}comment-like{%endif%}">
+						<div class="my-auto float-right">
+							<div class="position-relative py-1 px-2 comment-action d-flex">
+								<div class="d-inline-flex ml-auto my-auto">
+									<span class="mr-3 my-auto d-flex">
+										<i class="material-icons material-icon-sm {% if user.is_authenticated %}comment-like{%endif%}">
 											star_border
 										</i> 
-										<span class="my-auto ml-1 mr-2 comment-like-count">0</span>
-									<i class="material-icons  material-icon-sm comment-delete">delete</i>
-								</span>` +
-								datestring
-							+ `</small>
-						</p>
+										<div class="my-auto ml-1 mr-2 comment-like-count inline-block">
+											0
+										</div>
+										<i class="material-icons  material-icon-sm comment-delete" title="Delete comment">delete</i>
+									</span>
+									<small class="my-auto">`+ datestring + `</small>
+								</div>
+							</div>
+						</div>
 					</div>
-					<p>` + replace_url(replace_vid_url(bodystring)) + `</p>` + hasImage(response, "comment") +`
-					
+					<div class="comment-body">
+						`+  replace_url(replace_vid_url(bodystring)) +`
+					</div>
+
+					` + hasImage(response, "comment") + `
+				
 				</div>
 			</div>`;
 
@@ -366,7 +382,7 @@
 
 			    			retval = "";
 							if (response.user == "{{user.username}}"){
-								retval = `<i class="material-icons  material-icon-sm comment-delete">delete</i>`
+								retval = `<i class="material-icons  material-icon-sm comment-delete" title="Delete comment">delete</i>`
 							}
 							return retval;
 						};
@@ -389,33 +405,51 @@
 							return returnval
 						};
 
-						$(".course-comments").html($(".course-comments").html() + `<div class="py-4 px-4 d-flex mb-3 comment" id="comment-`+response.id + `">
-											<img class="user-pic-thumb" src="` + hasImage(response, "profile") + `">
-											<div class="ml-4 w-100">
-												<div class="d-flex w-100 justify-content-between my-2">
-													<span class="my-auto">
-														<strong>`+ response.user +`</strong> 
+						$(".course-comments").html($(".course-comments").html() + 
+							`<div class="py-4 px-4 d-flex mb-3 comment" id="comment-`+response.id + `">
+								<a href="` + window.location.protocol + `//` + window.location.host + response.user_url + `">
+									<img class="user-pic-thumb" src="` + hasImage(response, "profile") + `">
+								</a>
+								
+								<div class="ml-4 w-100">
+									<div class="d-flex w-100 justify-content-between my-2">
+										<span class="my-auto">
+											<a href="` + window.location.protocol + `//` + window.location.host + response.user_url +`" class="comment-username">
+												<strong>
+													` + response.user + `
+												</strong>
+											</a> 
+										</span>
+										<div class="my-auto float-right">
+											<div class="position-relative py-1 px-2 comment-action d-flex">
+												<div class="d-inline-flex ml-auto my-auto">
+													<span class="mr-3 my-auto d-flex">
+														<i class="material-icons material-icon-sm {% if user.is_authenticated %}comment-like{%endif%} ` + lkshow("status") + `">` + 
+																lkshow("icon") + `
+														</i> 
+														<div class="my-auto ml-1 mr-2 comment-like-count inline-block">
+															`+ response.like_ct+ `
+														</div>
+														` + delshow() +`
 													</span>
-													<p class="my-auto">
-														<small class="d-inline-flex">
-															<span class="mr-3 my-auto">
-																<i class="material-icons material-icon-sm {% if user.is_authenticated %}comment-like{%endif%} ` + lkshow("status") + `">
-																` + lkshow("icon") + `  
-																</i> 
-																<span class="my-auto ml-1 mr-2 comment-like-count">`+ response.like_ct+ `</span>
-																
-																` + delshow() + `
-															</span>
-															`+ new Date(response.date).toLocaleString('en-us' , timeoptions) +`
-														</small>
-													</p>
+													<small class="my-auto">`+ new Date(response.date).toLocaleString('en-us' , timeoptions) +`</small>
 												</div>
-												<p>`+  replace_url(replace_vid_url(response.body)) +`</p>
-											` + hasImage(response, "comment") + `
 											</div>
-										</div>`)
-			    	}
-			    	
+										</div>
+									</div>
+									<div class="comment-body">
+										`+  replace_url(replace_vid_url(response.body)) +`
+									</div>
+
+									` + hasImage(response, "comment") + `
+								
+								</div>
+							</div>`
+						);
+
+						MathJax.typeset();
+					}
+			   
 			    });
 			    
 

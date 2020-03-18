@@ -28,72 +28,83 @@
 					</a>
 				</div>
 		</div>
-		
-		{% for course in courselist %}
-			<div class="p-4 mb-3 row layer-container">
-				<div class="col-8">
-					<a href="{% url 'course' course.code|lower course.number %}" class="d-flex flex-wrap">
-						<div class="my-auto mr-3 course-thumb" style="{% if course.image %}background-image: url('{{course.image.url}}'); {%endif%}">
-						</div>
-						<div class="my-auto mx-3 d-inline-flex flex-column">
-							<span class="font-weight-bold comment-username d-flex">
-								<span class="my-auto mr-2">{{course.name}}</span>
 
-								{% if not course.visible %}
-								<i class="material-icons my-auto text-muted mx-0 px-0">
-									visibility_off
-								</i>
-								{% endif %}
+		{% if courselist.count > 0 %}
+			{% for course in courselist %}
+				<div class="p-4 mb-3 row layer-container">
+					<div class="col-8">
+						<a href="{% url 'course' course.code|lower course.number %}" class="d-flex flex-wrap">
+							<div class="my-auto mr-3 course-thumb" style="{% if course.image %}background-image: url('{{course.image.url}}'); {%endif%}">
+							</div>
+							<div class="my-auto mx-3 d-inline-flex flex-column">
+								<span class="font-weight-bold comment-username d-flex">
+									<span class="my-auto mr-2">{{course.name}}</span>
 
-								{% if course.old_curr == True %}
-									<i class="material-icons material-icon-sm text-danger info-help ml-1 px-0 my-auto" title="This is part of an old curriculum.">error_outline</i>
-								{% endif %}
-							</span>
-							<small class="text-muted">{{course.title}}</small>
-						</div>
-					</a>
-				</div>
-
-				<div class="col-2 d-flex">
-						<a class="mx-auto my-auto" href="#">
-							<button  type="button" class="btn btn-primary px-2 d-flex">
-								<div class="m-auto d-flex">
-									<i class="material-icons material-icon-sm my-auto ml-1">
-										assignment
+									{% if not course.visible %}
+									<i class="material-icons my-auto text-muted mx-0 px-0">
+										visibility_off
 									</i>
-									<span class="my-auto mx-1">Lessons</span>
-								</div>
-							</button>
-						</a>				
-				</div>
+									{% endif %}
 
-				<div class="col-2 d-flex">
-						<a class="ml-auto my-auto" href="{% url 'admin_course_id' course.code|lower course.number  'edit' %}">
-							<button  type="button" class="btn btn-light px-2 d-flex">
-								<div class="m-auto d-flex">
-									<i class="material-icons material-icon-sm">
-										edit
-									</i>
-								</div>
-							</button>
+									{% if course.old_curr == True %}
+										<i class="material-icons material-icon-sm text-danger info-help ml-1 px-0 my-auto" title="This is part of an old curriculum.">error_outline</i>
+									{% endif %}
+								</span>
+								<small class="text-muted">{{course.title}}</small>
+							</div>
 						</a>
+					</div>
 
-						<a class="ml-2 delete-course my-auto" href="{% url 'admin_course_id'  course.code|lower course.number 'delete' %} ">
-							<button  type="button" class="btn btn-danger px-2 d-flex">
-								<div class="m-auto d-flex">
-									<i class="material-icons material-icon-sm">
-										delete
-									</i>
-								</div>
-							</button>
-						</a>
+					<div class="col-2 d-flex">
+							<a class="mx-auto my-auto" href="#">
+								<button  type="button" class="btn btn-primary px-2 d-flex">
+									<div class="m-auto d-flex">
+										<i class="material-icons material-icon-sm my-auto ml-1">
+											assignment
+										</i>
+										<span class="my-auto mx-1">Lessons</span>
+									</div>
+								</button>
+							</a>				
+					</div>
+
+					<div class="col-2 d-flex">
+							<a class="ml-auto my-auto" href="{% url 'admin_course_id' course.code|lower course.number  'edit' %}">
+								<button  type="button" class="btn btn-light px-2 d-flex">
+									<div class="m-auto d-flex">
+										<i class="material-icons material-icon-sm">
+											edit
+										</i>
+									</div>
+								</button>
+							</a>
+
+							<a class="ml-2 delete-course my-auto" href="{% url 'admin_course_id'  course.code|lower course.number 'delete' %} " data-name="{{course.code}} {{course.number}}">
+								<button  type="button" class="btn btn-danger px-2 d-flex">
+									<div class="m-auto d-flex">
+										<i class="material-icons material-icon-sm">
+											delete
+										</i>
+									</div>
+								</button>
+							</a>
+					
+					</div>
+
 				
 				</div>
+			{% endfor %}
 
-			
+		{% else %}
+			<div class="text-center mt-4 d-flex">
+				<div class="mx-auto d-flex"> 
+					<i class="material-icons my-auto ml-0 mr-2">
+						library_books
+					</i>
+					<span class="my-auto">No courses available to show</span>
+				</div>
 			</div>
-		{% endfor %}
-
+		{% endif %}
 	</div>
 
 {% endblock %}
@@ -105,7 +116,7 @@
 
 		 $('.delete-course').on('click', function (e) {
 
-		 	var del = confirm('Are you sure you want to delete {{course_filt.name}}?');
+		 	var del = confirm('Are you sure you want to delete ' + $(this).attr("data-name") + '?');
 
 		 	if (!del){
 		 		e.preventDefault();

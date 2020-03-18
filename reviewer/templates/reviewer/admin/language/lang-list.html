@@ -29,52 +29,64 @@
 				</div>
 		</div>
 		
-		<div class="row">
-			{% for lang in langlist %}
-			<div class="col-lg-6 col-12">
-				<div class="p-2">
-					<div class="p-3 mb-3 row layer-container">
-						<div class="col-8 d-flex">
-							<div class="course-thumb rounded-circle d-flex align-items-center" style="background-color:  #{{ lang.color }};">
-								<div class="m-auto lang-badge rounded-circle p-4" style="{% if lang.image %}background-image: url('{{lang.image.url}}'); background-size: 40px{%endif%}">
+
+		{% if langlist.count > 0 %}
+			<div class="row">
+				{% for lang in langlist %}
+				<div class="col-lg-6 col-12">
+					<div class="p-2">
+						<div class="p-3 mb-3 row layer-container">
+							<div class="col-8 d-flex">
+								<div class="course-thumb rounded-circle d-flex align-items-center" style="background-color:  #{{ lang.color }};">
+									<div class="m-auto lang-badge rounded-circle p-4" style="{% if lang.image %}background-image: url('{{lang.image.url}}'); background-size: 40px{%endif%}">
+									</div>
+								</div>
+								<div class="my-auto mx-3 d-inline-flex flex-column">
+									<span class="font-weight-bold d-flex">
+										<span class="my-auto mr-2">{{lang.name}}</span>
+									</span>
 								</div>
 							</div>
-							<div class="my-auto mx-3 d-inline-flex flex-column">
-								<span class="font-weight-bold d-flex">
-									<span class="my-auto mr-2">{{lang.name}}</span>
-								</span>
-							</div>
-						</div>
 
-					
-						<div class="col-4 d-flex">
-								<a class="ml-auto my-auto" href="{% url 'admin_lang'  lang.id 'edit' %}">
-									<button  type="button" class="btn btn-light px-2 d-flex">
-										<div class="m-auto d-flex">
-											<i class="material-icons material-icon-sm">
-												edit
-											</i>
-										</div>
-									</button>
-								</a>
-
-								<a class="ml-2 delete-lang my-auto" href="{% url 'admin_lang' lang.id  'delete' %}" target-lang="{{lang.name}}">
-									<button  type="button" class="btn btn-danger px-2 d-flex">
-										<div class="m-auto d-flex">
-											<i class="material-icons material-icon-sm">
-												delete
-											</i>
-										</div>
-									</button>
-								</a>
 						
-						</div>
+							<div class="col-4 d-flex">
+									<a class="ml-auto my-auto" href="{% url 'admin_lang'  lang.id 'edit' %}">
+										<button  type="button" class="btn btn-light px-2 d-flex">
+											<div class="m-auto d-flex">
+												<i class="material-icons material-icon-sm">
+													edit
+												</i>
+											</div>
+										</button>
+									</a>
 
+									<a class="ml-2 delete-lang my-auto" href="{% url 'admin_lang' lang.id  'delete' %}" target-lang="{{lang.name}}">
+										<button  type="button" class="btn btn-danger px-2 d-flex">
+											<div class="m-auto d-flex">
+												<i class="material-icons material-icon-sm">
+													delete
+												</i>
+											</div>
+										</button>
+									</a>
+							
+							</div>
+
+						</div>
 					</div>
 				</div>
+				{% endfor %}
 			</div>
-			{% endfor %}
-		</div>
+		{% else %}
+			<div class="text-center mt-4 d-flex">
+				<div class="mx-auto d-flex"> 
+					<i class="material-icons my-auto ml-0 mr-2">
+						code
+					</i>
+					<span class="my-auto">No languages available to show</span>
+				</div>
+			</div>
+		{% endif %}
 
 	</div>
 

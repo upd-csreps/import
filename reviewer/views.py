@@ -207,7 +207,7 @@ def admin_get_course(request, purpose, ajax=True, course_subj="", course_num="")
 				data = request.POST
 				courseform = CourseForm(data)
 
-				tempname = data['name']
+				tempname = data['name'].strip()
 				coursefulln = tempname.split(" ")
 				tempnum = coursefulln[len(coursefulln)-1]
 				tempcode = ' '.join(coursefulln[:-(len(coursefulln)-1)])
@@ -237,11 +237,11 @@ def admin_get_course(request, purpose, ajax=True, course_subj="", course_num="")
 							image_uploaded = None
 
 						new_course = Course(
-							name=data['name'],
+							name=data['name'].strip(),
 							code=tempcode, 
 							number=tempnum, 
-							title=data['title'], 
-							description=data['description'], 
+							title=data['title'].strip(), 
+							description=data['description'.strip()], 
 							old_curr=temp_oldcurr, 
 							visible=temp_visible,
 							image=image_uploaded
@@ -254,11 +254,11 @@ def admin_get_course(request, purpose, ajax=True, course_subj="", course_num="")
 
 						edit_course = Course.objects.get(code__iexact=course_subj, number__iexact=course_num)
 
-						edit_course.name = data['name']
+						edit_course.name = data['name'].strip()
 						edit_course.code = tempcode
 						edit_course.number = tempnum
-						edit_course.title = data['title']
-						edit_course.description = data['description']
+						edit_course.title = data['title'].strip()
+						edit_course.description = data['description'].strip()
 						edit_course.old_curr = temp_oldcurr
 						edit_course.visible = temp_visible
 
@@ -381,14 +381,14 @@ def admin_lang(request, purpose, id=""):
 
 					# Add input validation
 					if purpose == "add":
-						new_lang = Language(name=data['name'], color=data['color'][1:], image=image_uploaded)
+						new_lang = Language(name=data['name'].strip(), color=data['color'][1:], image=image_uploaded)
 						new_lang.save()
 
 					elif purpose == "edit":
 						
 						edit_lang = Language.objects.get(id=id)
 
-						edit_lang.name = data["name"]
+						edit_lang.name = data["name"].strip()
 						edit_lang.color = data["color"][1:]
 						
 						if ((image_uploaded != None) or (data.get('imagehascleared', False) != False )):
@@ -468,7 +468,7 @@ def admin_announcement_update(request, purpose, id=""):
 			if request.method == "POST" and request.user.check_password(request.POST['password']):
 				data = request.POST
 
-				tempname = data['name']
+				tempname = data['name'].strip()
 			
 				if len(tempname) > 0:
 
@@ -626,6 +626,7 @@ def coursecpage(request, csubj, cnum, catchar = 'l', cpage = 1):
 							result = { 
 								'id': str(last_comment.id),
 								'user' : str(last_comment.user_attr.username),
+								'user_url': str(reverse('user', str(last_comment.user_attr.username))),
 								'body' : str(last_comment.body),
 								'date' : str(last_comment.date_posted),
 								'liked' : likedstat,
