@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import AbstractUser
+from django.contrib.postgres.fields import JSONField
 
 # Create your models here.
 
@@ -109,7 +110,7 @@ class Likes(models.Model):
 class Announcement(models.Model):
 
 	title = models.CharField(max_length=30)
-	body = models.TextField()
+	body = JSONField()
 	poster = models.ForeignKey(ImportUser, on_delete=models.CASCADE)
 	datepost = models.DateTimeField("Date Posted", default=timezone.now)
 

@@ -4,6 +4,8 @@
 	<head>
 		<title>{% block title %}{% endblock %} - Import *</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<meta charset="utf-8">
+
 		<link href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css" rel="stylesheet">
 	  	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 	  	<link rel="icon" href="{% static 'reviewer/favicon.ico' %}">
@@ -63,6 +65,7 @@
 			<script src="{% static 'reviewer/js/popper.min.js' %}"></script>
 			<script src="{% static 'reviewer/js/bootstrap.min.js' %}"></script>
 			<script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
+
 		    <script defer src="{% static 'reviewer/js/katex.min.js' %}"></script>
 		    <script defer src="{% static 'reviewer/js/auto-render.min.js' %}"
 		        onload="renderMathInElement(document.body);"></script>

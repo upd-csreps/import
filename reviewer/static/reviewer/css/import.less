@@ -202,7 +202,7 @@ footer{
 
 .ql-snow .ql-picker:hover, 
 .ql-picker-item:hover, 
-.ql-snow .ql-picker .ql-picker-label:hover,
+.ql-snow .ql-picker:hover .ql-picker-label,
 .ql-picker-label.ql-active,
 .ql-picker-item.ql-selected{
 	color: @ImportPrimary !important;
@@ -213,6 +213,8 @@ footer{
 	font-family: inherit !important;
 }
 
+.ql-snow .ql-picker:hover .ql-picker-label .ql-stroke,
+.ql-snow .ql-picker:hover .ql-picker-label .ql-fill,
 .ql-toolbar.ql-snow button:hover .ql-stroke,
 .ql-toolbar.ql-snow button:hover .ql-fill, 
 svg:hover .ql-stroke, svg:hover .ql-fill{

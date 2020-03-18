@@ -421,10 +421,8 @@
 
 
 	   headerEffect();
-	   initPhotoLoad();
-
-
-		
+	   //twemoji.parse(document.body);
+	   initPhotoLoad();		
 		
 	   
 	});
