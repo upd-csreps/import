@@ -865,9 +865,14 @@ def user_settings(request):
 						currentuser.show_email = (data.get("show_email") == 'show')
 						currentuser.course = data["course"]
 
-						try:
-							currentuser.fave_lang = Language.objects.get(name=data["fave_lang"])
-						except Language.DoesNotExist:
+						langvalue = ""
+
+						if data.get("fave_lang", None):
+							try:
+								currentuser.fave_lang = Language.objects.get(name=data["fave_lang"])
+							except Language.DoesNotExist:
+								currentuser.fave_lang = None
+						else:
 							currentuser.fave_lang = None
 
 						currentuser.dark_mode = (data.get("dark_mode") == 'dark')

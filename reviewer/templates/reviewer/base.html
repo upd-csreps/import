@@ -4,12 +4,13 @@
 	<head>
 		<title>{% block title %}{% endblock %} - Import *</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
 		<link href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css" rel="stylesheet">
 	  	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 	  	<link rel="icon" href="{% static 'reviewer/favicon.ico' %}">
 	  	<link rel="shortcut icon" href="{% static 'reviewer/favicon.ico' %}">
 	  	<link rel="stylesheet" href="{% static 'reviewer/css/bootstrap.min.css' %}">
+	  	<link rel="stylesheet" href="{% static 'reviewer/css/katex.min.css' %}">
+
 
 	  	<link href="{% static 'reviewer/css/import.css' %}" rel="stylesheet"/>
 	  	<link href="{% static 'reviewer/css/import.less' %}" type="text/css" rel="stylesheet/less"/>
@@ -62,8 +63,10 @@
 			<script src="{% static 'reviewer/js/popper.min.js' %}"></script>
 			<script src="{% static 'reviewer/js/bootstrap.min.js' %}"></script>
 			<script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
-			<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-			<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+		    <script defer src="{% static 'reviewer/js/katex.min.js' %}"></script>
+		    <script defer src="{% static 'reviewer/js/auto-render.min.js' %}"
+		        onload="renderMathInElement(document.body);"></script>
+
 			<script src="{% static 'reviewer/js/import_generic.js' %}"></script>
 			
 			{% if user.is_authenticated %}
@@ -77,19 +80,6 @@
 			{% block scripts %}
 			{% endblock %}
 
-			{% comment %}
-				<script>
-					$('a').each(function(){
-				   		let link_url = $(this).attr("href");
-				   		let current_url = {{ request.get_full_path }};
-
-				   		if (link_url == current_url){
-				   			$(this).addClass("import-font-primary");
-
-				   		}
-				   });
-				</script>
-			{% endcomment %}
 		</div>
 	</body>
 </html>

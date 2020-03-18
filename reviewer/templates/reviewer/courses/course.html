@@ -240,7 +240,7 @@
 			
 			$(".course-comments").html(newcomment);
 			$(".the-new-comment").fadeIn(2000);
-			MathJax.typeset()
+			renderMathInElement(document.body)
 			$(".the-new-comment").removeClass("the-new-comment");
 
 			coursect = coursect+1;
@@ -447,7 +447,7 @@
 							</div>`
 						);
 
-						MathJax.typeset();
+						renderMathInElement(document.body)
 					}
 			   
 			    });
