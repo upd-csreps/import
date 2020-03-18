@@ -360,3 +360,7 @@ body{
 	font-weight: 500;
 }
 
+.ql-container{
+	height: 20em !important;
+	overflow-y: scroll;
+}

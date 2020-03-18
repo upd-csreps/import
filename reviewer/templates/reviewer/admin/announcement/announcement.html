@@ -22,7 +22,32 @@
 
 	<!-- Initialize Quill editor -->
 	<script>
+
+		var toolbarOptions = [
+
+
+			[{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+			['bold', 'italic', 'underline', 'strike'],        // toggled buttons
+		
+			[{ 'list': 'ordered'}, { 'list': 'bullet' }],
+			[{ 'script': 'sub'}, { 'script': 'super' }],      // superscript/subscript
+
+			[{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme 
+	
+			['blockquote', 'code-block'],
+			[{ 'indent': '-1'}, { 'indent': '+1' }],          // outdent/indent
+			[{ 'align': [] }],
+
+			['link', 'image', 'video', 'formula'],
+
+			['clean']                                         // remove formatting button
+		];
+
 	  var quill = new Quill('#quill-editor', {
+	  	modules:{
+	  		toolbar: toolbarOptions
+	  	},
+	  	placeholder: 'Write the announcement details here.',
 	    theme: 'snow'
 	  });
 	</script>
