@@ -29,4 +29,7 @@ urlpatterns = [
     path('u/settings/', views.user_settings, name="user_settings"),
     path('u/*/<str:username>/', views.user, name="user"),
     path('u/field_check/', views.user_redirect_info, name="user_redirect_info"),
+
+    # Announcements
+    path('announcements/<str:id>', views.announcement_view, name="announcement_view"),
 ]

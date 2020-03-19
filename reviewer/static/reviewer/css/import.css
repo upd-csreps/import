@@ -96,7 +96,7 @@ body{
 }
 
 
-.import-header .user-pic{
+.import-header .user-pic, .announcement-user .user-pic{
 	height: 30px;
 	width: 30px;
 	border: 1px solid transparent;
@@ -360,7 +360,7 @@ body{
 	font-weight: 500;
 }
 
-.ql-container{
+#quill-editor{
 	height: 20em !important;
 	overflow-y: scroll;
 }

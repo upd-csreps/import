@@ -503,6 +503,8 @@ def admin_announcement_update(request, purpose, id=""):
 							for i in all_users:
 								print(i.username)
 
+						retjson["redirect_url"] = reverse('announcement_view', new_ann.id)
+
 					elif purpose == "edit":
 						
 						'''
@@ -518,7 +520,7 @@ def admin_announcement_update(request, purpose, id=""):
 						'''
 
 
-				return HttpResponse( json.dumps(bodyjson) )				
+				return HttpResponse( json.dumps(retjson) )				
 
 			else:
 				pass
@@ -552,6 +554,20 @@ def admin_announcement_update(request, purpose, id=""):
 		
 	else:
 		raise HttpResponseForbidden()
+
+
+def announcement_view(request, id):
+
+	announcement = Announcement.objects.get(id=id)
+
+	context = {
+		'announcement' : announcement,
+		'announcement_json' : json.dumps(announcement.body),
+
+	}
+
+
+	return render(request, 'reviewer/announcement.html', context)
 
 def courselist(request):
 
