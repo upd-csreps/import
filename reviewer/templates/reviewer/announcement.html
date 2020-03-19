@@ -11,10 +11,10 @@
 		<div class="d-flex flex-column align-items-center">
 			<div class="row w-100 my-5">
 
-				<div class="col-9 mx-auto mt-5">
+				<div class="col-9 mx-auto mt-5 d-flex flex-column">
 					<h1 class="font-weight-bold">{{announcement.title}}</h1>
 
-					<div class="d-flex justify-content-between my-3">
+					<div class="d-flex justify-content-between my-2">
 						<div class="d-flex">
 							<span class="text-uppercase my-auto font-weight-bold">
 								Posted by
@@ -40,21 +40,28 @@
 							{% endif %}
 						</div>
 
-						<div class="date">
+						<div class="date my-auto">
 							<small>{{announcement.datepost|date:"M d, Y, h:i A"}}</small>
 						</div>
 
 					</div>
 
+					<div class="mx-auto my-3 layer-container d-flex" style="width:32em; height: 18em;">
+						<div class="m-auto">
+							<span class="font-weight-bold h1">import<sup class="import-font-primary">*</sup></span>
+							<span class="h6 text-right text-muted">ANNOUNCEMENTS</span>
+						</div>
+					</div>
 
-					<hr>
+					<div>
+						<hr>
+						<div class="mt-5 mb-3">
+							<article id="announcement-content">
 
-					<div class="my-4">
-						<article id="announcement-content">
 
 
-
-						</article>
+							</article>
+						</div>
 					</div>
 
 				</div>

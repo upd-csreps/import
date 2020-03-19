@@ -105,14 +105,27 @@ footer{
 	border-bottom: 6px solid @BackgroundColor;
 }
 
+
+
+/* QuillJS Editor */
+
+
 .ql-snow .ql-picker{
 	color: @TextColor !important;
 }
 
-.ql-toolbar.ql-snow button .ql-fill,
 .ql-toolbar.ql-snow button .ql-stroke,
-.ql-fill, .ql-stroke {
+.ql-stroke {
 	stroke: @TextColor !important;
+}
+
+.ql-toolbar.ql-snow button .ql-fill,
+.ql-fill {
+	fill: @TextColor !important;
+}
+
+.ql-editor.ql-blank::before{
+	color: rgba(255,255,255,0.6) !important;
 }
 
 

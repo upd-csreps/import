@@ -110,7 +110,7 @@
 					<div class="form-group">
 						<label><strong>E-mail</strong> <span class="import-font-primary">*</span> </label>
 						<div class="d-flex">
-							<input class="form-control pr-5" type="text" name="e-mail" {% if user.email %} value="{{user.email}}" {% endif %} required>
+							<input class="form-control pr-5" type="email" name="e-mail" {% if user.email %} value="{{user.email}}" {% endif %} required>
 							<div class="invalid-feedback">
 								This field is required.
 							</div>

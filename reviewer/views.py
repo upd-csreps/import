@@ -493,7 +493,7 @@ def admin_announcement_update(request, purpose, id=""):
 							poster=request.user
 						)
 						
-						new_ann.save()
+						# new_ann.save()
 
 						if notify_users:
 
