@@ -7,6 +7,7 @@
 @ImportFont: "SpaceGrotesk";
 @TransTime: 0.15s ease-in-out;
 @HeaderScroll : #ffffff;
+@DisabledColor: #dcdcdc;
 
 /* Main CSS */
 
@@ -79,6 +80,10 @@ body{
 .btn-primary:active{
 
 	color: @ImportPrimary !important;
+}
+
+.btn-primary:disabled, .btn-secondary:disabled{
+	background: @DisabledColor;
 }
 
 .btn-secondary{

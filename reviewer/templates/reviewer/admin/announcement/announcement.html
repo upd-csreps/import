@@ -19,6 +19,8 @@
 {% block scripts %}
 	<!-- Include the Quill library -->
 	<script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/quill-image-resize-module@3.0.0/image-resize.min.js">
+	</script>
 
 	<!-- Initialize Quill editor -->
 	<script>
@@ -43,12 +45,80 @@
 			['clean']                                         // remove formatting button
 		];
 
-	  var quill = new Quill('#quill-editor', {
+	  	var quill = new Quill('#quill-editor', {
 	  	modules:{
 	  		toolbar: toolbarOptions
 	  	},
 	  	placeholder: 'Write the announcement details here.',
 	    theme: 'snow'
 	  });
+
+
+	  	$("#announcement-form").submit(function(e){
+
+	  		var confirmation = confirm("Do you want to publish this announcement?");
+
+	  		e.preventDefault();
+
+	  		if (confirmation){
+
+	  			{% if user.is_superuser %}
+
+				    // Abort any pending request
+				    if (request) {
+				        request.abort();
+				    }
+				    // setup some local variables
+				    var form = $(this);
+				    var formData = new FormData(this);
+				   
+				    var inputs = form.find("input, select, button, textarea");
+				    inputs.prop("disabled", true);
+
+				    window.delta = quill.getContents();
+				    formData.append('content', JSON.stringify(window.delta));
+
+				    // Fire off the request to url
+				    request =  $.ajax({
+	                type: 'post',
+	                url: `{% if title == 'Create Announcement' %}
+								{% url 'admin_announcement_create' %}
+							{% else %}
+								{% url 'admin_lang' edit_lang.id 'edit' %}
+							{% endif %}`,
+	                data: formData,
+	                cache: false,
+	                contentType: false,
+	                processData: false,
+	                });
+
+				    
+				     
+				    // Callback handler that will be called on success
+				    request.done(function (response, textStatus, jqXHR){
+				    
+				    	response = JSON.parse(response);
+				    	console.log(response)
+				        
+				    });
+				    
+
+				    // Callback handler that will be called on failure
+				    request.fail(function (jqXHR, textStatus, errorThrown){
+				        // Log the error to the console
+				        console.error(
+				            "The following error occurred: "+
+				            textStatus, errorThrown
+				        );
+				    });
+
+				    request.always(function () {
+				        // Reenable the inputs
+				        inputs.prop("disabled", false);
+				    });
+
+		    	{% endif %}
+	  		}
+	  	});
 	</script>
 {% endblock %}

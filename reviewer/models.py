@@ -106,12 +106,15 @@ class Likes(models.Model):
 	def __str__(self):
 		return	'Likes to Comment #{} - {}'.format(self.comment.id, self.user_attr)
 
+def announcement_uploadto(instance, filename):
+	return 'announcement/{0}/{1}'.format(instance.id, filename)
 
 class Announcement(models.Model):
 
 	title = models.CharField(max_length=30)
 	body = JSONField()
-	poster = models.ForeignKey(ImportUser, on_delete=models.CASCADE)
+	image = models.ImageField(verbose_name="Image", null=True, blank=True, upload_to=announcement_uploadto)
+	poster = models.ForeignKey(ImportUser, on_delete=models.SET_NULL, null=True)
 	datepost = models.DateTimeField("Date Posted", default=timezone.now)
 
 	def __str__(self):

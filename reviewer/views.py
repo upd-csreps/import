@@ -465,13 +465,15 @@ def admin_announcement_update(request, purpose, id=""):
 			return redirect('admin_langlist')
 		else:
 
-			if request.method == "POST" and request.user.check_password(request.POST['password']):
+			if request.method == "POST":
 				data = request.POST
 
-				tempname = data['name'].strip()
-			
-				if len(tempname) > 0:
+				bodyjson = json.loads(data["content"])
+				notify_users = data.get('em_notif', False)
+				temptitle = data.get('title', None)
+				retjson = {}
 
+				if temptitle:
 					image_uploaded = request.FILES.get('image', None)
 
 					try:
@@ -481,13 +483,29 @@ def admin_announcement_update(request, purpose, id=""):
 					except:
 						image_uploaded = None
 
-					# Add input validation
+					# Add input validation, empty title!!!
+
 					if purpose == "add":
-						new_lang = Language(name=data['name'], color=data['color'][1:], image=image_uploaded)
-						new_lang.save()
+						new_ann = Announcement(
+							title=data['title'], 
+							body=bodyjson,
+							image=image_uploaded,
+							poster=request.user
+						)
+						
+						new_ann.save()
+
+						if notify_users:
+
+							all_users = ImportUser.objects.filter(notifications=True)
+
+							print("Email the ff:")
+							for i in all_users:
+								print(i.username)
 
 					elif purpose == "edit":
 						
+						'''
 						edit_lang = Language.objects.get(id=id)
 
 						edit_lang.name = data["name"]
@@ -497,12 +515,10 @@ def admin_announcement_update(request, purpose, id=""):
 							edit_course.image = image_uploaded
 
 						edit_lang.save()
+						'''
 
 
-					return redirect('admin_langlist')
-
-				else:
-					return redirect(request.META['HTTP_REFERER'])
+				return HttpResponse( json.dumps(bodyjson) )				
 
 			else:
 				pass

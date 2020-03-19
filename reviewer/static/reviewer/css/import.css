@@ -364,3 +364,13 @@ body{
 	height: 20em !important;
 	overflow-y: scroll;
 }
+
+
+.import-image-drag.import-image-drag-large{
+	width: 400px;
+	height:225px;
+}
+
+.import-image-drag.import-image-drag-large i{
+	font-size: 4em;
+}

@@ -18,7 +18,7 @@
 	</span>
 </h2>
 
-<button class="btn btn-primary d-inline-flex float-right" type="submit" form="announcement-form">
+<button class="btn btn-primary d-inline-flex float-right announcement-submit" type="submit" form="announcement-form">
 	<i class="material-icons my-auto material-icon-sm mr-lg-2">
 		publish
 	</i>
@@ -36,18 +36,20 @@
 <div class="d-flex flex-column p-3 pb-0">
 	<form class="form-group mb-0" id="announcement-form" method="POST" action="
 		{% if title == 'Create Announcement' %}
-			{% url 'admin_lang_add' %}
+			{% url 'admin_announcement_create' %}
 		{% else %}
 			{% url 'admin_lang' edit_lang.id 'edit' %}
 		{% endif %}
 		" enctype="multipart/form-data">
+
+
 		{% csrf_token %}
 
 
 		<div class="form-group row">
 			<div class="col-10 col-lg-8">
 				<label><strong>Title</strong> <span class="import-font-primary">*</span> </label>
-				<input class="form-control pr-5 mx-0" type="text" name="title" value="" required>
+				<input class="form-control pr-5 mx-0" type="text" name="title" value="" autocomplete="off" required>
 				<div class="invalid-feedback">
 					This field is required.
 				</div>
@@ -83,10 +85,42 @@
 		<div id="quill-editor">
 		</div>
 
-		<div class="announcement-photo mt-3">
-			<strong>Photo</strong>
+		<div class="announcement-photo mt-4">
+		
+			<div class="form-control-group course-image-upload d-none position-absolute">
+				<div>
+					<input type="checkbox" name="imagehascleared" class="form-check-input" id="id_imagehascleared">
+				</div>
+				<div>
+					<input type="file" name="image" accept="image/*" id="id_image">
+				</div>
+			</div>
+			<h6 class="font-weight-bold my-3">Featured Image</h6>
+			<button class="mx-auto border-dashed import-image-drag import-image-drag-large {% if user.is_authenticated %}import-image-drag-enabled{%else%}-disabled{%endif%}" data-file-target="course-image-upload" style="border-width: 2px;" type="button">
+				{% if user.is_authenticated %}
+					<div class="addphoto-popper ml-2 p-3">
+						Add a photo
+					</div>
+				{% endif %}
+				<i class="material-icons p-4">
+					add_a_photo
+				</i>
+			</button>
+
+
+
+			<script>
+				try{
+					PhotoUploadTooltip();
+				}
+				catch(error){
+
+				}
+			</script>
 		</div>
 
 			
+
+
 	</form>
 </div>
