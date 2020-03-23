@@ -1,18 +1,22 @@
 import os
-from django.conf import settings
-
-from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate,login,logout
-from django.utils import timezone
-from django.urls import reverse
-from django.http import Http404, HttpResponse, HttpResponseForbidden
-from PIL import Image
-from django.contrib.auth import get_user_model
-from .models import Course, Announcement, ImportUser, Comment, Likes, Language, LessonStats
-from .forms import CourseForm, CommentForm, ImportUserCreationForm, LanguageForm
-from math import ceil
-from datetime import timedelta
 import json
+
+from .custom import send_mass_html_mail
+from .models import ImportUser, Course, Comment, Likes, Language, Announcement, LessonStats
+from .forms import ImportUserCreationForm, CourseForm, CommentForm, LanguageForm
+
+from datetime import timedelta
+from django.conf import settings
+from django.contrib.auth import authenticate, login,logout
+from django.contrib.sites.shortcuts import get_current_site
+
+from django.http import Http404, HttpResponse, HttpResponseForbidden
+from django.shortcuts import redirect, render
+from django.template.loader import render_to_string
+from django.urls import reverse
+from django.utils import timezone
+from math import ceil
+from PIL import Image
 
 
 # Create your views here.
@@ -471,6 +475,7 @@ def admin_announcement_update(request, purpose, id=""):
 				bodyjson = json.loads(data["content"])
 				notify_users = data.get('em_notif', False)
 				temptitle = data.get('title', None)
+				bodystring = data.get('bodystring', None)
 				retjson = {}
 
 				if temptitle:
@@ -483,25 +488,51 @@ def admin_announcement_update(request, purpose, id=""):
 					except:
 						image_uploaded = None
 
-					# Add input validation, empty title!!!
-
 					if purpose == "add":
 						new_ann = Announcement(
-							title=data['title'], 
+							title=temptitle, 
 							body=bodyjson,
 							image=image_uploaded,
 							poster=request.user
 						)
 						
-						# new_ann.save()
+						new_ann.save()
 
 						if notify_users:
 
-							all_users = ImportUser.objects.filter(notifications=True)
+							domain = get_current_site(request).domain
 
-							print("Email the ff:")
-							for i in all_users:
-								print(i.username)
+							settings_url = 'http://'+ domain + reverse('user_settings')
+
+							announcement_url = 'http://'+ domain + reverse('announcement_view', new_ann.id)
+
+							all_users = list(ImportUser.objects.filter(notifications=True).values_list('email', flat=True))
+							email_mass = []
+
+							email_from = "Import * Announcement System <" + settings.EMAIL_HOST_USER + ">"
+
+							html_design = render_to_string('reviewer/email/email.html', 
+								{
+									'settings_url': settings_url,
+									'title':	new_ann.title,
+									'announcement_url': announcement_url,
+									'content': bodystring
+							})
+
+							for email in all_users:
+								message = (settings.EMAIL_SUBJECT_PREFIX + new_ann.title, 
+									bodystring, 
+									html_design,
+									email_from, 
+									[email] )
+								email_mass.append(message)
+
+							email_mass = tuple(email_mass)
+
+							send_mass_html_mail(email_mass, fail_silently=False)
+							print("Emails sent!")
+							print(all_users)
+
 
 						retjson["redirect_url"] = reverse('announcement_view', new_ann.id)
 
@@ -523,7 +554,6 @@ def admin_announcement_update(request, purpose, id=""):
 				return HttpResponse( json.dumps(retjson) )				
 
 			else:
-				pass
 
 				context = {}
 				if purpose == "add":

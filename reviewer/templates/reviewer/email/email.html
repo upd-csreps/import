@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	 <head>
+	 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	 	<title>Import* Announcement System</title>
+	 	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+	 	<style>
+
+	 		@font-face {
+				font-family: 'SpaceGrotesk';
+				src: url('https://github.com/floriankarsten/space-grotesk/blob/master/fonts/otf/SpaceGrotesk-Regular.otf?raw=true')  format('opentype');
+				font-weight: normal;
+			}
+
+			@font-face {
+				font-family: 'SpaceGrotesk';
+				src: url('https://github.com/floriankarsten/space-grotesk/blob/master/fonts/otf/SpaceGrotesk-Bold.otf?raw=true')  format('opentype');
+				font-weight: bold;
+			}
+
+			 body {
+			    font-family: "SpaceGrotesk", "Avenir", Tahoma, Helvetica, Sans-Serif;
+			  }
+
+	 	</style>
+	</head>
+	<body style="margin: 0; padding: 0;">
+		<font color="#2f2f2f">
+				<table align="center" border="0" bordercolor="#f0f0f0" cellpadding="0" cellspacing="0" width="600" style="border-collapse: collapse; border: 1px solid #cccccc;" >
+					<tr align="center" border="0">
+						<td style="padding: 20px 20px 20px 20px;">
+
+							{% comment %}
+								Change to image
+							{% endcomment %}
+
+							<font size="6">
+								<b>import <sup><font color="#ff9172">*</font></sup></b>
+							</font>
+						</td>
+					</tr>
+					<tr bgcolor="#fcfcfc">
+						<td style="padding: 20px 20px 20px 20px">
+							<table border="0" cellpadding="0" cellspacing="0" width="100%">
+							 <tr>
+							  <td align="center">
+							   	<h3>{{title}}</h3>
+							  </td>
+							 </tr>
+							 <tr>
+							  <td style="padding: 20px 10px 30px 10px;">
+							  		{{content}}
+							  </td>
+							 </tr>
+							 <tr>
+							  <td style="padding: 10px 10px 10px 10px;" align="center">
+							  	<font size="2">
+							  		See full announcement at this <a href="{{announcement_url}}">link</a>.
+							  		<br>
+							   		To change your notification settings, please go to this <a href="{{settings_url}}">link</a>.
+								</font>
+							  </td>
+							 </tr>
+							</table>
+						</td>
+					</tr>
+					<tr>
+						<td style="padding: 20px 10px 20px 10px" align="center">
+							Social media links here
+						</td>
+					</tr>
+				</table>
+					
+		</font>
+	</body>
+</html>

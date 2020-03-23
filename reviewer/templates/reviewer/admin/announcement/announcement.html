@@ -75,6 +75,8 @@
 				    var inputs = form.find("input, select, button, textarea");
 				    inputs.prop("disabled", true);
 
+				    window.delta = quill.getText();
+				    formData.append('bodystring', window.delta);
 				    window.delta = quill.getContents();
 				    formData.append('content', JSON.stringify(window.delta));
 
