@@ -22,9 +22,17 @@ from PIL import Image
 # Create your views here.
 
 def index(request):
-	announcements = Announcement.objects.order_by('-datepost')
+	announcements = Announcement.objects.order_by('-datepost')[0:3]
+	announcements_json = []
 
-	context = {'announcements': announcements, 'ann_len': len(announcements)}
+	for announcement in announcements:
+		announcements_json.append(json.dumps(announcement.body))
+
+	context = { 
+		'announcements': announcements, 
+		'announcements_json' : announcements_json,
+		'ann_len': len(announcements)
+	}
 
 	return render(request, 'reviewer/index.html', context)
 
