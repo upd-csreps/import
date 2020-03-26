@@ -56,7 +56,6 @@
 					dragicon.querySelector(".material-icons").innerHTML = "close";
 					dragicon.querySelector(".material-icons").classList.add("import-image-uploaded-icon");		
 					dragicon.querySelector(".addphoto-popper").innerHTML = "<small>" + files[0].name + "</small>";
-					dragicon.querySelector
 				}
 				else{
 					alert("Please upload an image file.");
@@ -370,6 +369,9 @@
 
     }
 
+    function URL_Redirect(url_redirect){
+    	window.location.href = window.location.protocol+"//"+window.location.host + url_redirect;
+    }
 
    // Redirect for Fields
 
@@ -392,7 +394,7 @@
 	    	response = JSON.parse(response);
 
 	     	if(response.field_redirect){
-	     		window.location.href = window.location.protocol+"//"+window.location.host + response.url_redirect;
+	     		URL_Redirect(response.url_redirect);
 	     	}
 	    });
 	    

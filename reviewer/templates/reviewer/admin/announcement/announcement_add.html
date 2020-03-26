@@ -12,7 +12,7 @@
 		<span class="my-auto">
 			<span class="font-weight-bold">{{title}}</span>
 			{% if title == 'Edit Announcement' %}
-				<p class="h6 text-muted">{{edit_lang.name}}</p>
+				<p class="h6 text-muted">{{edit_ann.name}}</p>
 			{% endif %}
 		</span>
 	</span>
@@ -38,7 +38,7 @@
 		{% if title == 'Create Announcement' %}
 			{% url 'admin_announcement_create' %}
 		{% else %}
-			{% url 'admin_lang' edit_lang.id 'edit' %}
+			{% url 'admin_announcement_update' edit_ann.id 'edit' %}
 		{% endif %}
 		" enctype="multipart/form-data">
 
@@ -49,28 +49,31 @@
 		<div class="form-group row">
 			<div class="col-10 col-lg-8">
 				<label><strong>Title</strong> <span class="import-font-primary">*</span> </label>
-				<input class="form-control pr-5 mx-0" type="text" name="title" value="" autocomplete="off" required>
+				<input class="form-control pr-5 mx-0 announcement-title" type="text" name="title" value="{{edit_ann.title}}" autocomplete="off" required>
 				<div class="invalid-feedback">
 					This field is required.
 				</div>
 			</div>
 			<div class="mt-auto col-lg-4 d-flex col-2">
 				<div class="d-flex mb-2 mx-auto">
-					<label class="my-auto ml-auto mr-0"><strong class="d-none d-lg-block">E-mail Notification</strong></label>
-					<span class="my-auto d-none position-absolute notif-val">
-						<input type="checkbox" name="em_notif" value="notif_on" {% if user.notifications %}checked{% endif %}>
-					</span>
+					<label class="my-auto ml-auto mr-0 {% if title == 'Edit Announcement' %}text-muted{% endif %}"><strong class="d-none d-lg-block">E-mail Notification</strong></label>
 
-					<i class="material-icons my-auto togglable mr-2 ml-2 {% if user.notifications %}active-button{% endif %}" onclick="$('.notif-val input').click();">
-						{% if user.notifications %}
+					{% if title == 'Create Announcement' %}
+					<span class="my-auto d-none position-absolute notif-val">
+						<input type="checkbox" name="em_notif" value="notif_on" checked>
+					</span>
+					{% endif %}
+
+					<i class="material-icons my-auto {% if title == 'Create Announcement' %} togglable {% endif %} mr-2 ml-2 {% if title == 'Create Announcement' %}active-button{% endif %} text-muted" onclick="$('.notif-val input').click();">
+						{% if title == 'Create Announcement' %}
 							notifications_active
 						{% else %}
 							notifications_off
 						{% endif %}
 					</i>
 
-					<span class="d-none d-md-block icaption my-auto {% if user.notifications %}active-button{% endif %}">
-						{% if user.notifications %}
+					<span class="d-none d-md-block icaption my-auto {% if user.notifications %}active-button{% endif %} text-muted">
+						{% if title == 'Create Announcement' %}
 							On
 						{% else %}
 							Off
@@ -87,16 +90,16 @@
 
 		<div class="announcement-photo mt-4">
 		
-			<div class="form-control-group course-image-upload d-none position-absolute">
+			<div class="form-control-group announcement-image-upload d-none position-absolute">
 				<div>
 					<input type="checkbox" name="imagehascleared" class="form-check-input" id="id_imagehascleared">
 				</div>
 				<div>
-					<input type="file" name="image" accept="image/*" id="id_image">
+					{{image_form.image}}
 				</div>
 			</div>
 			<h6 class="font-weight-bold my-3">Featured Image</h6>
-			<button class="mx-auto border-dashed import-image-drag import-image-drag-large {% if user.is_authenticated %}import-image-drag-enabled{%else%}-disabled{%endif%}" data-file-target="course-image-upload" style="border-width: 2px;" type="button">
+			<button class="mx-auto border-dashed import-image-drag import-image-drag-large {% if user.is_authenticated %}import-image-drag-enabled{%else%}-disabled{%endif%}" data-file-target="announcement-image-upload" style="border-width: 2px;" type="button">
 				{% if user.is_authenticated %}
 					<div class="addphoto-popper ml-2 p-3">
 						Add a photo
@@ -106,8 +109,6 @@
 					add_a_photo
 				</i>
 			</button>
-
-
 
 			<script>
 				try{

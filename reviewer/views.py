@@ -3,7 +3,7 @@ import json
 
 from .custom import send_mass_html_mail
 from .models import ImportUser, Course, Comment, Likes, Language, Announcement, LessonStats
-from .forms import ImportUserCreationForm, CourseForm, CommentForm, LanguageForm
+from .forms import ImportUserCreationForm, CourseForm, CommentForm, LanguageForm, ImportImageForm
 
 from datetime import timedelta
 from django.conf import settings
@@ -548,7 +548,7 @@ def admin_announcement_update(request, purpose, id=""):
 						edit_ann = Announcement.objects.get(id=id)
 
 						edit_ann.title = temptitle
-						edit_ann.bodyjson = bodyjson
+						edit_ann.body = bodyjson
 						
 						if ((image_uploaded != None) or (data.get('imagehascleared', False) != False )):
 							edit_ann.image = image_uploaded
@@ -571,23 +571,23 @@ def admin_announcement_update(request, purpose, id=""):
 				if purpose == "add":
 					context['title'] = "Create Announcement"
 				elif purpose == "edit":
-
 					edit_ann = Announcement.objects.get(id=id)
+					edit_ann_json = json.dumps(edit_ann.body)
 
-					initialvalue = {				
-						'name' : edit_lang.name,
-						'color' : '#'+edit_lang.color
-					}
+					initialvalue = {}
 
-					if edit_lang.image:
-						initialvalue['image'] = edit_lang.image
+					if edit_ann.image:
+						initialvalue['image'] = edit_ann.image
 
 
-					langform = LanguageForm(initial=initialvalue)
+					image_form = ImportImageForm(initial=initialvalue)
 
-					context = {'langform': langform, 'edit_lang' : edit_lang }
+
+					context = {
+						'edit_ann': edit_ann, 
+						'edit_ann_json': edit_ann_json,
+						'image_form': image_form}
 					context['title'] = "Edit Announcement"
-
 
 				context["currpage"] = "announcements"
 				return render(request, 'reviewer/admin/announcement/announcement.html', context)

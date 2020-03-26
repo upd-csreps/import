@@ -80,3 +80,9 @@ class LanguageForm(forms.Form):
 	image = forms.ImageField(required=False)
 	imagehascleared = forms.BooleanField(widget=forms.CheckboxInput(attrs={ 'class': 'form-check-input' }), required=False,initial=False)
 	color = forms.CharField(max_length=7, widget=forms.TextInput(attrs={'class': 'color-picker', 'autocomplete': 'off'}))
+
+class ImportImageForm(forms.Form):
+
+	image = forms.ImageField(required=False)
+	imagehascleared = forms.BooleanField(widget=forms.CheckboxInput(attrs={ 'class': 'form-check-input' }), required=False,initial=False)
+

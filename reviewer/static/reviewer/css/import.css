@@ -362,7 +362,7 @@ body{
 
 #quill-editor{
 	height: 20em !important;
-	overflow-y: scroll;
+	overflow: visible;
 }
 
 
