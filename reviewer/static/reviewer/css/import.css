@@ -395,3 +395,7 @@ body{
 	background-size: cover;
 	background-position: center;
 }
+
+.ql-editor p{
+	margin-bottom: 0 !important;
+}
