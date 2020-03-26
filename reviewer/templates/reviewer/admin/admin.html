@@ -10,7 +10,7 @@
 				{% if user.is_authenticated and user.is_superuser %}
 
 					<div class="col-lg-3 pl-1">
-						<div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+						<div class="nav flex-row flex-lg-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
 						  <a href="{% url 'admin_dashboard' %}"class="nav-link {% if currpage == "dashboard" %}active{% endif %} d-flex justify-content-between" id="v-pills-dashboard-tab" role="tab" aria-controls="v-pills-dashboard" aria-selected="{% if currpage == "dashboard" %}true{% else %}false{% endif %}">
 						  	<span class="my-auto">Dashboard</span>
 						  	<div class="menu-icon d-flex align-items-center">

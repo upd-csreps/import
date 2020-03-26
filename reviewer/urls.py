@@ -22,7 +22,8 @@ urlpatterns = [
     path('su/language/add/', views.admin_lang_add , name="admin_lang_add"),
     path('su/language/<str:id>/<str:purpose>', views.admin_lang , name="admin_lang"),
     path('su/announcements/', views.admin_announcement , name="admin_announcement"),
-    path('su/announcements/add', views.admin_announcement_create , name="admin_announcement_create"),
+    path('su/announcements/add/', views.admin_announcement_create , name="admin_announcement_create"),
+    path('su/announcements/<str:id>/<str:purpose>/', views.admin_announcement_update , name="admin_announcement_update"),
 
     # User URLs
     path('u/register/', views.register, name="register"),
@@ -31,5 +32,5 @@ urlpatterns = [
     path('u/field_check/', views.user_redirect_info, name="user_redirect_info"),
 
     # Announcements
-    path('announcements/<str:id>', views.announcement_view, name="announcement_view"),
+    path('announcements/<str:id>/', views.announcement_view, name="announcement_view"),
 ]

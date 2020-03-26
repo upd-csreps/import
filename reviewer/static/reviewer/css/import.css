@@ -389,3 +389,9 @@ body{
 .announcement-card:hover .btn-primary{
 	opacity: 1;
 }
+
+
+.announcement-image{
+	background-size: cover;
+	background-position: center;
+}

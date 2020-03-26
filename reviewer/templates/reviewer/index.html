@@ -9,13 +9,13 @@
 	<div class="container">
 		<div class="d-flex flex-column align-items-center device-full-height">
 			<div class="row w-100 my-auto">
-				<div class="col-lg-12 d-flex flex-column align-items-center align-items-lg-start my-auto mx-4">
+				<div class="col-lg-12 d-flex flex-column align-items-center align-items-lg-start my-auto">
 					<div class="mb-3 noselect">
 						<h1 class="h1 title"><strong>import <span class="import-font-primary star"><sup>*</sup></span></strong></h1>
-						<p class="mx-auto h4 my-2">Your CS life debugged.</p>
+						<p class="mx-auto h4 mt-2">Your CS life debugged.</p>
 					</div>
-					<a href="{% url 'courselist' %}">
-						<button class="btn btn-primary d-flex justify-content-center">
+					<a href="{% url 'courselist' %}" class="">
+						<button class="btn btn-primary btn-lg d-flex justify-content-center">
 
 								<span>Get started</span><i class="material-icons my-auto mx-1" style="font-size: 1em">arrow_forward</i>
 						</button>
@@ -48,7 +48,7 @@
 						<div class="col-lg-4 col-md-6 d-flex p-3">
 							<div class="m-auto layer-container w-100">
 								<a href="{% url 'announcement_view' announcement.id %}" class="comment-username w-100 announcement-card">
-									<div class="mx-0 layer-container d-flex announcement-image">
+									<div class="mx-0 layer-container d-flex announcement-image" {% if announcement.image %} style="background-image: url('{{announcement.image.url}}');" {% endif %} >
 
 										{% if not announcement.image %}
 											<div class="m-auto text-center">
@@ -56,6 +56,7 @@
 												<span class="h6 text-right text-muted d-none d-md-block">ANNOUNCEMENTS</span>
 											</div>
 										{% endif %}
+
 									</div>
 
 									<div class="d-flex">

@@ -404,7 +404,7 @@ def admin_lang(request, purpose, id=""):
 						edit_lang.color = data["color"][1:]
 						
 						if ((image_uploaded != None) or (data.get('imagehascleared', False) != False )):
-							edit_course.image = image_uploaded
+							edit_lang.image = image_uploaded
 
 						edit_lang.save()
 
@@ -471,10 +471,10 @@ def admin_announcement_update(request, purpose, id=""):
 		
 		if purpose == "delete":
 
-			del_lang = Language.objects.get(id=id)
-			del_lang.delete()
+			del_ann = Announcement.objects.get(id=id)
+			del_ann.delete()
 
-			return redirect('admin_langlist')
+			return redirect('admin_announcement')
 		else:
 
 			if request.method == "POST":
@@ -508,67 +508,71 @@ def admin_announcement_update(request, purpose, id=""):
 
 						if notify_users:
 
-							domain = get_current_site(request).domain
-
-							settings_url = 'http://'+ domain + reverse('user_settings')
-
-							announcement_url = 'http://'+ domain + reverse('announcement_view', new_ann.id)
-
 							all_users = list(ImportUser.objects.filter(notifications=True).values_list('email', flat=True))
 							email_mass = []
 
-							email_from = "Import * Announcement System <" + settings.EMAIL_HOST_USER + ">"
+							if len(all_users) > 0:
 
-							html_design = render_to_string('reviewer/email/email.html', 
-								{
-									'settings_url': settings_url,
-									'title':	new_ann.title,
-									'announcement_url': announcement_url,
-									'content': bodystring
-							})
+								domain = get_current_site(request).domain
+								settings_url = 'http://'+ str(domain) + reverse('user_settings') 
+								announcement_url = 'http://'+ str(domain) + reverse('announcement_view', args=[str(new_ann.id)])
 
-							for email in all_users:
-								message = (settings.EMAIL_SUBJECT_PREFIX + new_ann.title, 
-									bodystring, 
-									html_design,
-									email_from, 
-									[email] )
-								email_mass.append(message)
+								email_from = "Import * Announcement System <" + settings.EMAIL_HOST_USER + ">"
 
-							email_mass = tuple(email_mass)
+								html_design = render_to_string('reviewer/email/email.html', 
+									{
+										'settings_url': settings_url,
+										'title':	new_ann.title,
+										'announcement_url': announcement_url,
+										'content': bodystring
+								})
 
-							send_mass_html_mail(email_mass, fail_silently=False)
-							print("Emails sent!")
-							print(all_users)
+								for email in all_users:
+									message = (settings.EMAIL_SUBJECT_PREFIX + new_ann.title, 
+										bodystring, 
+										html_design,
+										email_from, 
+										[email] )
+									email_mass.append(message)
 
+								email_mass = tuple(email_mass)
 
-						retjson["redirect_url"] = reverse('announcement_view', new_ann.id)
+								send_mass_html_mail(email_mass, fail_silently=False)
+								print("Emails sent!")
+								print(all_users)
 
+						retjson["redirect_url"] = reverse('announcement_view', args=[str(new_ann.id)])
+						
 					elif purpose == "edit":
 						
-						'''
-						edit_lang = Language.objects.get(id=id)
+						edit_ann = Announcement.objects.get(id=id)
 
-						edit_lang.name = data["name"]
-						edit_lang.color = data["color"][1:]
+						edit_ann.title = temptitle
+						edit_ann.bodyjson = bodyjson
 						
 						if ((image_uploaded != None) or (data.get('imagehascleared', False) != False )):
-							edit_course.image = image_uploaded
+							edit_ann.image = image_uploaded
 
-						edit_lang.save()
-						'''
+						edit_ann.save()
 
+						retjson["redirect_url"] = reverse('announcement_view', args=[str(edit_ann.id)])
 
-				return HttpResponse( json.dumps(retjson) )				
+					retjson["status"] = "success"
+		
+				else:
+					retjson["status"] = "fail"	
+
+				return HttpResponse( json.dumps(retjson) )
+							
 
 			else:
 
 				context = {}
 				if purpose == "add":
-
 					context['title'] = "Create Announcement"
 				elif purpose == "edit":
-					edit_lang = Language.objects.get(id=id)
+
+					edit_ann = Announcement.objects.get(id=id)
 
 					initialvalue = {				
 						'name' : edit_lang.name,
@@ -584,8 +588,6 @@ def admin_announcement_update(request, purpose, id=""):
 					context = {'langform': langform, 'edit_lang' : edit_lang }
 					context['title'] = "Edit Announcement"
 
-				if (request.method == "POST") and (request.user.check_password(request.POST['password']) == False):
-					context['error'] = "You entered the wrong password."
 
 				context["currpage"] = "announcements"
 				return render(request, 'reviewer/admin/announcement/announcement.html', context)
@@ -696,7 +698,7 @@ def coursecpage(request, csubj, cnum, catchar = 'l', cpage = 1):
 							result = { 
 								'id': str(last_comment.id),
 								'user' : str(last_comment.user_attr.username),
-								'user_url': str(reverse('user', str(last_comment.user_attr.username))),
+								'user_url': str(reverse('user', args=[str(last_comment.user_attr.username)])),
 								'body' : str(last_comment.body),
 								'date' : str(last_comment.date_posted),
 								'liked' : likedstat,
