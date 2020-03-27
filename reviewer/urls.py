@@ -32,5 +32,6 @@ urlpatterns = [
     path('u/field_check/', views.user_redirect_info, name="user_redirect_info"),
 
     # Announcements
+    path('announcements/', views.announcements, name="announcements"),
     path('announcements/<str:id>/', views.announcement_view, name="announcement_view"),
 ]

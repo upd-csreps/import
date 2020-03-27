@@ -90,6 +90,10 @@ body{
 	width: 100%;
 }
 
+.import-footer{
+	z-index: 99996;
+}
+
 
 .import-logo:hover{
 	opacity: 0.65;
@@ -318,9 +322,15 @@ body{
 	opacity: 0.75;
 }
 
-.import-header-scrolled .container{
- 
+.home-header .import-logo{
+	opacity: 0;
 }
+
+.import-header-scrolled .import-logo{
+	opacity: 1;
+}
+
+
 
 .form-control{
 	border-color: #dcdcdc;

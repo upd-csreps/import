@@ -38,7 +38,23 @@
 									<span class="my-auto comment-username">import <span class="import-font-primary">*</span> ADMIN</span>
 								</div>
 							{% endif %}
+
+							{% if user.is_superuser %}
+							<a href="{% url 'admin_announcement_update' announcement.id  'edit' %}">
+								<button  type="button" class="btn btn-light px-3 d-flex">
+									<div class="my-auto d-flex">
+										<i class="material-icons">
+											edit
+										</i>
+										<span class="my-auto ml-1 d-none d-md-block">
+										Edit</span>	
+									</div>
+								</button>
+							</a>
+							{% endif %}
 						</div>
+
+						
 
 						<div class="date my-auto">
 							<small>{{announcement.datepost|date:"M d, Y, h:i A"}}</small>

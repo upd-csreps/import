@@ -1,0 +1,73 @@
+{% extends 'reviewer/base.html' %}
+
+
+{% block title %}
+	Announcements
+{% endblock %}
+
+{% load static %}
+{% block content %}
+	<div class="container py-5">
+		<div class="pt-5">
+			<h1>
+				<i class="material-icons my-auto import-font-primary">
+					announcement
+				</i>
+				<span class="font-weight-bold">Announcements</span>
+			</h1>
+
+
+			<div class="row">
+			{% for announcement in announcements %}
+				<div class="col-lg-4 col-md-6 d-flex p-3">
+					<div class="m-auto layer-container w-100">
+						<a href="{% url 'announcement_view' announcement.id %}" class="comment-username w-100 announcement-card">
+							<div class="mx-0 layer-container d-flex announcement-image" {% if announcement.image %} style="background-image: url('{{announcement.image.url}}');" {% endif %} >
+
+								{% if not announcement.image %}
+									<div class="m-auto text-center">
+										<span class="font-weight-bold h1">import<sup class="import-font-primary">*</sup></span>
+										<span class="h6 text-right text-muted d-none d-md-block">ANNOUNCEMENTS</span>
+									</div>
+								{% endif %}
+
+							</div>
+
+							<div class="d-flex">
+								<div class="p-4 my-auto">
+									<h5 class="announcement-title font-weight-bold">
+										{{ announcement.title }}
+									</h5>
+									<small>{{announcement.datepost|date:"M d, Y, h:i A"}}</small>
+								</div>
+								<div class="ml-auto d-flex mr-4">
+									<button class="btn btn-primary m-auto d-flex p-2">
+
+										<span class="material-icons m-auto">
+											arrow_forward
+										</span>
+
+									</button>
+								</div>
+							</div>
+
+
+						</a>
+					</div>
+				</div>
+			{% endfor %}
+			</div>
+		</div>
+	</div>
+
+
+{% endblock %}
+
+{% block scripts %}
+
+	<script>
+
+	
+	</script>
+
+{% endblock %}

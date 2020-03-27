@@ -31,7 +31,8 @@ def index(request):
 	context = { 
 		'announcements': announcements, 
 		'announcements_json' : announcements_json,
-		'ann_len': len(announcements)
+		'ann_len': len(announcements),
+		'is_home': True
 	}
 
 	return render(request, 'reviewer/index.html', context)
@@ -66,6 +67,8 @@ def admin_dashboard(request):
 			dateoftoday = timezone.now()
 			last_month = dateoftoday - timedelta(days=30)
 			activities = LessonStats.objects.filter(date_made__gt=last_month).order_by('date_made')
+			LessonStats.objects.filter(date_made__lte=last_month).delete()
+
 			activ_obj = {}
 			user_obj = {}
 			skip_obj = {}
@@ -612,8 +615,9 @@ def announcement_view(request, id):
 def courselist(request):
 
 	courselist = Course.objects.filter(visible=True).order_by('code', 'number_len', 'number')
+	announcements = Announcement.objects.order_by('-datepost')[0:5]
 
-	context = {'courselist': courselist, 'course_count': len(courselist)}
+	context = {'courselist': courselist, 'announcements': announcements  }
 	return render(request, 'reviewer/courses/course-list.html', context)
 
 def course(request, csubj, cnum):
@@ -1119,3 +1123,20 @@ def register(request):
 			return render(request, 'registration/register.html', context)
 		else:
 			return redirect('login')
+
+
+
+def announcements(request):
+
+	announcements = Announcement.objects.order_by('-datepost')
+	
+	context = {'announcements': announcements}
+	return render(request, 'reviewer/announcement-list.html', context)
+
+
+def bug_report_list(request):
+
+	mybugreports = BugReport.objects.filter(user=request.user).order_by('-lastupdated')
+	
+	context = {'my_bugreports': mybugreports}
+	return render(request, 'reviewer/user/user-bug_report.html', context)

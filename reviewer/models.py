@@ -201,7 +201,8 @@ class BugReport(models.Model):
 	body = models.CharField("Body", max_length=300)
 	status = models.PositiveSmallIntegerField("Status", default=0)
 	lastupdated = models.DateTimeField("Last Updated", default=timezone.now)
-	admin = models.ForeignKey(ImportUser, null=True, on_delete=models.SET_NULL)
+	admin = models.ForeignKey(ImportUser, null=True, on_delete=models.SET_NULL, related_name="admin")
+	user = models.ForeignKey(ImportUser, null=True, on_delete=models.SET_NULL, related_name="user")
 
 	def __str__(self):
 		return	'{} [{}]'.format(self.name, self.status)

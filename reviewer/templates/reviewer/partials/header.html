@@ -1,5 +1,5 @@
 {% load static %}
-<header class="d-flex navbar import-header position-fixed py-3">
+<header class="d-flex navbar import-header position-fixed py-3 {% if is_home %}home-header{%endif%}">
 	<div class="container d-flex justify-content-between py-2">
 		<a href="{% url 'index'%}" class="import-logo">
 			<div class="noselect">
@@ -33,6 +33,12 @@
 							settings
 							</i>
 							<span class="my-auto">Profile Settings</span>
+						</a>
+						<a class="dropdown-item d-inline-flex justify-content-start px-4" href="#">
+							<i class="material-icons material-icon-sm my-auto ml-0 mr-2">
+							bug_report
+							</i>
+							<span class="my-auto">Report a Bug</span>
 						</a>
 						{% if user.is_superuser %}
 							<div class="dropdown-divider"></div>

@@ -32,7 +32,7 @@
 			<div class="row">
 				<div class="col-lg-8 course-list">
 					<hr class="mb-3">
-					{% if course_count == 0 %}
+					{% if courselist.count == 0 %}
 						<div class="text-center mt-4 d-flex">
 							<div class="mx-auto d-flex"> 
 								<i class="material-icons my-auto ml-0 mr-2">
@@ -78,16 +78,28 @@
 							<span class="m-auto text-light h1 font-weight-bold">ADS</span>
 						</div>
 
+						<hr>
 						<div class="d-none d-lg-block">
-							<h4 class="d-inline-flex">
-								<i class="material-icons my-auto mr-2">
+							<h4 class="d-inline-flex my-3">
+								<i class="material-icons my-auto mr-2 import-font-primary">
 									announcement
 								</i>
-								<span class="my-auto">
+								<span class="my-auto font-weight-bold">
 									Announcements
 								</span>
 							</h4>
-							<p>No announcements to show.</p>
+							{% if announcements.count == 0 %}
+								<p>No announcements to show.</p>
+							{% else %}
+								{% for announcement in announcements %}
+									<a href="{% url 'announcement_view' announcement.id %}">
+										<div class="layer-container px-4 py-3 comment-username mb-2">
+											<h6 class="font-weight-bold">{{announcement.title}}</h6>
+											<small>{{announcement.datepost|date:"M d, Y, h:i A" }}</small>
+										</div>
+									</a>
+								{% endfor %}
+							{% endif %}
 						</div>
 					</div>
 				</div>

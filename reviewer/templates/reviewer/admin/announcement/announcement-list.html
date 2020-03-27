@@ -29,47 +29,52 @@
 				</div>
 		</div>
 		
+		<div class="row d-flex">
 		{% for announcement in announcements %}
-			<div class="p-4 mb-3 row layer-container">
-				<div class="col-8">
-					<a href="{% url 'announcement_view' announcement.id %}" class="d-flex flex-wrap">
-						<div class="my-auto mr-3 course-thumb" style="{% if announcement.image %}background-image: url('{{announcement.image.url}}'); {%endif%}">
-						</div>
-						<div class="my-auto mx-3 d-inline-flex flex-column">
-							<span class="font-weight-bold comment-username d-flex">
-								<span class="my-auto mr-2">{{announcement.title}}</span>
-							</span>
-							<small class="text-muted">{{announcement.body}}</small>
-						</div>
-					</a>
-				</div>
+			<div class="col-md-6 d-flex p-3">
+				<div class="m-auto layer-container w-100">
+					<div class="comment-username w-100 announcement-card">
+						<a href="{% url 'announcement_view' announcement.id %}" class="mx-0 layer-container d-flex announcement-image comment-username" {% if announcement.image %} style="background-image: url('{{announcement.image.url}}');" {% endif %} >
 
-				<div class="col-4 d-flex">
-						<a class="ml-auto my-auto" href="{% url 'admin_announcement_update'  announcement.id 'edit' %}">
-							<button  type="button" class="btn btn-light px-2 d-flex">
-								<div class="m-auto d-flex">
-									<i class="material-icons material-icon-sm">
+							{% if not announcement.image %}
+								<div class="m-auto text-center">
+									<span class="font-weight-bold h1">import<sup class="import-font-primary">*</sup></span>
+									<span class="h6 text-right text-muted d-none d-md-block">ANNOUNCEMENTS</span>
+								</div>
+							{% endif %}
+
+						</a>
+
+						<div class="d-flex">
+							<div class="p-4 my-auto">
+								<a href="{% url 'announcement_view' announcement.id %}" class="comment-username">
+									<h5 class="announcement-title font-weight-bold">
+										{{ announcement.title }}
+									</h5>
+									<small>{{announcement.datepost|date:"M d, Y, h:i A"}}</small>
+								</a>
+							</div>
+
+							<a href="{% url 'admin_announcement_update' announcement.id 'edit' %}" class="ml-auto d-flex">
+								<button class="btn btn-light m-auto d-flex p-2">
+									<span class="material-icons m-auto">
 										edit
-									</i>
-								</div>
-							</button>
-						</a>
-
-						<a class="ml-2 delete-announcement my-auto" href="{% url 'admin_announcement_update' announcement.id 'delete' %}">
-							<button  type="button" class="btn btn-danger px-2 d-flex">
-								<div class="m-auto d-flex">
-									<i class="material-icons material-icon-sm">
+									</span>
+								</button>
+							</a>
+							<a href="{% url 'admin_announcement_update' announcement.id 'delete' %}" class="ml-2 d-flex mr-4 delete-announcement">
+								<button class="btn btn-danger m-auto d-flex p-2">
+									<span class="material-icons m-auto">
 										delete
-									</i>
-								</div>
-							</button>
-						</a>
-				
+									</span>
+								</button>
+							</a>
+						</div>
+					</div>
 				</div>
-
-			
 			</div>
 		{% endfor %}
+		</div>
 
 	</div>
 

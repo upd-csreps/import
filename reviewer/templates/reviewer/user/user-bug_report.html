@@ -1,0 +1,39 @@
+{% extends 'reviewer/base.html' %}
+
+
+{% block title %}
+	User Settings
+{% endblock %}
+
+{% load static %}
+{% block content %}
+	<div class="container py-5">
+		<div class="pt-5">
+			<h1>
+				<i class="material-icons my-auto">
+					bug_report
+				</i>
+				<span class="font-weight-bold">My Bug Reports</span>
+			</h1>
+
+
+			<form class="info mt-3 form-row" action="{% url 'user_settings' %}" method="post">
+
+				{% csrf_token %}
+
+			</form>
+
+		</div>
+	</div>
+
+
+{% endblock %}
+
+{% block scripts %}
+
+	<script>
+
+	
+	</script>
+
+{% endblock %}

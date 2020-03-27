@@ -39,6 +39,13 @@
 		<hr>
 
 		<div class="py-5 mb-4">
+			<h2 class="font-weight-bold mb-3 text-center">Features</h2>
+			
+		</div>
+
+		<hr>
+
+		<div class="py-5 mb-4">
 			<h2 class="font-weight-bold mb-3 text-center">Announcements</h2>
 			{% if ann_len == 0 %}
 				<p>No announcements to show</p>
@@ -84,10 +91,47 @@
 					{% endfor %}
 				</div>
 
-				<button class="btn btn-primary float-right">See All Announcements</button>
+
+				{% if announcements.count >= 3 %}
+				<a href="{% url 'announcements' %}">
+					<button class="btn btn-primary float-right d-flex">
+						<span class="my-auto">See All Announcements</span> 
+						<i class="material-icons my-auto mx-1" style="font-size: 1em">arrow_forward</i>
+					</button>
+				</a>
+				{% endif %}
+
 			{% endif %}
 		</div>
+
+		<hr>
+
+		<div class="py-5 mb-4">
+			<h2 class="font-weight-bold mb-3 text-center">Code</h2>
+			
+			<div class="row">
+				<div class="col-lg-6">
+					Import* Open Source
+				</div>
+				<div class="col-lg-6">
+					<a href="#">
+						<button class="btn btn-primary float-right d-flex">
+							<span class="my-auto">See @ Github</span> 
+							<i class="material-icons my-auto mx-1" style="font-size: 1em">arrow_forward</i>
+						</button>
+					</a>
+				</div>
+			</div>
+		</div>
+
+		<hr>
+
+		<div class="py-5 mb-4">
+			<h2 class="font-weight-bold mb-3 text-center">Partners</h2>
+		</div>
+
 	</div>
+
 
 {% endblock %}
 
