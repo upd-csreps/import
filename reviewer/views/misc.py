@@ -25,6 +25,15 @@ def google_test(request):
 	print("Connecting to Google Drive...\n")
 	service = build('drive', 'v3', credentials=creds)
 
+	file_metadata = {
+	    'name': 'media',
+	    'mimeType': 'application/vnd.google-apps.folder'
+	}
+	file = drive_service.files().create(body=file_metadata,
+	                                    fields='id').execute()
+	print('Folder ID: ' + file.get('id'))
+
+
 	# Call the Drive v3 API
 	results = service.files().list(pageSize=10, fields="nextPageToken, files(id, name)").execute()
 	items = results.get('files', [])
