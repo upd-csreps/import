@@ -20,12 +20,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'x8$zw0yjh^4-_svl(o@98r#_!9jub8c5gj7ul2ov4i9-qjx_xt'
+SECRET_KEY=os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['dcs-import.herokuapp.com']
 
 
 # Application definition
@@ -83,7 +83,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'uklakniz',
         'USER' : 'uklakniz',
-        'PASSWORD': 'Qwx8TLkiUPO4JI2fWswrmy7ZgnAZUrqA',
+        'PASSWORD': os.environ.get('PSQL_PASSWORD'),
         'HOST': 'john.db.elephantsql.com',
         'PORT' : '5432',
     }
@@ -142,7 +142,7 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'noreply.import.csreps@gmail.com'
-EMAIL_HOST_PASSWORD = "FreeCSEdukNow"
+EMAIL_HOST_PASSWORD = os.environ.get('IMPORT_EMAIL_PASSWORD')
 EMAIL_SUBJECT_PREFIX = '[Import*] '
 
 GOOGLE_API_CREDS = {
