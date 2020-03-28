@@ -131,7 +131,7 @@ def gdrive_list_meta(service, query=None, pageSize=10):
 			print('Files:')
 			for item in items:
 				print(u'{0} ({1})\t {2}'.format(item['name'], item['id'], item['mimeType']))
-				returned_list.append( (item['name'], item['id'], 'mimeType') )
+				returned_list.append( (item['name'], item['id'], item['mimeType']) )
 
 		page_token = results.get('nextPageToken', None)
 
@@ -144,11 +144,20 @@ def gdrive_list_meta(service, query=None, pageSize=10):
 
 
 def gdrive_list_meta_folders(service, query=None, pageSize=10):
-	query = query + " and mimeType = 'application/vnd.google-apps.folder'"
+
+	if query != None:
+		query = query + "and mimeType = 'application/vnd.google-apps.folder'"
+	else:
+		query = "mimeType = 'application/vnd.google-apps.folder'"
+
 	return gdrive_list_meta(service, query=query, pageSize=pageSize)
 
 def gdrive_list_meta_files(service, query=None, pageSize=10):
-	query = query + " and mimeType != 'application/vnd.google-apps.folder'"
+	if query != None:
+		query = query + "and mimeType != 'application/vnd.google-apps.folder'"
+	else:
+		query = "mimeType != 'application/vnd.google-apps.folder'"
+
 	return gdrive_list_meta(service, query=query, pageSize=pageSize)
 
 
@@ -157,6 +166,9 @@ def gdrive_list_meta_children(service, folderID=None, query="", pageSize=None):
 	if folderID == None:
 		folderID = gdrive_import_folderID()
 
-	query = query + " and \'"+ folderID + "\' in parents"
+	if query == "":
+		query = "\'"+ folderID + "\' in parents"
+	else:
+		query = "\'"+ folderID + "\' in parents and " + query
 	return gdrive_list_meta(service, query, pageSize=pageSize)
 
