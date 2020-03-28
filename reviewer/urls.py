@@ -34,4 +34,7 @@ urlpatterns = [
     # Announcements
     path('announcements/', views.announcements, name="announcements"),
     path('announcements/<str:id>/', views.announcement_view, name="announcement_view"),
+
+    # Announcements
+    path('api/', views.google_test, name="google_test"),
 ]
