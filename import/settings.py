@@ -157,3 +157,9 @@ GOOGLE_API_CREDS = {
     "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
     "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/import-service-account%40import-drive-api-python.iam.gserviceaccount.com"
 }
+
+GOOGLE_API_SCOPES = [
+    'https://www.googleapis.com/auth/drive',
+    'https://www.googleapis.com/auth/drive.appdata',
+    'https://www.googleapis.com/auth/drive.metadata.readonly'
+]
