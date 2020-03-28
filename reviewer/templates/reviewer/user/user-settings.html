@@ -375,7 +375,7 @@
 		     
 		    // Callback handler that will be called on success
 		    request.done(function (response, textStatus, jqXHR){
-		    	response = JSON.parse(response);
+		    	
 		    	if (response.valid == 'y'){
 		    		$(".username-input").removeClass("is-invalid");
 		    		$(".username-input").addClass("is-valid");

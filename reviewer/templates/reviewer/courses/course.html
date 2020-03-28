@@ -276,7 +276,7 @@
 				    // Callback handler that will be called on success
 				    request.done(function (response, textStatus, jqXHR){
 				    
-				    	response = JSON.parse(response);
+				    	response = response;
 				        var today = new Date().toLocaleString('en-us' , timeoptions);
 				    	var commtent = $(".comment-text-area").val();
 				    	commtent =commtent.split("\n");
@@ -359,9 +359,6 @@
 
 					
 					$(".comme-count").html(coursect);	
-
-
-			    	response = JSON.parse(response);
 
 
 			    	if (jQuery.isEmptyObject(response) == false){
@@ -475,8 +472,6 @@
 		    // Callback handler that will be called on success
 		    request.done(function (response, textStatus, jqXHR){
 		    	let icons = ["star_border", "star"];
-
-		    	response = JSON.parse(response);
 
 		    	clicked.parent().children(".comment-like-count").html(response.count);
 

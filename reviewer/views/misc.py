@@ -1,10 +1,8 @@
 
 from ..models import BugReport
 from django.conf import settings
-from django.http import HttpResponse
+from django.http import JsonResponse
 from django.shortcuts import render
-
-import json
 
 from ..custom import *
 
@@ -23,4 +21,4 @@ def google_test(request):
 
 	retjson = {'obj': gdrive_list_meta_children(service)}
 
-	return HttpResponse( json.dumps(retjson) )
+	return JsonResponse(retjson)

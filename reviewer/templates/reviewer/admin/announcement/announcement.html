@@ -112,8 +112,6 @@
 				     
 				    // Callback handler that will be called on success
 				    request.done(function (response, textStatus, jqXHR){
-				    
-				    	response = JSON.parse(response);
 				    	
 				    	if(response.status = "success"){
 				    		$(".announcement-title").removeClass("is-invalid");

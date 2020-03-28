@@ -74,7 +74,7 @@ def gdrive_create_file(service, file_metadata,  mimetype):
 	file = service.files().create(body=file_metadata, fields='id').execute()
 	return file.get('id')
 
-def gdrive_get_file(service, file_metadata,  mimetype):
+def gdrive_get_file(service, fileID):
 
 	try:
 		file = service.files().get(fileId=fileID).execute()
@@ -82,7 +82,7 @@ def gdrive_get_file(service, file_metadata,  mimetype):
 		print(e)
 		return False
 
-	return True
+	return file
 
 
 def gdrive_upload_file(service,image_dir, file_metadata,  mimetype):
@@ -124,6 +124,8 @@ def gdrive_list_meta(service, query=None, pageSize=10):
 
 		if not items:
 			print('No files found.')
+
+			return None
 		else:
 			if (pageSize != None):
 				print('Page ' + page_ct + ' \n')
@@ -172,3 +174,26 @@ def gdrive_list_meta_children(service, folderID=None, query="", pageSize=None):
 		query = "\'"+ folderID + "\' in parents and " + query
 	return gdrive_list_meta(service, query, pageSize=pageSize)
 
+
+def gdrive_traverse_path(service, path):
+
+	currentfile = gdrive_import_folderID()
+	currentchildren = None
+
+	if path == None:
+		return None
+	else:
+		path = path.strip().split('/')
+
+		while len(path) > 1:
+			currentchildren = gdrive_list_meta_children(service, currentfile, "fullText contains "+path[0])
+
+			if currentchildren == None:
+				return None
+			else:
+				path = path[1:]
+				for key in currentchildren:
+					currentfile = key
+					break
+
+		return gdrive_get_file(service, currentfile)

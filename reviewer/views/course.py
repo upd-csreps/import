@@ -1,9 +1,8 @@
-import json
 
 from ..models import Course, Comment, Likes, Announcement
 from ..forms import CourseForm, CommentForm
 
-from django.http import Http404, HttpResponse
+from django.http import Http404, JsonResponse
 from django.shortcuts import redirect, render
 
 from django.urls import reverse
@@ -79,7 +78,7 @@ def coursecpage(request, csubj, cnum, catchar = 'l', cpage = 1):
 						data = {'commentid': resultid}
 						if new_comment.image:
 							data['image'] =  new_comment.image.url
-						response = HttpResponse( json.dumps(data) )
+						response = JsonResponse(data)
 
 				return response
 
@@ -115,7 +114,7 @@ def coursecpage(request, csubj, cnum, catchar = 'l', cpage = 1):
 					except IndexError:
 						pass
 
-				return HttpResponse(json.dumps(result))
+				return JsonResponse(result)
 
 			elif request.method == "GET":
 
@@ -178,7 +177,7 @@ def comment_like(request, csubj, cnum):
 				'state': like_state
 			}
 
-			response = HttpResponse(json.dumps(like_count_callback))
+			response = JsonResponse(like_count_callback)
 
 		return response
 

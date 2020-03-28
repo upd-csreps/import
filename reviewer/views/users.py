@@ -1,5 +1,4 @@
 import os
-import json
 
 from ..models import ImportUser, Comment, Likes, Language, Announcement
 from ..forms import ImportUserCreationForm, CommentForm
@@ -7,7 +6,7 @@ from ..forms import ImportUserCreationForm, CommentForm
 from django.conf import settings
 from django.contrib.auth import authenticate, login,logout
 
-from django.http import Http404, HttpResponse
+from django.http import Http404, JsonResponse
 from django.shortcuts import redirect, render
 
 from django.urls import reverse
@@ -111,7 +110,7 @@ def user_settings(request):
 					if (data["uname"] == request.user.username):
 						unamecheck_callback['valid'] = 's'
 				
-				response = HttpResponse(json.dumps(unamecheck_callback))
+				response = JsonResponse(unamecheck_callback)
 
 				return response
 
@@ -294,7 +293,7 @@ def user_redirect_info(request):
 
 		data = {'field_redirect': willRedirect, 'url_redirect': settings_url }
 
-		return HttpResponse( json.dumps(data) )
+		return JsonResponse(data)
 	else:
 		return Http404()
 
@@ -325,7 +324,7 @@ def register(request):
 				if (data["uname"] == request.user.username):
 					unamecheck_callback['valid'] = 's'
 			
-			response = HttpResponse(json.dumps(unamecheck_callback))
+			response = JsonResponse(unamecheck_callback)
 
 			return response
 

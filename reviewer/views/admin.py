@@ -9,7 +9,7 @@ from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.sites.shortcuts import get_current_site
 
-from django.http import HttpResponse, HttpResponseForbidden
+from django.http import JsonResponse, HttpResponseForbidden
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -547,7 +547,7 @@ def admin_announcement_update(request, purpose, id=""):
 				else:
 					retjson["status"] = "fail"	
 
-				return HttpResponse( json.dumps(retjson) )
+				return JsonResponse(retjson)
 							
 
 			else:

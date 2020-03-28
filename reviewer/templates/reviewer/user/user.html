@@ -380,8 +380,6 @@
 		    request.done(function (response, textStatus, jqXHR){
 		    	let icons = ["star_border", "star"];
 
-		    	response = JSON.parse(response);
-
 		    	$("[data-comment-id='" + commentpassid +"']").find(".comment-like-count").html(response.count);
 
 		    	if (response.state){
