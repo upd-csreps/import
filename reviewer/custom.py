@@ -108,7 +108,7 @@ def gdrive_download_file(service, fileID):
 
 def gdrive_list_meta(service, query=None, pageSize=10):
 
-	returned_list = []
+	returned_list = {}
 
 	# Call the Drive v3 API
 
@@ -131,7 +131,7 @@ def gdrive_list_meta(service, query=None, pageSize=10):
 			print('Files:')
 			for item in items:
 				print(u'{0} ({1})\t {2}'.format(item['name'], item['id'], item['mimeType']))
-				returned_list.append( (item['name'], item['id'], item['mimeType']) )
+				returned_list[ item['id'] ] = [item['name'], item['mimeType']]
 
 		page_token = results.get('nextPageToken', None)
 
