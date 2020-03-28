@@ -51,7 +51,7 @@ def gdrive_connect(api_creds=settings.GOOGLE_API_CREDS, api_scopes=settings.GOOG
 
 	creds = service_account.Credentials.from_service_account_info(api_creds, scopes=api_scopes)
 
-	if DEBUG == True:
+	if settings.DEBUG == True:
 		print("Connecting to Google Drive...\n")
 
 	service = build('drive', 'v3', credentials=creds)
