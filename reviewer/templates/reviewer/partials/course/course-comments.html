@@ -102,8 +102,8 @@
 				<div class="py-4 px-4 d-flex mb-3 comment" id="comment-{{comment.id}}">
 					<a href="{% url 'user' comment.user_attr.username %}">
 						<img class="user-pic-thumb" src="
-						{% if comment.user_attr.prof_pic %}
-							{{comment.user_attr.prof_pic.url}}
+						{% if comment.user_attr.prof_picID %}
+							https://drive.google.com/uc?export=view&id={{comment.user_attr.prof_picID}}
 						{% else %}
 							{% static 'reviewer/images/default_profile.png' %}
 						{% endif %}

@@ -19,8 +19,8 @@
 				<div class="col-4">
 					<a href="{% url 'user' user_filt.username %}" class="d-flex">
 						<img class="user-pic-thumb my-auto" src="
-						{% if user_filt.prof_pic %}
-							{{user_filt.prof_pic.url}}
+						{% if user_filt.prof_picID %}
+							https://drive.google.com/uc?export=view&id={{user_filt.prof_picID}}
 						{% else %}
 							{% static 'reviewer/images/default_profile.png' %}
 						{% endif %}

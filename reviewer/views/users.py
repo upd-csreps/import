@@ -3,6 +3,8 @@ import os
 from ..models import ImportUser, Comment, Likes, Language, Announcement
 from ..forms import ImportUserCreationForm, CommentForm
 
+from ..custom import *
+
 from django.conf import settings
 from django.contrib.auth import authenticate, login,logout
 
@@ -11,8 +13,12 @@ from django.shortcuts import redirect, render
 
 from django.urls import reverse
 
+from io import BytesIO
+
 from PIL import Image
 
+
+import mimetypes
 
 # User Views
 
@@ -62,9 +68,27 @@ def user(request, username):
 			try:
 				image_test =  Image.open(image_uploaded)
 				image_test.verify()
-				utest.prof_pic = request.FILES.get('image', None)
+
+				image_test =  Image.open(image_uploaded)
+				image_test.thumbnail((800,800))
+				image_bytes = BytesIO()
+				image_test.convert('RGB').save(image_bytes, format='JPEG')	### 
+
+
+				service = gdrive_connect()
+				userfolder = 'media/users/{}'.format(utest.username)
+				userfolder = gdrive_traverse_path(service, path=userfolder, create=True)
+
+				metadata = {'name': 'profile_pic.jpg', 'parents': [userfolder['id']] }
+				oldprofpicID = utest.prof_picID
+				utest.prof_picID = gdrive_upload_bytes_tofile(service, image_bytes, metadata, 'image/jpeg')
+
+				if oldprofpicID != None:
+					gdrive_delete_file(service, oldprofpicID)
+
 				utest.save()
-			except:
+			except Exception as e:
+				print(e)
 				error = "Upload a valid image file."
 
 		return user_get(request, user_filter, error)

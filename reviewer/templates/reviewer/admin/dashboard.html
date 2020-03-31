@@ -43,8 +43,8 @@
 						<a href="{% url 'user' top_user.username %}" class="d-inline-flex">
 							<div class="mx-3 my-auto">
 								<img class="user-pic my-auto" src="
-								{% if top_user.prof_pic %}
-									{{top_user.prof_pic.url}}
+								{% if top_user.prof_picID %}
+									https://drive.google.com/uc?export=view&id={{top_user.prof_picID}}
 								{% else %}
 									{% static 'reviewer/images/default_profile.png' %}
 								{% endif %}

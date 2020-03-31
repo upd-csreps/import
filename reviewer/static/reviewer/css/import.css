@@ -126,7 +126,15 @@ body{
 .user-pic-thumb{
 	height: 50px;
 	width: 50px;
-	border-radius: 100%
+	border-radius: 100%;
+	align-self: start;
+}
+
+.user-comments{
+	overflow-y: scroll;
+	overflow-x: hidden;
+	overflow-wrap: break-word; 
+	height: 550px;
 }
 
 .comments::-webkit-scrollbar {

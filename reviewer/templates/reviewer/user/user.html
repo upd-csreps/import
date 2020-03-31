@@ -13,8 +13,8 @@
 				<div class="mr-auto ml-lg-4 ml-auto d-flex flex-column">
 					<div class="mx-auto prof-pic" >
 						<img class="user-pic" src="
-						{% if user_filt.prof_pic %}
-							{{user_filt.prof_pic.url}}
+						{% if user_filt.prof_picID %}
+							https://drive.google.com/uc?export=view&id={{user_filt.prof_picID}}
 						{% else %}
 							{% static 'reviewer/images/default_profile.png' %}
 						{% endif %}
@@ -179,10 +179,10 @@
 				</ul>
 				<div class="tab-content" id="myTabContent">
 				  <div class="tab-pane fade show active" id="created" role="tabpanel" aria-labelledby="created-tab">
-				  	<div class="comments px-3" style="overflow-y: scroll; overflow-wrap: break-word; height: 65vh">
+				  	<div class="comments px-3 user-comments">
 			  			{% if user_comments.count == 0 %}
 
-			  				<div class="mt-3 d-inline-flex">
+			  				<div class="mt-3 d-inline-flex text-muted">
 				  				<i class="material-icons my-auto mr-2">
 								comment
 								</i>
@@ -192,14 +192,14 @@
 						{% else %}
 							{% for comment in user_comments %}
 								<div class="py-4 px-4 d-flex {% if forloop.counter0 == 0 %} my-3 {% else %} mb-3 {% endif %} comment" data-comment-id="comment-{{comment.id}}" data-code="{{comment.course_attr.code|lower}}" data-number="{{comment.course_attr.number}}">
-									<img class="user-pic-thumb" src="
-									{% if user_filt.prof_pic %}
-										{{user_filt.prof_pic.url}}
-									{% else %}
-										{% static 'reviewer/images/default_profile.png' %}
-									{% endif %}
-
-									">
+									<div>
+										<img class="user-pic-thumb" src="
+										{% if user_filt.prof_picID %}
+											https://drive.google.com/uc?export=view&id={{user_filt.prof_picID}}
+										{% else %}
+											{% static 'reviewer/images/default_profile.png' %}
+										{% endif %}">
+									</div>
 									<div class="ml-4 w-100">
 										<div class="d-flex w-100 justify-content-between my-2">
 											<span class="d-inline-flex">
@@ -246,7 +246,7 @@
 				  </div>
 				  <div class="tab-pane fade" id="liked" role="tabpanel" aria-labelledby="liked-tab">
 				  	
-				  	<div class="comments px-3" style="overflow-y: scroll; overflow-wrap: break-word; height: 65vh">
+				  	<div class="comments px-3 user-comments">
 
 				  		{% if liked_comments_data|length == 0 %}
 				  			<div class="mt-3 d-inline-flex">
@@ -259,13 +259,14 @@
 							{% for comment in liked_comments_data %}
 								<div class="py-4 px-4 d-flex {% if forloop.counter0 == 0 %} my-3 {% else %} mb-3 {% endif %} comment" data-comment-id="comment-{{comment.id}}" data-code="{{comment.course_attr.code|lower}}" data-number="{{comment.course_attr.number}}">
 									{% if comment.user_attr != user %}<a href="{% url 'user' comment.user_attr.username %}">{% endif %}
-										<img class="user-pic-thumb" src="
-										{% if comment.user_attr.prof_pic %}
-											{{comment.user_attr.prof_pic.url}}
-										{% else %}
-											{% static 'reviewer/images/default_profile.png' %}
-										{% endif %}
-										">
+										<div>
+											<img class="user-pic-thumb" src="{% if comment.user_attr.prof_picID %}
+											https://drive.google.com/uc?export=view&id={{comment.user_attr.prof_picID}}
+											{% else %}
+												{% static 'reviewer/images/default_profile.png' %}
+											{% endif %}
+											">
+										</div>
 									{% if comment.user_attr != user %}</a>{% endif %}
 						
 									<div class="ml-4 w-100">

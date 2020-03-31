@@ -5,6 +5,7 @@ from django.utils import timezone
 
 # Create your models here.
 
+
 def course_uploadto(instance, filename):
 	return 'course/{0}-{1}/{2}'.format(instance.code, instance.number, filename)
 
@@ -72,6 +73,7 @@ class ImportUser(AbstractUser):
 	is_superuser = models.BooleanField("Is SuperUser?", default=False)
 	exp = models.PositiveIntegerField("Experience Points", default=0)
 	prof_pic = models.ImageField(verbose_name="Profile Picture", null=True, blank=True, upload_to=user_uploadto)
+	prof_picID = models.CharField("Prof Pic ID", max_length=40, blank=True, null=True, default=None)
 
 	fave_lang = models.ForeignKey(Language, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Favorite Language")
 
