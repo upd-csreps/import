@@ -32,7 +32,7 @@ ALLOWED_HOSTS = ['0.0.0.0','localhost', 'dcs-import.herokuapp.com']
 # Application definition
 
 INSTALLED_APPS = [
-   'reviewer',
+    'reviewer',
     'widget_tweaks',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -50,6 +50,11 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'last_modified.middleware.LastModifiedMiddleware',
+    'last_modified.middleware.CacheControlMiddleware',
+    'htmlmin.middleware.HtmlMinifyMiddleware',
+    'htmlmin.middleware.MarkRequestMiddleware',
+
 ]
 
 ROOT_URLCONF = 'import.urls'
@@ -82,10 +87,10 @@ DATABASES = {
         #'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
 
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'uklakniz',
-        'USER' : 'uklakniz',
+        'NAME': 'ehljqcpl',
+        'USER' : 'ehljqcpl',
         'PASSWORD': os.environ.get('PSQL_PASSWORD'),
-        'HOST': 'john.db.elephantsql.com',
+        'HOST': 'satao.db.elephantsql.com',
         'PORT' : '5432',
     }
 }
@@ -149,7 +154,7 @@ EMAIL_SUBJECT_PREFIX = '[Import*] '
 GOOGLE_API_CREDS = {
     "type": "service_account",
     "project_id": "import-drive-api-python",
-    "private_key_id": "ce8c40a87d010697340fa5f1e6ef929c910ce081",
+    "private_key_id": os.environ.get('GOOGLE_PKEY_ID'),
     "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCgtbV1d5h3C74T\naGpQGfs0xsrKGLkIFh1qEjH996hFRqnb/nkJyidFJD/qRlSYH5Ux/L298SyPQDPe\nnMwTpYAgzai0epUCUDmPpTZItl9BYN01K5Pzt0j7+C4z6iuiPuxJYmAj4N7MSdda\nUmgc28IKjsj5I9PhHN8tsaucri7jhcTJrDeeKUCSen8JTkGbOhIn4dFsafugZrP3\n+a8XL7/eW3+Eg9QgyWaAQ4zS25PCGIpjeOUuwIzhIy2zG2J5ukruz17/HqkxikPC\neGFvrWc7yNm6ClIdvnEc36XQj/6jB1vCblNYsHSgKbADbOVpINtEaFtIXyFf3PJO\nzWJea9KHAgMBAAECggEACMvJQcOo+aMP5ToKz5WMdUgII2WVAwdK1tpmGBNtB1Wl\nyF+2Oj3xRkyEnwr4aFcaMGE39WR03uZRsHZ+iPi++YyoFjC7ZSQE8oLFZNdugUKO\n+PEIqQc4HGpqBPdlKf0tq5qRzoTpTN8hxVTLVAEHLtK/1zsJxsFwyax2yx2RfWxn\noWOR898OZm7xDhGMvLffYXQuApq4ibLEb/2oSoJgacIoJ8pufOHHtUqlO4yhss0X\nF07kQMf52n3PLgZwPEap84jlmrNKa9DLIP8APzs+KBfVd86ZzZXYKIBVQ7bF2eTl\n1Z0sIet56UXeC8UUTVeWmLHtF2XikzIf7zM+WFL6eQKBgQDb1sR2sxXf/vVrYK+n\nctH3Ri49uQlDU2cBoV6KQSBwd/xEIhLczonCM7wSd7Pbq0GWXjUTIgwJR1DB/MhP\nfusfKMPcIercpY+peaFWv/laQQMn6O752zBSnGS2zJxrZGy8a5ClRtSR/obSo2Gq\nWjNUSPjlwrco6co2YrBq/dXDOwKBgQC7JRAyAaCrDOTRpEtUIDoi7EuhfYN3ZYcl\nHdxtHvN7Wnvtquj9FGyP4eECKDUeZrdqduKlwMCZ+jGmdefcC81e3AmTBa0LxaEu\ndhQduaj1+Y9FgSs3asLOwhq+xEmtUWRUgh1uMCWxVVvUet6euwGD0lxrOMsoRccl\nKww6I1QhJQKBgFwyRPC3CHyJc6mVwfUK3W3DvA7ctDrNFo0DfR+kUpN4bo6wb5K0\n9+c/RSfFleORfg8u8TlV9RBLHV5NwkA8rSTDNujyPIpO0OI1hWlZV5z3WPh64wZc\nW3a56i8TvqH3WvbmcaIvA2U7BpX+OS51Z8N4WxIYyDHbYpfOachlLioTAoGAUMLL\n3GirZ2WnEXlvMJy/ufZzJPu/UjU0PyZFy6mBtYf01zncVesMdoMp0P58/eOh34Xy\nhUlLVKeN6aIULvfA5uDaGOJoLR5aUmyOfc1zRsMtuvblKYMfEo7db9nRWcQ4IegM\nv1Jz0bVebbGghKt7GeIcFAFsWrLSIA4VtrksQykCgYAB5gXaw9lLcyV2nKfTBTRG\nMT+xbUV0zjqaIDMDxlgG7MPPjjuTygeWMqBNw3TvBx5Cd1uv8wtGXx51Zdkh1Ox0\nwQkLG4lCZ4C5s0oYWVK0wYYy9iscCF9BjuQZsiw5Isuz1zb3ZE7HgejrD+yGCviV\n2KVgfOIHlnRddtW/MoLULw==\n-----END PRIVATE KEY-----\n",
     "client_email": "import-service-account@import-drive-api-python.iam.gserviceaccount.com",
     "client_id": "113622126348758682817",

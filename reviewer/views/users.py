@@ -1,7 +1,6 @@
-import os
 
-from ..models import ImportUser, Comment, Likes, Language, Announcement
-from ..forms import ImportUserCreationForm, CommentForm
+from ..models import ImportUser, Comment, Likes, Language
+from ..forms import ImportUserCreationForm
 
 from ..custom import *
 
@@ -12,13 +11,8 @@ from django.http import Http404, JsonResponse
 from django.shortcuts import redirect, render
 
 from django.urls import reverse
-
 from io import BytesIO
-
 from PIL import Image
-
-
-import mimetypes
 
 # User Views
 
@@ -86,7 +80,7 @@ def user(request, username):
 				if oldprofpicID != None:
 					gdrive_delete_file(service, oldprofpicID)
 
-				utest.save()
+				utest.save(update_fields=['prof_picID'])
 			except Exception as e:
 				print(e)
 				error = "Upload a valid image file."
@@ -144,6 +138,9 @@ def user_settings(request):
 				willRender = False
 
 				if userauth == request.user:
+
+					## Delete GDrive Data ##
+
 					logout(request)
 					userauth.delete()
 					return redirect('index')
@@ -207,43 +204,20 @@ def user_settings(request):
 
 						currentuser.dark_mode = (data.get("dark_mode") == 'dark')
 						currentuser.notifications = (data.get("em_notif") == 'notif_on')
-		
-						currentuser.save()
-						if currentuname != data["username"]:
-							try:
-								oldUser = ImportUser.objects.get(username=currentuname)
-								filename = currentuser.prof_pic.name.split("/")[-1]
 
-								# Image Directory Replace
-								media_users_path = os.path.join(settings.MEDIA_ROOT, 'users')
-								old_path = os.path.join(media_users_path, currentuname)
-								new_path =  os.path.join(media_users_path, data["username"])
+						if currentuname != data["username"] and currentuser.prof_picID != None:
+							
+							for i in range(1,5):
+								service = gdrive_connect()
+								userfolder = 'media/users/{}'.format(currentuname)
+								userfolder = gdrive_traverse_path(service, path=userfolder, create=True)
+								newfolder = gdrive_update_file(service, userfolder['id'], file_metadata={"name": data["username"]})
 
-								os.rename(old_path, new_path)
-								currentuser.prof_pic = 'users/{0}/{1}'.format(data["username"], filename)
-
-								user_page_likes = Likes.objects.filter(user_attr=oldUser)
-								user_comments = Comment.objects.filter(user_attr=oldUser)
-								user_announcements = Announcement.objects.filter(poster=oldUser)
-
-								for i in user_page_likes:
-									i.user_attr = currentuser
-									i.save()
-								for i in user_comments:
-									i.user_attr = currentuser
-									i.save()
-								for i in user_announcements:
-									i.poster = currentuser
-									i.save()
-
-								currentuser.save()
-								login(request, currentuser)
-								oldUser.delete()
-							except Exception as e:
-								# Atomicity
-								currentuser.delete()
-
-								print(e)
+								if newfolder != False:
+									if newfolder.get("name", None) == data["username"]:
+										break
+							
+						currentuser.save(force_update=True)
 
 						willRender = False
 
@@ -259,15 +233,8 @@ def user_settings(request):
 
 			userpassword = request.user.password.split("$")
 
-			userpassword[2] = list(userpassword[2])
-			userpassword[3] = list(userpassword[3])
-
-			for i in range(6, len(userpassword[2])):
-				userpassword[2][i] = '*'
-
-			for i in range(6, len(userpassword[3])):
-				userpassword[3][i] = '*'
-
+			userpassword[2] = userpassword[2][0:6] + ('*' * (len(userpassword[2])-6) )
+			userpassword[3] = userpassword[3][0:6] + ('*' * (len(userpassword[3])-6) )
 
 			hasEmptyFields = False
 
@@ -283,8 +250,8 @@ def user_settings(request):
 
 			context = {'userpassword_algo' : userpassword[0], 
 						'userpassword_iterations': userpassword[1],
-						'userpassword_salt' : ''.join(userpassword[2]), 
-						'userpassword_hash' : ''.join(userpassword[3]),
+						'userpassword_salt' : userpassword[2], 
+						'userpassword_hash' : userpassword[3],
 						'langlist' : langlist,
 						'force_dark_mode' : True,
 						'error' : error,

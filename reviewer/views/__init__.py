@@ -4,3 +4,4 @@ from .course import *
 from .users import *
 from .announcements import *
 from .misc import *
+from .robots import *

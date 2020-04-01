@@ -37,4 +37,7 @@ urlpatterns = [
 
     # Announcements
     path('api/', views.google_test, name="google_test"),
+
+    # Robots.txt
+    path('robots.txt', views.robots_txt ),
 ]

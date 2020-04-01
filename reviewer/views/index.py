@@ -14,7 +14,6 @@ def index(request):
 	context = { 
 		'announcements': announcements, 
 		'announcements_json' : announcements_json,
-		'ann_len': len(announcements),
 		'is_home': True
 	}
 

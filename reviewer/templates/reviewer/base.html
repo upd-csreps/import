@@ -5,11 +5,15 @@
 		<title>{% block title %}{% endblock %} - Import *</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 		<meta charset="utf-8">
+		<meta name="application-name" content="Import *">
+		<meta name="description" content="Your CS Life debugged.">
+		<meta name="keywords" content="cs, network, import, star, esc">
+		<meta name="color-scheme" content="{% if user.dark_mode %} dark light {% else %} light dark {% endif%} ">
 
 		<link href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css" rel="stylesheet">
 	  	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-	  	<link rel="icon" href="{% static 'reviewer/favicon.ico' %}">
-	  	<link rel="shortcut icon" href="{% static 'reviewer/favicon.ico' %}">
+	  	{% include 'reviewer/partials/favicon.html' %}
+
 	  	<link rel="stylesheet" href="{% static 'reviewer/css/bootstrap.min.css' %}">
 	  	<link rel="stylesheet" href="{% static 'reviewer/css/katex.min.css' %}">
 

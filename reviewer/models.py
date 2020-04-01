@@ -44,15 +44,19 @@ class Language(models.Model):
 	def __str__(self):
 		return	'{}'.format(self.name)
 
+'''
 
 def user_uploadto(instance, filename):
 
 	fileex = filename.split('.')[-1]
 	return 'users/{0}/image.{1}'.format(instance.username, fileex)
 
+'''
+
 class ImportUser(AbstractUser):
 
-	username = models.CharField("Username", max_length=30, primary_key=True)
+	userID = models.AutoField(primary_key=True)
+	username = models.CharField("Username", max_length=30, unique=True)
 	first_name = models.CharField("First Name", max_length=30)
 	middle_name = models.CharField("Middle Name", max_length=30, blank=True, null=True)
 
@@ -72,13 +76,16 @@ class ImportUser(AbstractUser):
 	
 	is_superuser = models.BooleanField("Is SuperUser?", default=False)
 	exp = models.PositiveIntegerField("Experience Points", default=0)
-	prof_pic = models.ImageField(verbose_name="Profile Picture", null=True, blank=True, upload_to=user_uploadto)
+	
+	#prof_pic = models.ImageField(verbose_name="Profile Picture", null=True, blank=True, upload_to=user_uploadto)
 	prof_picID = models.CharField("Prof Pic ID", max_length=40, blank=True, null=True, default=None)
 
 	fave_lang = models.ForeignKey(Language, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Favorite Language")
 
 	dark_mode = models.BooleanField("Dark Mode", default=False);
 	notifications = models.BooleanField("Notifications", default=True);
+
+	USERNAME_FIELD = 'username'
 
 	def __str__(self):
 		return	'{} - {}, {}'.format(self.username, self.last_name, self.first_name)

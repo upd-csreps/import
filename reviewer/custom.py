@@ -72,15 +72,32 @@ def gdrive_create_file(service, file_metadata):
 	file = service.files().create(body=file_metadata, fields='id').execute()
 	return file.get('id')
 
-def gdrive_get_file(service, fileID):
+def gdrive_get_file(service, fileID, fields=None):
+
+	if fields == None:
+		fields = 'id, name, mimeType, thumbnailLink'
 
 	try:
-		file = service.files().get(fileId=fileID, fields='id, name, mimeType, thumbnailLink').execute()
+		file = service.files().get(fileId=fileID, fields=fields).execute()
 	except Exception as e: 
 		print(e)
 		return False
 
 	return file
+
+def gdrive_update_file(service, fileID, file_metadata, fields=None):
+
+	if fields == None:
+		fields = 'id, name, mimeType, thumbnailLink'
+
+	try:
+		file = service.files().update(fileId=fileID, body=file_metadata, fields=fields).execute()
+	except Exception as e: 
+		print(e)
+		return False
+
+	return file
+
 
 
 def gdrive_upload_bytes_tofile(service,the_bytes, file_metadata,  mimetype='application/octet-stream'):
