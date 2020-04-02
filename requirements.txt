@@ -9,5 +9,4 @@ setuptools>=40.3.0
 gunicorn
 django-heroku
 whitenoise
-django-last-modified
 django-htmlmin
