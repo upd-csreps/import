@@ -391,8 +391,6 @@
 
 		    
 		request.done(function (response, textStatus, jqXHR){
-	    	response = JSON.parse(response);
-
 	     	if(response.field_redirect){
 	     		URL_Redirect(response.url_redirect);
 	     	}
@@ -423,7 +421,6 @@
 
 
 	   headerEffect();
-	   //twemoji.parse(document.body);
 	   initPhotoLoad();		
 		
 	   

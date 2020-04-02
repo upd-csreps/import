@@ -42,7 +42,7 @@
 						{% if user.username == user_filt.username %}
 							<form action="{% url 'user' user_filt.username %}" method="post" enctype="multipart/form-data" class="d-none position-absolute" id="user-pic-form">
 									{% csrf_token %}    
-								    <input type="file" name="image" id="user-pic-upload"/>
+								    <input type="file" name="image" id="user-pic-upload" accept="image/*"/>
 								    <input type="submit" value="Save Changes" name="save" />        
 							</form>
 						{% endif %}
@@ -318,28 +318,199 @@
 					</div>
 
 				  </div>
-				</div>
-
-
-				
+				</div>				
 			</div>
 		</div>
+
+{% endblock %}
+
+
+{% block modal %}
+
+	<div class="modal fade" id="CropImageModal" tabindex="-1" role="dialog" aria-labelledby="CropImageModalTitle" aria-hidden="true">
+			  <div class="modal-dialog modal-dialog-centered" role="document">
+			    <div class="modal-content">
+			      <div class="modal-header">
+			        <h5 class="modal-title">Crop Image</h5>
+			        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			          <span aria-hidden="true">&times;</span>
+			        </button>
+			      </div>
+			    
+				      <div class="modal-body d-flex" style="height: 400px">
+				        <div class="croppie m-auto" style="height:300px; width:300px"></div>
+				      </div>
+				      <div class="modal-footer d-flex justify-content-between">
+				      	 <button class="btn btn-light d-inline-flex save-skip-image">
+							<i class="material-icons my-auto material-icon-sm mr-2">
+							save
+							</i>
+							<span class="my-auto">Skip Cropping</span>
+						</button>
+				        <button class="btn btn-primary d-inline-flex save-crop-image">
+							<i class="material-icons my-auto material-icon-sm mr-2">
+							crop
+							</i>
+							<span class="my-auto">Crop and Save Image</span>
+						</button>
+				      </div>
+
+			    </div>
+			  </div>
+			</div>
 	</div>
 
+
+
+{% endblock %}
+
+{% block styles %}
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.4/croppie.min.css">
 
 {% endblock %}
 
 {% block scripts %}
 
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.4/croppie.min.js"></script>
 	
 	<script>
+
+		var croppie_size = 200; 
+
+		var croppie = $('.croppie').croppie({
+		    viewport: { width: croppie_size, height: croppie_size,  type: 'circle'},
+		    boundary:{width: 300, height:300 }
+		});
+
 		$('.prof-pic').on('click', function(){
 			$("#user-pic-form input[type=file]").click();
 		});
 
+		function readFile(file) {                                                       
+		    var reader = new FileReader();
+		    reader.onload = readSuccess;                                            
+		    function readSuccess(evt) { 
+
+		    	var image = new Image();
+		    	var size = 0;
+	            image.src = evt.target.result;
+
+	            image.onload = function(){
+			  
+			        var imagesize = Math.min(this.width, this.height);
+					size = croppie_size/imagesize;
+
+				  	$('.cr-slider').attr({'min': size, 'max': size*2.25 });
+			    };
+
+		       croppie.croppie('bind', {
+				    url: evt.target.result,
+				    zoom: size
+				});                               
+		    };
+		    reader.readAsDataURL(file);                                             
+		} 
+
+		function CropSubmit(form_name, crop){
+
+			if (request) {
+		        request.abort();
+		    }
+
+			var CropForm = document.getElementById(form_name);
+
+			var fd = new FormData(CropForm);
+
+			var userURL = "{% url 'user' user_filt.username %}";
+
+			if (crop == true){
+
+				var image_name = fd.get('image').name
+				fd.delete('image');
+				
+				croppie.croppie('result', {
+					type: 'blob',
+					size: 'original',
+					circle: false
+				}).then(function(response){
+
+					fd.append("image", response, image_name);
+					CropSubmitSend();
+				});
+
+			}
+	        else{
+	        	CropSubmitSend();
+	        }
+
+	        function CropSubmitSend(){
+
+		        request = $.ajax({
+		            url: userURL,
+		            type: 'post',
+		            data: fd,
+		            contentType: false,
+		            processData: false,
+		        });		
+
+		        request.done(function (response, textStatus, jqXHR){
+					console.log(response);
+
+					if (response.error){
+						alert(response.error);
+					}
+
+					window.location.href = window.location.href;
+				});
+					    
+
+			    // Callback handler that will be called on failure
+			    request.fail(function (jqXHR, textStatus, errorThrown){
+			        // Log the error to the console
+			        console.error(
+			            "The following error occurred: "+
+			            textStatus, errorThrown
+			        );
+			    });
+
+	        }
+	        
+		
+
+		}
+
+
 		$('#user-pic-upload').on("change", function(){ 
-			$("#user-pic-form").submit();
+
+			readFile(this.files[0])
+
+			$('#CropImageModal').modal('show');
+
+			
+			//$("#user-pic-form").submit();
 		});
+
+
+		$(".user-pic-form").on("submit", function(e){
+			e.preventDefault();
+			$('#CropImageModal').modal('hide');
+			CropSubmit('user-pic-form', false);
+
+		});
+
+
+		$(".save-skip-image").on("click", function(){
+			$('#CropImageModal').modal('hide');
+			CropSubmit('user-pic-form', false);
+			
+		});
+
+		$(".save-crop-image").on("click", function(){
+			$('#CropImageModal').modal('hide');
+			CropSubmit('user-pic-form', true);
+			
+		});
+
 
 		{% if error %}
 			alert("{{error}}");

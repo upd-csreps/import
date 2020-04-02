@@ -81,11 +81,23 @@ def user(request, username):
 					gdrive_delete_file(service, oldprofpicID)
 
 				utest.save(update_fields=['prof_picID'])
+			except TimeoutError as e:
+				if settings.DEBUG:
+					print(e)
+				error = "Upload failed. Try uploading again in a few moments."
 			except Exception as e:
-				print(e)
-				error = "Upload a valid image file."
+				if settings.DEBUG:
+					print(e)
+				
+				error = "Upload a valid image file or try again."
 
-		return user_get(request, user_filter, error)
+		if request.is_ajax():
+
+			response = {'error' : error}
+
+			return JsonResponse(response);
+		else:
+			return user_get(request, user_filter, error)
 	else:
 		return user_get(request, user_filter)
 		
@@ -286,7 +298,7 @@ def user_redirect_info(request):
 
 		return JsonResponse(data)
 	else:
-		return Http404()
+		raise Http404()
 
 
 def register(request):
