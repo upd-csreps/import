@@ -48,7 +48,8 @@
 		<div class="py-5 mb-4">
 			<h2 class="font-weight-bold mb-3 text-center">Announcements</h2>
 			{% if announcements.count == 0 %}
-				<p>No announcements to show</p>
+				<p class="text-muted text-center d-inline-flex"><i class="material-icons mr-2 my-auto">announcement</i>
+					<span class="my-auto">No announcements to show</span></p>
 			{% else %}
 				<div class="row">
 					{% for announcement in announcements %}

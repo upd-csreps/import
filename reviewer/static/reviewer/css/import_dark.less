@@ -1,8 +1,8 @@
 /* Variables */
 
-@BackgroundColor: #2f2f2f;
+@BackgroundColor: #292929;
 @TextColor: #fcfcfc;
-@HeaderScroll: #282828;
+@HeaderScroll: #222222;
 
 /* Dark CSS */
 
@@ -37,11 +37,15 @@ a:hover {
 }
 
 .comment{
-	background: #212121;
+	background: #1f1f1f;
 }
 
-.comment-username, {
+.comment-username, .close{
 	color:@TextColor;
+}
+
+.close:hover{
+	color: white;
 }
 
 .import-image-drag-enabled:hover .addphoto-popper{
@@ -58,12 +62,12 @@ a:hover {
 
 .import-header-scrolled{
 	background: @HeaderScroll;
-	border-bottom: 1px solid #272727;
+	border-bottom: 1px solid #232323;
 }
 
 footer{
 	background: @HeaderScroll;
-	border-top: 1px solid #272727;
+	border-top: 1px solid #232323;
 }
 
 .form-control{
@@ -87,7 +91,7 @@ footer{
 	color: @TextColor;
 }
 
-.dropdown-menu, .layer-container{
+.dropdown-menu, .layer-container, .modal-content{
 	background-color: @HeaderScroll;
 }
 
