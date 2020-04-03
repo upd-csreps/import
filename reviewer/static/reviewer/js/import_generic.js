@@ -370,7 +370,7 @@
     }
 
     function URL_Redirect(url_redirect){
-    	window.location.href = window.location.protocol+"//"+window.location.host + url_redirect;
+    	window.location.href = window.location.origin + url_redirect;
     }
 
    // Redirect for Fields
