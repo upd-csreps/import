@@ -11,5 +11,5 @@ django-heroku
 whitenoise
 django-htmlmin
 channels
-channels_redis
+#channels_redis
 Twisted[tls,http2]
