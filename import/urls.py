@@ -20,7 +20,7 @@ from django.conf.urls.static import static
 from django.views.generic.base import TemplateView
 
 urlpatterns = [
-    path('su-admin/', admin.site.urls),
+    # path('su-admin/', admin.site.urls),
     path('', include('reviewer.urls')),
     path('u/', include('django.contrib.auth.urls')),
 ]
