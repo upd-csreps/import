@@ -75,6 +75,9 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'import.wsgi.application'
+
+
+# Django Channels
 ASGI_APPLICATION = "import.routing.application"
 
 

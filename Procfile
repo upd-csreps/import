@@ -1,1 +1,1 @@
-web: daphne -p 8001  import.asgi:application
+web: gunicorn import.wsgi
