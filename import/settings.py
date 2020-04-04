@@ -169,4 +169,6 @@ GOOGLE_API_SCOPES = [
 
 GOOGLE_API_RECONNECT_TRIES = 5
 
+
+# Production Settings
 django_heroku.settings(locals())
