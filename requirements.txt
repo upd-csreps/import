@@ -1,15 +1,13 @@
-Django>=3.0.4
-django-widget-tweaks>=1.4.6
+Django
+django-widget-tweaks
 google-api-python-client 
 google-auth-httplib2 
 google-auth-oauthlib
-Pillow>=7.0.0
-psycopg2>=2.8.4
+Pillow
+psycopg2
 setuptools>=40.3.0
 gunicorn
 django-heroku
 whitenoise
 django-htmlmin
-# channels
-# channels_redis
-# Twisted[tls,http2]
+uvicorn

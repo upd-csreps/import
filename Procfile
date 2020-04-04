@@ -1,1 +1,1 @@
-web: gunicorn import.wsgi
+web: uvicorn import.asgi:application
