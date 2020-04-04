@@ -228,9 +228,7 @@ def admin_get_course(request, purpose, course_subj="", course_num=""):
 						image_bytes = BytesIO()
 						image_test.save(image_bytes, format=image_test.format)
 
-						print(str(image_uploaded), image_mime, image_test.filename)
-
-						for i in range(1,5):
+						for i in range(1, settings.GOOGLE_API_RECONNECT_TRIES):
 							try:
 								service = gdrive_connect()
 								coursefolder = 'media/course/{}'.format(tempname)

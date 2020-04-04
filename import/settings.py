@@ -185,4 +185,6 @@ GOOGLE_API_SCOPES = [
     'https://www.googleapis.com/auth/drive.metadata.readonly'
 ]
 
+GOOGLE_API_RECONNECT_TRIES = 5
+
 django_heroku.settings(locals())

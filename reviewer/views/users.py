@@ -68,14 +68,19 @@ def user(request, username):
 				image_bytes = BytesIO()
 				image_test.convert('RGB').save(image_bytes, format='JPEG')	### 
 
+				for i in range(1, settings.GOOGLE_API_RECONNECT_TRIES):
+					try:
+						service = gdrive_connect()
+						userfolder = 'media/users/{}'.format(utest.username)
+						userfolder = gdrive_traverse_path(service, path=userfolder, create=True)
 
-				service = gdrive_connect()
-				userfolder = 'media/users/{}'.format(utest.username)
-				userfolder = gdrive_traverse_path(service, path=userfolder, create=True)
-
-				metadata = {'name': 'profile_pic.jpg', 'parents': [userfolder['id']] }
-				oldprofpicID = utest.prof_picID
-				utest.prof_picID = gdrive_upload_bytes_tofile(service, image_bytes, metadata, 'image/jpeg')
+						metadata = {'name': 'profile_pic.jpg', 'parents': [userfolder['id']] }
+						oldprofpicID = utest.prof_picID
+						utest.prof_picID = gdrive_upload_bytes_tofile(service, image_bytes, metadata, 'image/jpeg')
+						break
+					except Exception as e:
+						if settings.DEBUG:
+							print(e)
 
 				if oldprofpicID != None:
 					gdrive_delete_file(service, oldprofpicID)
@@ -151,10 +156,22 @@ def user_settings(request):
 
 				if userauth == request.user:
 
-					## Delete GDrive Data ##
-
 					logout(request)
 					userauth.delete()
+
+					## Delete GDrive Data ##
+
+					for i in range(1, settings.GOOGLE_API_RECONNECT_TRIES):
+						try:
+							service = gdrive_connect()
+							userfolder = 'media/users/{}'.format(request.user.username)
+							userfolder = gdrive_traverse_path(service, path=userfolder, create=True)
+							gdrive_delete_file(service, userfolder['id'])
+							break
+						except Exception as e:
+							if settings.DEBUG:
+								print(e)
+
 					return redirect('index')
 				else:
 					return redirect('user_settings')
@@ -219,15 +236,19 @@ def user_settings(request):
 
 						if currentuname != data["username"] and currentuser.prof_picID != None:
 							
-							for i in range(1,5):
-								service = gdrive_connect()
-								userfolder = 'media/users/{}'.format(currentuname)
-								userfolder = gdrive_traverse_path(service, path=userfolder, create=True)
-								newfolder = gdrive_update_file(service, userfolder['id'], file_metadata={"name": data["username"]})
+							for i in range(1, settings.GOOGLE_API_RECONNECT_TRIES):
+								try:
+									service = gdrive_connect()
+									userfolder = 'media/users/{}'.format(currentuname)
+									userfolder = gdrive_traverse_path(service, path=userfolder, create=True)
+									newfolder = gdrive_update_file(service, userfolder['id'], file_metadata={"name": data["username"]})
 
-								if newfolder != False:
-									if newfolder.get("name", None) == data["username"]:
-										break
+									if newfolder != False:
+										if newfolder.get("name", None) == data["username"]:
+											break
+								except Exception as e:
+									if settings.DEBUG:
+										print(e)
 							
 						currentuser.save(force_update=True)
 
