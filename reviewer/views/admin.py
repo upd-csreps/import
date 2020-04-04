@@ -1,6 +1,6 @@
 import json
 
-from ..custom import send_mass_html_mail
+from ..custom import *
 from ..models import ImportUser, Course, Language, Announcement, LessonStats
 from ..forms import CourseForm, LanguageForm, ImportImageForm
 
@@ -8,18 +8,17 @@ from datetime import timedelta
 from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.sites.shortcuts import get_current_site
+from django.core.exceptions import PermissionDenied
 
-from django.http import JsonResponse, HttpResponseForbidden
+from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
 
+from io import BytesIO
+import mimetypes
 from PIL import Image
-
-from googleapiclient.discovery import build
-from google.oauth2 import service_account
-
 
 # Admin Views
 
@@ -137,7 +136,7 @@ def admin_users(request):
 
 				if confirm == request.user:
 
-					find_uname = ImportUser.objects.get(username=data["username"])
+					find_uname = ImportUser.objects.filter(username=data["username"]).first()
 					find_uname.is_superuser = not find_uname.is_superuser
 					find_uname.save()
 
@@ -176,64 +175,79 @@ def admin_course_list(request):
 	return render(request, 'reviewer/admin/course-list.html', context)
 
 def admin_course(request, course_id=""):
-	return admin_get_course(request, "add", False, "", "")
+	return admin_get_course(request, "add", "", "")
 
 def admin_course_id(request, course_subj="", course_num ="", purpose="edit"):
-	return admin_get_course(request, purpose, False, course_subj, course_num)
+	return admin_get_course(request, purpose, course_subj, course_num)
 
-def admin_get_course(request, purpose, ajax=True, course_subj="", course_num=""):
+def admin_get_course(request, purpose, course_subj="", course_num=""):
 
-	error = None
-
-	referer = request.META['HTTP_REFERER']
+	referer = request.META.get('HTTP_REFERER', "")
 
 	if request.user.is_superuser:
 		
 		if purpose == "delete":
 
-			del_course = Course.objects.get(code__iexact=course_subj, number__iexact=course_num)
+			del_course = Course.objects.filter(code__iexact=course_subj, number__iexact=course_num).first()
 			del_course.delete()
 
 			if "/su/" in referer:
 				return redirect('admin_course_list')				
 			else:
 				return redirect('courselist')
+
 		else:
 
 			if request.method == "POST" and request.user.check_password(request.POST['password']):
+
 				data = request.POST
-				courseform = CourseForm(data)
 
 				tempname = data['name'].strip()
 				coursefulln = tempname.split(" ")
 				tempnum = coursefulln[len(coursefulln)-1]
 				tempcode = ' '.join(coursefulln[:-(len(coursefulln)-1)])
-
+				
 				if tempnum.isnumeric():
-					temp_oldcurr = data.get('old_curr', False)
-					temp_visible = data.get('visible', False)
-
-					if temp_oldcurr == 'on':
-						temp_oldcurr = True
-					if temp_visible == 'on':
-						temp_visible = True
-					
+					temp_oldcurr = (data.get('old_curr', False) == 'on')
+					temp_visible = (data.get('visible', False) == 'on')
+		
 					prereq_list = data.getlist('prereq')
 					coreq_list = data.getlist('coreq')
 
-					# Add input validation
-					if purpose == "add":
+					image_uploaded = request.FILES.get('image', None)
+					image_uploadedID = None
 
-						image_uploaded = request.FILES.get('image', None)
+					try:	
+						image_test =  Image.open(image_uploaded)
+						image_test.verify()
 
-						try:
-							image_test =  Image.open(image_uploaded)
-							image_test.verify()
-							
-						except:
-							image_uploaded = None
+						image_test =  Image.open(image_uploaded)
+						image_mime = mimetypes.guess_type(str(image_uploaded))[0]
 
-						new_course = Course(
+						image_test.thumbnail((600,600))
+						image_bytes = BytesIO()
+						image_test.save(image_bytes, format=image_test.format)
+
+						print(str(image_uploaded), image_mime, image_test.filename)
+
+						for i in range(1,5):
+							try:
+								service = gdrive_connect()
+								coursefolder = 'media/course/{}'.format(tempname)
+								coursefolder = gdrive_traverse_path(service, path=coursefolder, create=True)
+
+								metadata = {'name': str(image_uploaded), 'parents': [coursefolder['id']] }
+								image_uploadedID = gdrive_upload_bytes_tofile(service, image_bytes, metadata, image_mime)
+								break
+							except Exception as e:
+								if settings.DEBUG:
+									print(e)
+
+					except:
+						pass
+						
+					if purpose == "add":	
+						course = Course(
 							name=data['name'].strip(),
 							code=tempcode, 
 							number=tempnum, 
@@ -241,97 +255,84 @@ def admin_get_course(request, purpose, ajax=True, course_subj="", course_num="")
 							description=data['description'.strip()], 
 							old_curr=temp_oldcurr, 
 							visible=temp_visible,
-							image=image_uploaded
-							)	
-
-						new_course.save()
-						new_course.prereqs.set(Course.objects.filter(id__in=prereq_list))
-						new_course.coreqs.set(Course.objects.filter(id__in=coreq_list))
+							imageID=image_uploadedID
+						)
 					elif purpose == "edit":
 
-						edit_course = Course.objects.get(code__iexact=course_subj, number__iexact=course_num)
+						course = Course.objects.filter(code__iexact=course_subj, number__iexact=course_num).first()
 
-						edit_course.name = data['name'].strip()
-						edit_course.code = tempcode
-						edit_course.number = tempnum
-						edit_course.title = data['title'].strip()
-						edit_course.description = data['description'].strip()
-						edit_course.old_curr = temp_oldcurr
-						edit_course.visible = temp_visible
+						course.name = data['name'].strip()
+						course.code = tempcode
+						course.number = tempnum
+						course.title = data['title'].strip()
+						course.description = data['description'].strip()
+						course.old_curr = temp_oldcurr
+						course.visible = temp_visible
+						course.lastupdated = timezone.now()
 
-						image_uploaded = request.FILES.get('image', None)
-
-						try:
-							image_test =  Image.open(image_uploaded)
-							image_test.verify()
-						except:
-							image_uploaded = None
-
+						oldphotoID = course.imageID
+						
 						if ((image_uploaded != None) or (data.get('imagehascleared', False) != False )):
-							edit_course.image = image_uploaded
+							course.imageID = image_uploadedID
+							if oldphotoID != None:
+								gdrive_delete_file(service, oldphotoID)
 
-						edit_course.lastupdated = timezone.now()
-						edit_course.save()
-						edit_course.prereqs.set(Course.objects.filter(id__in=prereq_list))
-						edit_course.coreqs.set(Course.objects.filter(id__in=coreq_list))
+					course.save()
+					course.prereqs.set(Course.objects.filter(id__in=prereq_list))
+					course.coreqs.set(Course.objects.filter(id__in=coreq_list))
 
-					return redirect('course', tempcode.lower(), tempnum)
-				else:
-					return redirect('course', tempcode.lower(), tempnum)
+				return redirect('course', tempcode.lower(), tempnum)
+				
 			else:
 				courselist = Course.objects.filter(visible=True).order_by('code', 'number_len', 'number')
 
+				if purpose == "add":
+					courseform = CourseForm()
+					context = { 'courseform': courseform, 
+								'courses': courselist,
+								'title': "Add Course"
+							}
 
-			if purpose == "add":
-				courseform = CourseForm()
-				context = {'courseform': courseform, 'courses': courselist}
-				context['title'] = "Add Course"
+				elif purpose == "edit":
 
-			elif purpose == "edit":
+					edit_course = Course.objects.filter(code__iexact=course_subj, number__iexact=course_num).first()
 
-				edit_course = Course.objects.get(code__iexact=course_subj, number__iexact=course_num)
+					initialvalue = {				
+							'name' : edit_course.name,
+							'title' : edit_course.title,
+							'description' : edit_course.description,
+							'old_curr' : edit_course.old_curr,
+							'visible' : edit_course.visible
+					}
 
-				initialvalue = {				
-						'name' : edit_course.name,
-						'title' : edit_course.title,
-						'description' : edit_course.description,
-						'old_curr' : edit_course.old_curr,
-						'visible' : edit_course.visible
-				}
+					if edit_course.imageID:
+						initialvalue['image'] = edit_course.imageID
 
-				if edit_course.image:
-					initialvalue['image'] = edit_course.image
+					courseform = CourseForm(initial=initialvalue)
 
+					getprereqs = list(edit_course.prereqs.all().values_list('id', flat=True))
+					getcoreqs = list(edit_course.coreqs.all().values_list('id', flat=True))
 
-				courseform = CourseForm(initial=initialvalue)
+					context = { 'courseform': courseform, 
+								'courses': courselist, 
+								'course_subj': edit_course.code.lower(), 
+								'course_num': edit_course.number, 
+								'course_prereq': getprereqs, 
+								'course_coreq': getcoreqs,
+								'title' : "Edit Course"
+							}
 
-				getprereqs = []
-				getcoreqs = []
+				if (request.method == "POST") and (request.user.check_password(request.POST['password']) == False):
+					context['error'] = "You entered the wrong password."
 
-				prere =  edit_course.prereqs.all().values_list('id', flat=True)
-				core = edit_course.coreqs.all().values_list('id', flat=True)
-
-				for i in prere:		
-					getprereqs.append(i)
-
-				for i in core:
-					getcoreqs.append(i)
-
-				context = {'courseform': courseform, 'courses': courselist, 'course_subj': edit_course.code.lower(), 
-				'course_num': edit_course.number, 'course_prereq': getprereqs, 'course_coreq': getcoreqs}
-				context['title'] = "Edit Course"
-
-			if (request.method == "POST") and (request.user.check_password(request.POST['password']) == False):
-				context['error'] = "You entered the wrong password."
-
-			if ajax == True:
-				return render(request, 'reviewer/courses/course_add.html', context)
-			else:	
-				context["currpage"] = "courses"
-				return render(request, 'reviewer/admin/course_admin.html', context)
+				if request.is_ajax():
+					return render(request, 'reviewer/courses/course_add.html', context)
+				else:	
+					context["currpage"] = "courses"
+					return render(request, 'reviewer/admin/course_admin.html', context)
 		
 	else:
-		raise HttpResponseForbidden()
+		raise PermissionDenied()
 
 
 def admin_langlist(request):
@@ -354,7 +355,7 @@ def admin_lang(request, purpose, id=""):
 		
 		if purpose == "delete":
 
-			del_lang = Language.objects.get(id=id)
+			del_lang = Language.objects.filter(id=id).first()
 			del_lang.delete()
 
 			return redirect('admin_langlist')
@@ -383,7 +384,7 @@ def admin_lang(request, purpose, id=""):
 
 					elif purpose == "edit":
 						
-						edit_lang = Language.objects.get(id=id)
+						edit_lang = Language.objects.filter(id=id).first()
 
 						edit_lang.name = data["name"].strip()
 						edit_lang.color = data["color"][1:]
@@ -411,7 +412,7 @@ def admin_lang(request, purpose, id=""):
 					context['langform'] = langform
 					context['title'] = "Add Language"
 				elif purpose == "edit":
-					edit_lang = Language.objects.get(id=id)
+					edit_lang = Language.objects.filter(id=id).first()
 
 					initialvalue = {				
 						'name' : edit_lang.name,
@@ -434,7 +435,7 @@ def admin_lang(request, purpose, id=""):
 				return render(request, 'reviewer/admin/language/language.html', context)
 		
 	else:
-		raise HttpResponseForbidden()
+		raise PermissionDenied()
 
 
 def admin_announcement(request):
@@ -456,7 +457,7 @@ def admin_announcement_update(request, purpose, id=""):
 		
 		if purpose == "delete":
 
-			del_ann = Announcement.objects.get(id=id)
+			del_ann = Announcement.objects.filter(id=id).first()
 			del_ann.delete()
 
 			return redirect('admin_announcement')
@@ -530,7 +531,7 @@ def admin_announcement_update(request, purpose, id=""):
 						
 					elif purpose == "edit":
 						
-						edit_ann = Announcement.objects.get(id=id)
+						edit_ann = Announcement.objects.filter(id=id).first()
 
 						edit_ann.title = temptitle
 						edit_ann.body = bodyjson
@@ -556,7 +557,7 @@ def admin_announcement_update(request, purpose, id=""):
 				if purpose == "add":
 					context['title'] = "Create Announcement"
 				elif purpose == "edit":
-					edit_ann = Announcement.objects.get(id=id)
+					edit_ann = Announcement.objects.filter(id=id).first()
 					edit_ann_json = json.dumps(edit_ann.body)
 
 					initialvalue = {}
@@ -578,5 +579,5 @@ def admin_announcement_update(request, purpose, id=""):
 				return render(request, 'reviewer/admin/announcement/announcement.html', context)
 		
 	else:
-		raise HttpResponseForbidden()
+		raise PermissionDenied()
 

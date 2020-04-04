@@ -392,14 +392,14 @@
 
 						$(".course-comments").html($(".course-comments").html() + 
 							`<div class="py-4 px-4 d-flex mb-3 comment" id="comment-`+response.id + `">
-								<a href="` + window.location.protocol + `//` + window.location.host + response.user_url + `">
+								<a href="` + window.location.origin + response.user_url + `">
 									<img class="user-pic-thumb" src="` + hasImage(response, "profile") + `">
 								</a>
 								
 								<div class="ml-4 w-100">
 									<div class="d-flex w-100 justify-content-between my-2">
 										<span class="my-auto">
-											<a href="` + window.location.protocol + `//` + window.location.host + response.user_url +`" class="comment-username">
+											<a href="` + window.location.origin + response.user_url +`" class="comment-username">
 												<strong>
 													` + response.user + `
 												</strong>

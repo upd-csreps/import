@@ -159,18 +159,18 @@ def comment_like(request, csubj, cnum):
 		if request.user.is_authenticated:
 
 			comment_findid = int(request.body.decode("utf-8").split("-")[1])
-			comm_like = Comment.objects.get(pk=comment_findid)	
+			comm_like = Comment.objects.filter(pk=comment_findid).first()	
 
 			like_state = Likes.objects.filter(comment=comm_like, user_attr=request.user)
 
 			if like_state.exists():
 				like_state.delete()
-				like_state = False
 
 			else:
 				new_like = Likes(comment=comm_like, user_attr=request.user)	
 				new_like.save()
-				like_state = True
+
+			like_state = not like_state.exists()
 
 			like_count_callback = {
 				'count': len(comm_like.likes_set.all()), 

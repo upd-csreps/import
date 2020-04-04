@@ -445,6 +445,8 @@
 
 	        function CropSubmitSend(){
 
+	        	$(".loader-screen").fadeIn();
+
 		        request = $.ajax({
 		            url: userURL,
 		            type: 'post',
@@ -471,6 +473,13 @@
 			            "The following error occurred: "+
 			            textStatus, errorThrown
 			        );
+
+			        $(".loader").addClass("failed");
+			    });
+
+			    request.always(function(){
+			    	$(".loader").removeClass("failed");
+			    	$(".loader-screen").fadeOut();
 			    });
 
 	        }

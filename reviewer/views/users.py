@@ -55,7 +55,7 @@ def user(request, username):
 
 	if request.method == 'POST':
 		if user_filter[0].username == request.user.username:
-			utest = ImportUser.objects.get(username=username)
+			utest = ImportUser.objects.filter(username=username).first()
 
 			image_uploaded = request.FILES.get('image', None)
 
@@ -321,7 +321,7 @@ def register(request):
 
 			if (data["uname"] == ""):
 				unamecheck_callback['valid'] = 'e'
-			elif (user_settings_uname_is_unique(request, data["uname"])):
+			elif (user_settings_uname_is_unique(request, data["uname"].strip())):
 				unamecheck_callback['valid'] = 'y'
 
 				if (data["uname"] == request.user.username):
@@ -335,7 +335,7 @@ def register(request):
 
 			form = ImportUserCreationForm(request.POST)
 			if form.is_valid():
-				username = form.cleaned_data['username']
+				username = form.cleaned_data['username'].strip()
 				password = form.cleaned_data['password1']
 				if (user_settings_uname_is_unique(request, username)):
 					form.save()

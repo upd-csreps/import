@@ -9,8 +9,9 @@ from django.utils import timezone
 def course_uploadto(instance, filename):
 	return 'course/{0}-{1}/{2}'.format(instance.code, instance.number, filename)
 
+
 class Course(models.Model):
-	name = models.CharField("Course Name", max_length=20)
+	name = models.CharField("Course Name", max_length=20, unique=True)
 	code = models.CharField("Course Code", max_length=10)
 	number = models.CharField("Course Number", max_length=10)
 	number_len = models.PositiveSmallIntegerField(default=1)
@@ -22,7 +23,9 @@ class Course(models.Model):
 	coreqs = models.ManyToManyField('self', blank=True, default=None,symmetrical=False , related_name="creq")
 	lastupdated = models.DateTimeField("Last Updated", default=timezone.now)
 
-	image = models.ImageField(verbose_name="Cover Photo", null=True, blank=True, upload_to=course_uploadto)
+	# image = models.ImageField(verbose_name="Photo", null=True, blank=True, upload_to=course_uploadto)
+	imageID = models.CharField("Photo ID", max_length=40, blank=True, null=True, default=None)
+
 
 	def __str__(self):
 		return	'{}'.format(self.name)
@@ -37,7 +40,7 @@ def language_uploadto(instance, filename):
 
 class Language(models.Model):
 
-	name = models.CharField(max_length=20)
+	name = models.CharField(max_length=20, unique=True)
 	image = models.ImageField(verbose_name="Icon", upload_to=language_uploadto)
 	color = models.CharField(max_length=6, default="868686")
 

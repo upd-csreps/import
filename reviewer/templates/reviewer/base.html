@@ -30,6 +30,24 @@
 	  	{% endblock %}
 	</head>
 	<body>
+
+		{% block loader %}
+			<div class="position-fixed w-100 h-100 loader-screen">
+				<div class="loader-overlay position-absolute">
+				</div>
+				<div class="loader-content w-100 h-100  d-flex">
+					<div class="m-auto d-flex flex-column p-3 loader-container" >
+						<div class="loader spin mx-2 mt-0 mb-3"></div>
+						<div class="loader-status text-center text-capitalized" style="color: white;">
+							Working...
+						</div>
+					</div>
+				</div>
+				
+			</div>
+
+		{% endblock %}
+
 		<div class="site-container w-100">
 			{% include 'reviewer/partials/header.html' %}
 			<div class="site-content">
