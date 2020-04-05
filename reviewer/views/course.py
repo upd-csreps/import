@@ -143,13 +143,16 @@ def comment_like(request, csubj, cnum):
 
 		if request.user.is_authenticated:
 
-			print(data)
 			comment_findid = data.get('commentID').split("-")[1]
 			comm_all_like = Comment.objects.filter(pk=comment_findid).first().likes_set.all()
-			like_state = comm_all_like.filter(user_attr=request.user).first()
+			like_state = comm_all_like.filter(user_attr=request.user)
 
-			like_state.delete() if like_state else Likes.objects.create(comment=comm_all_like[0].comment, user_attr=request.user)	
-			like_state = not bool(like_state)
+			if like_state:
+				like_state.delete()
+				like_state = False
+			else:
+				Likes.objects.create(comment_id=int(comment_findid), user_attr=request.user)
+				like_state = True
 
 			like_count_callback = {
 				'count': len(comm_all_like), 

@@ -566,9 +566,8 @@
 				commentpass = $(this).parents(".comment");
 	 			commentpassid = commentpass.attr("data-comment-id");
 
-		 		if (request) {
+		 		if (request)
 			        request.abort();
-			    }
 
 			    let del_url = "{% url 'course' '$course_code' 123456789 %}";
 
@@ -592,7 +591,6 @@
 			    });
 
 
-			    
 			    // Callback handler that will be called on failure
 			    request.fail(function (jqXHR, textStatus, errorThrown){
 			        // Log the error to the console

@@ -32,7 +32,7 @@
 	<body>
 
 		{% block loader %}
-			<div class="position-fixed w-100 h-100 loader-screen">
+			<div class="position-fixed w-100 h-100 loader-screen" onabort="$('.loader-screen').fadeOut()">
 				<div class="loader-overlay position-absolute">
 				</div>
 				<div class="loader-content w-100 h-100  d-flex">
