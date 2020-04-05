@@ -18,31 +18,38 @@ from PIL import Image
 
 def user_get(request, user_filter, error=None):
 
+	thousand_counter = [10**9, 10**6, 10**3]
+	thousand_marker = ['B', 'M', 'K']
 	liked_comments = []
-
 	liked_comments_data = []
 
 	if (len(user_filter) > 0):
 
-		user_page_likes = Likes.objects.filter(user_attr=user_filter[0])
-
 		if request.user.is_authenticated:
-			user_likes = Likes.objects.filter(user_attr=request.user)
-			for i in user_likes:
-				liked_comments.append(int(i.comment.id))
+			liked_comments = list(Likes.objects.filter(user_attr=request.user).values_list('comment__id', flat=True))
 
-		for i in user_page_likes:
-			liked_comments_data.append(i.comment)
+		target_user_likes = Likes.objects.filter(user_attr=user_filter[0]).reverse().prefetch_related('comment').all()
 
-		liked_comments_data.reverse()
+		for like in target_user_likes:
+			liked_comments_data.append(like.comment)
+	
+		liked_comments_count, liked_comments_data_count = len(liked_comments), len(liked_comments_data)
 
+		for index, item in enumerate(thousand_counter):
+			if isinstance(liked_comments_count, int) and liked_comments_count >= item:
+				liked_comments_count = (liked_comments_count/item) + thousand_marker[index]
+			if isinstance(liked_comments_data_count, int) and liked_comments_data_count >= item:
+				liked_comments_data_count = (liked_comments_data_count/item) + thousand_marker[index]
+			
 		comments = user_filter[0].comment_set.order_by('-date_posted')
 		context = {
 			'user_filt': user_filter[0],
 			'user_comments':comments , 
 			'error': error,
-			'liked_comments': str(liked_comments) ,
-			'liked_comments_data' : liked_comments_data
+			'liked_comments': liked_comments,
+			'liked_comments_data' : liked_comments_data,
+			'liked_comments_count' : liked_comments_count,
+			'liked_comments_data_count' : liked_comments_data_count
 		}
 		return render(request, 'reviewer/user/user.html', context)
 	else:
@@ -79,22 +86,13 @@ def user(request, username):
 						utest.prof_picID = gdrive_upload_bytes_tofile(service, image_bytes, metadata, 'image/jpeg')
 						break
 					except Exception as e:
-						if settings.DEBUG:
-							print(e)
+						if settings.DEBUG: print(e)
 
-				if oldprofpicID != None:
-					gdrive_delete_file(service, oldprofpicID)
-
-				utest.save(update_fields=['prof_picID'])
-			except TimeoutError as e:
-				if settings.DEBUG:
-					print(e)
-				error = "Upload failed. Try uploading again in a few moments."
+				if oldprofpicID != None: gdrive_delete_file(service, oldprofpicID)
+				utest.save(update_fields=['prof_picID'])	
 			except Exception as e:
-				if settings.DEBUG:
-					print(e)
-				
-				error = "Upload a valid image file or try again."
+				if settings.DEBUG: print(e)
+				error = "Upload failed. Try uploading again in a few moments." if isinstance(e, TimeoutError) else "Upload a valid image file or try again."
 
 		if request.is_ajax():
 
@@ -106,16 +104,8 @@ def user(request, username):
 	else:
 		return user_get(request, user_filter)
 		
-
 def user_settings_uname_is_unique(request, uname):
-	retval = False
-	filtername = ImportUser.objects.filter(username=uname)
-	
-	if (len(filtername) == 0 or uname == request.user.username):
-		retval = True
-	
-	return retval
-
+	return True if ( (not ImportUser.objects.filter(username=uname).exists()) or uname == request.user.username) else False
 
 def user_settings(request):
 
@@ -125,29 +115,21 @@ def user_settings(request):
 	if request.user.is_authenticated:
 		if request.method == 'POST':
 
-			queries = request.GET
-			data = request.POST
-
-			unmcheck = queries.get("unamecheck")
-			unmcheckbool = (unmcheck == 'y')
+			queries, data = request.GET, request.POST
 			
-			if (unmcheckbool):
+			if (queries.get("unamecheck") == 'y'):
 
-				unamecheck_callback = {
-					'valid': 'n'
-				}
+				unamecheck_callback = { 'valid': 'n' }
 
-				if (data["uname"] == ""):
+				if not data["uname"]:
 					unamecheck_callback['valid'] = 'e'
+				elif (data["uname"] == request.user.username):
+					unamecheck_callback['valid'] = 's'
 				elif (user_settings_uname_is_unique(request, data["uname"])):
 					unamecheck_callback['valid'] = 'y'
+					
 
-					if (data["uname"] == request.user.username):
-						unamecheck_callback['valid'] = 's'
-				
-				response = JsonResponse(unamecheck_callback)
-
-				return response
+				return JsonResponse(unamecheck_callback)
 
 			elif (queries.get("delete") == 'true'):
 
@@ -179,63 +161,41 @@ def user_settings(request):
 
 				emptyreqfields = []
 
-				if data["username"] == '':
+				if not data["username"]:
 					emptyreqfields.append("username")
-				if data["first_name"] == '':
+				if not data["first_name"]:
 					emptyreqfields.append("first_name")
-				if data["last_name"] == '':
+				if not data["last_name"]:
 					emptyreqfields.append("last_name")
-				if data["e-mail"] == '':
+				if not data["e-mail"]:
 					emptyreqfields.append("e-mail")
-				if data["course"] == '':
+				if not data["course"]:
 					emptyreqfields.append("course")
 
 				if len(emptyreqfields) == 0:
 
 					currentuname = request.user.username
-		
 					currentuser = request.user
 
 					username_valid = user_settings_uname_is_unique(request, data["username"])
 
 					if (username_valid):
+
 						currentuser.username = data["username"]
 						currentuser.first_name = data["first_name"]
-
-						if data["middle_name"] == "":
-							currentuser.middle_name = None
-						else:
-							currentuser.middle_name = data["middle_name"]
-						
-
+						currentuser.middle_name = None if not data["middle_name"] else data["middle_name"]
 						currentuser.last_name = data["last_name"]
 						currentuser.suffix = data["suffix"]
-
-						if data["studentnum"] == "":
-							currentuser.studentnum = None
-						else:
-							currentuser.studentnum = data["studentnum"]
-
+						currentuser.studentnum = None if not data["studentnum"] else data["studentnum"]
 						currentuser.show_studentnum = (data.get("show_studentnum") == 'show')
 						currentuser.email = data["e-mail"]
 						currentuser.show_email = (data.get("show_email") == 'show')
 						currentuser.course = data["course"]
-
-						langvalue = ""
-
-						if data.get("fave_lang", None):
-							try:
-								currentuser.fave_lang = Language.objects.get(name=data["fave_lang"])
-							except Language.DoesNotExist:
-								currentuser.fave_lang = None
-						else:
-							currentuser.fave_lang = None
-
+						currentuser.fave_lang = Language.objects.filter(name=data["fave_lang"]).first() if data.get("fave_lang", None) else None
 						currentuser.dark_mode = (data.get("dark_mode") == 'dark')
 						currentuser.notifications = (data.get("em_notif") == 'notif_on')
 
-						if currentuname != data["username"] and currentuser.prof_picID != None:
-							
+						if currentuname != data["username"] and currentuser.prof_picID:
 							for i in range(1, settings.GOOGLE_API_RECONNECT_TRIES):
 								try:
 									service = gdrive_connect()
@@ -247,8 +207,7 @@ def user_settings(request):
 										if newfolder.get("name", None) == data["username"]:
 											break
 								except Exception as e:
-									if settings.DEBUG:
-										print(e)
+									if settings.DEBUG: print(e)
 							
 						currentuser.save(force_update=True)
 
@@ -257,8 +216,6 @@ def user_settings(request):
 						return redirect('user', request.user.username)
 				else:
 					error = emptyreqfields
-
-	
 
 		if willRender:
 
@@ -271,14 +228,7 @@ def user_settings(request):
 
 			hasEmptyFields = False
 
-			
-			if request.user.username == '' or request.user.username == None:
-				hasEmptyFields = True
-			elif request.user.first_name == '' or request.user.first_name == None:
-				hasEmptyFields = True
-			elif request.user.last_name == '' or request.user.last_name == None:
-				hasEmptyFields = True
-			elif request.user.email == '' or request.user.email == None:
+			if not (request.user.username and request.user.first_name and request.user.last_name and request.user.email):
 				hasEmptyFields = True
 
 			context = {'userpassword_algo' : userpassword[0], 
@@ -302,18 +252,10 @@ def user_redirect_info(request):
 	if usr.is_authenticated and request.method == "POST":
 		currURL = request.POST["url"]
 		settings_url = reverse('user_settings')
-
 		willRedirect = False
 
-		if (currURL != settings_url):
-			if usr.username == '' or usr.username == None:
-				willRedirect = True
-			elif usr.first_name == '' or usr.first_name == None:
-				willRedirect = True
-			elif usr.last_name == '' or usr.last_name == None:
-				willRedirect = True
-			elif usr.email == '' or usr.email == None:
-				willRedirect = True
+		if (currURL != settings_url) and not (usr.username and usr.first_name and usr.last_name and usr.email):
+			willRedirect = True
 
 		data = {'field_redirect': willRedirect, 'url_redirect': settings_url }
 
@@ -328,13 +270,9 @@ def register(request):
 
 	if request.method == 'POST':
 		
-		queries = request.GET
-		data = request.POST
-
-		unmcheck = queries.get("unamecheck")
-		unmcheckbool = (unmcheck == 'y')
+		queries, data = request.GET, request.POST
 		
-		if (unmcheckbool):
+		if (queries.get("unamecheck") == 'y'):
 
 			unamecheck_callback = {
 				'valid': 'n'
@@ -342,31 +280,26 @@ def register(request):
 
 			if (data["uname"] == ""):
 				unamecheck_callback['valid'] = 'e'
+			elif (data["uname"] == request.user.username):
+					unamecheck_callback['valid'] = 's'
 			elif (user_settings_uname_is_unique(request, data["uname"].strip())):
 				unamecheck_callback['valid'] = 'y'
 
-				if (data["uname"] == request.user.username):
-					unamecheck_callback['valid'] = 's'
-			
-			response = JsonResponse(unamecheck_callback)
-
-			return response
+			return JsonResponse(unamecheck_callback)
 
 		else:
 
 			form = ImportUserCreationForm(request.POST)
-			if form.is_valid():
-				username = form.cleaned_data['username'].strip()
+			username = form.cleaned_data['username'].strip()
+			if form.is_valid() and user_settings_uname_is_unique(request, username):
+				
 				password = form.cleaned_data['password1']
-				if (user_settings_uname_is_unique(request, username)):
-					form.save()
-					user = authenticate(username=username, password=password)
+				user = authenticate(username=username, password=password)
+				form.save()
 
-					login(request, user)
-					return redirect('user_settings')
-				else:
-					context = {'form': form, 'langlist' : langlist}
-					return render(request, 'registration/register.html', context)
+				login(request, user)
+				return redirect('user_settings')
+
 			else:
 				context = {'form': form, 'langlist' : langlist}
 				return render(request, 'registration/register.html', context)

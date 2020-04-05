@@ -18,8 +18,7 @@ class CourseForm(forms.Form):
 	visible = forms.BooleanField(widget=forms.CheckboxInput(attrs={ 'class': 'form-check-input' }), required=False, initial=True)
 	imagehascleared = forms.BooleanField(widget=forms.CheckboxInput(attrs={ 'class': 'form-check-input' }), required=False,initial=False)
 	lastupdated = timezone.now()
-	image = forms.ImageField(required=False)
-
+	imageID = forms.CharField(max_length=40)
 
 	prereq = forms.ModelMultipleChoiceField(
 		widget = forms.CheckboxSelectMultiple(),

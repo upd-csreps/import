@@ -413,17 +413,14 @@
 
 		function CropSubmit(form_name, crop){
 
-			if (request) {
+			if (request)
 		        request.abort();
-		    }
 
 			var CropForm = document.getElementById(form_name);
-
 			var fd = new FormData(CropForm);
-
 			var userURL = "{% url 'user' user_filt.username %}";
 
-			if (crop == true){
+			if (crop){
 
 				var image_name = fd.get('image').name
 				fd.delete('image');
@@ -433,7 +430,6 @@
 					size: 'original',
 					circle: false
 				}).then(function(response){
-
 					fd.append("image", response, image_name);
 					CropSubmitSend();
 				});
@@ -458,10 +454,8 @@
 		        request.done(function (response, textStatus, jqXHR){
 					console.log(response);
 
-					if (response.error){
+					if (response.error)
 						alert(response.error);
-					}
-
 					window.location.href = window.location.href;
 				});
 					    
@@ -469,11 +463,7 @@
 			    // Callback handler that will be called on failure
 			    request.fail(function (jqXHR, textStatus, errorThrown){
 			        // Log the error to the console
-			        console.error(
-			            "The following error occurred: "+
-			            textStatus, errorThrown
-			        );
-
+			        console.error("The following error occurred: " + textStatus, errorThrown );
 			        $(".loader").addClass("failed");
 			    });
 
@@ -483,30 +473,20 @@
 			    });
 
 	        }
-	        
-		
-
 		}
 
 
 		$('#user-pic-upload').on("change", function(){ 
-
 			readFile(this.files[0])
-
 			$('#CropImageModal').modal('show');
-
-			
 			//$("#user-pic-form").submit();
 		});
-
 
 		$(".user-pic-form").on("submit", function(e){
 			e.preventDefault();
 			$('#CropImageModal').modal('hide');
 			CropSubmit('user-pic-form', false);
-
 		});
-
 
 		$(".save-skip-image").on("click", function(){
 			$('#CropImageModal').modal('hide');
@@ -517,9 +497,7 @@
 		$(".save-crop-image").on("click", function(){
 			$('#CropImageModal').modal('hide');
 			CropSubmit('user-pic-form', true);
-			
 		});
-
 
 		{% if error %}
 			alert("{{error}}");
@@ -536,24 +514,20 @@
 
 		$(".course-comments").on("click", ".comment-like" , function(){
 
-			let clicked = $(this);
-
-			commentpass = $(this).parents(".comment");
-	 		commentpassid = commentpass.attr("data-comment-id");
+			let commentpass = $(this).parents(".comment");
+	 		let commentpassid = commentpass.attr("data-comment-id");
 
 	 		let like_url = "{% url 'comment_like' '$course_code' 123456789 %}";
 
-	 		like_url = like_url.replace('$course_code', commentpass.attr("data-code"));
-	 		like_url = like_url.replace('123456789', commentpass.attr("data-number"));
+	 		like_url = like_url.replace('$course_code', commentpass.attr("data-code")).replace('123456789', commentpass.attr("data-number"));
 
-	 		if (request) {
+	 		if (request)
 		        request.abort();
-		    }
 
 	 		request = $.ajax({
 		        url: like_url,
 		        type: "post",
-		        data: commentpassid,
+		        data: {'commentID': commentpassid},
 		        headers: {'X-CSRFToken': '{{ csrf_token }}'}
 		    });
 

@@ -189,13 +189,20 @@ def admin_get_course(request, purpose, course_subj="", course_num=""):
 		if purpose == "delete":
 
 			del_course = Course.objects.filter(code__iexact=course_subj, number__iexact=course_num).first()
+
+			for i in range(1, settings.GOOGLE_API_RECONNECT_TRIES):
+				try:
+					service = gdrive_connect()
+					userfolder = 'media/users/{}'.format(del_course.name)
+					userfolder = gdrive_traverse_path(service, path=userfolder, create=True)
+					gdrive_delete_file(service, userfolder['id'])
+					break
+				except Exception as e:
+					if settings.DEBUG: print(e)
+
 			del_course.delete()
 
-			if "/su/" in referer:
-				return redirect('admin_course_list')				
-			else:
-				return redirect('courselist')
-
+			return redirect( 'admin_course_list' if "/su/" in referer else 'courselist' )				
 		else:
 
 			if request.method == "POST" and request.user.check_password(request.POST['password']):
@@ -208,14 +215,12 @@ def admin_get_course(request, purpose, course_subj="", course_num=""):
 				tempcode = ' '.join(coursefulln[:-(len(coursefulln)-1)])
 				
 				if tempnum.isnumeric():
-					temp_oldcurr = (data.get('old_curr', False) == 'on')
-					temp_visible = (data.get('visible', False) == 'on')
-		
-					prereq_list = data.getlist('prereq')
-					coreq_list = data.getlist('coreq')
+					temp_oldcurr, temp_visible = (data.get('old_curr', False) == 'on'), (data.get('visible', False) == 'on')		
+					prereq_list, coreq_list = data.getlist('prereq'), data.getlist('coreq')
+
 
 					image_uploaded = request.FILES.get('image', None)
-					image_uploadedID = None
+					image_uploadedID, service = None
 
 					try:	
 						image_test =  Image.open(image_uploaded)
@@ -238,9 +243,7 @@ def admin_get_course(request, purpose, course_subj="", course_num=""):
 								image_uploadedID = gdrive_upload_bytes_tofile(service, image_bytes, metadata, image_mime)
 								break
 							except Exception as e:
-								if settings.DEBUG:
-									print(e)
-
+								if settings.DEBUG: print(e)
 					except:
 						pass
 						
@@ -272,8 +275,7 @@ def admin_get_course(request, purpose, course_subj="", course_num=""):
 						
 						if ((image_uploaded != None) or (data.get('imagehascleared', False) != False )):
 							course.imageID = image_uploadedID
-							if oldphotoID != None:
-								gdrive_delete_file(service, oldphotoID)
+							if oldphotoID != None: gdrive_delete_file(service, oldphotoID)
 
 					course.save()
 					course.prereqs.set(Course.objects.filter(id__in=prereq_list))
@@ -304,12 +306,11 @@ def admin_get_course(request, purpose, course_subj="", course_num=""):
 					}
 
 					if edit_course.imageID:
-						initialvalue['image'] = edit_course.imageID
+						initialvalue['imageID'] = gdrive_import_exportURL()+edit_course.imageID
 
 					courseform = CourseForm(initial=initialvalue)
 
-					getprereqs = list(edit_course.prereqs.all().values_list('id', flat=True))
-					getcoreqs = list(edit_course.coreqs.all().values_list('id', flat=True))
+					getprereqs, getcoreqs = list(edit_course.prereqs.all().values_list('id', flat=True)), list(edit_course.coreqs.all().values_list('id', flat=True))
 
 					context = { 'courseform': courseform, 
 								'courses': courselist, 
@@ -431,10 +432,8 @@ def admin_lang(request, purpose, id=""):
 
 				context["currpage"] = "languages"
 				return render(request, 'reviewer/admin/language/language.html', context)
-		
 	else:
 		raise PermissionDenied()
-
 
 def admin_announcement(request):
 
@@ -522,8 +521,10 @@ def admin_announcement_update(request, purpose, id=""):
 								email_mass = tuple(email_mass)
 
 								send_mass_html_mail(email_mass, fail_silently=False)
-								print("Emails sent!")
-								print(all_users)
+
+								if settings.DEBUG:
+									print("Emails sent!")
+									print(all_users)
 
 						retjson["redirect_url"] = reverse('announcement_view', args=[str(new_ann.id)])
 						
@@ -563,9 +564,7 @@ def admin_announcement_update(request, purpose, id=""):
 					if edit_ann.image:
 						initialvalue['image'] = edit_ann.image
 
-
 					image_form = ImportImageForm(initial=initialvalue)
-
 
 					context = {
 						'edit_ann': edit_ann, 

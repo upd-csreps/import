@@ -10,12 +10,12 @@
 		<meta name="keywords" content="cs, network, import, star, esc">
 		<meta name="color-scheme" content="{% if user.dark_mode %} dark light {% else %} light dark {% endif%} ">
 
-		<link href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css" rel="stylesheet">
-	  	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-	  	{% include 'reviewer/partials/favicon.html' %}
 
-	  	<link rel="stylesheet" href="{% static 'reviewer/css/bootstrap.min.css' %}">
-	  	<link rel="stylesheet" href="{% static 'reviewer/css/katex.min.css' %}">
+		<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+		{% include 'reviewer/partials/favicon.html' %}
+
+		<link rel="stylesheet" href="{% static 'reviewer/css/bootstrap.min.css' %}">
+	 	<link rel="stylesheet" href="{% static 'reviewer/css/katex.min.css' %}">
 
 
 	  	<link href="{% static 'reviewer/css/import.css' %}" rel="stylesheet"/>
@@ -86,7 +86,6 @@
 			<script src="{% static 'reviewer/js/jquery-3.4.1.min.js' %}"></script>
 			<script src="{% static 'reviewer/js/popper.min.js' %}"></script>
 			<script src="{% static 'reviewer/js/bootstrap.min.js' %}"></script>
-			<script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
 			<script defer src="{% static 'reviewer/js/katex.min.js' %}"></script>
 			<script defer src="{% static 'reviewer/js/auto-render.min.js' %}" onload="renderMathInElement(document.body);"></script>
 

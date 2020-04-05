@@ -26,14 +26,17 @@ class Course(models.Model):
 	# image = models.ImageField(verbose_name="Photo", null=True, blank=True, upload_to=course_uploadto)
 	imageID = models.CharField("Photo ID", max_length=40, blank=True, null=True, default=None)
 
-
 	def __str__(self):
 		return	'{}'.format(self.name)
 
 	def save(self, *args, **kwargs):
-         self.number_len = len(self.number)
-         return super(Course, self).save(*args, **kwargs)
+		self.number_len = len(self.number)
+		return super(Course, self).save(*args, **kwargs)
 
+	class Meta:
+		constraints = [
+			models.UniqueConstraint(fields=['code', 'number'], name='unique codenums')
+		]
 
 def language_uploadto(instance, filename):
 	return 'language/{0}/{1}'.format(instance.name.lower(), filename)
@@ -63,14 +66,12 @@ class ImportUser(AbstractUser):
 	first_name = models.CharField("First Name", max_length=30)
 	middle_name = models.CharField("Middle Name", max_length=30, blank=True, null=True)
 
-
 	last_name = models.CharField("Last Name", max_length=30)
 	suffix = models.CharField("Suffix", max_length=10, blank=True, null=True)
 	#password = models.CharField("Password", max_length=160)
 
 	studentnum = models.PositiveIntegerField("Student Number", null=True)
 	show_studentnum = models.BooleanField("Show Student Number", default=True)
-
 
 	email = models.EmailField("E-mail", max_length=60)
 	show_email = models.BooleanField("Show E-mail", default=True)
@@ -109,7 +110,6 @@ class Comment(models.Model):
 		return	'Comment #{} - {}, {}'.format(self.id, self.course_attr, self.body[0:10])
 
 
-
 class Likes(models.Model):
 
 	comment = models.ForeignKey(Comment, on_delete=models.CASCADE)
@@ -117,6 +117,11 @@ class Likes(models.Model):
 
 	def __str__(self):
 		return	'Likes to Comment #{} - {}'.format(self.comment.id, self.user_attr)
+
+	class Meta:
+		constraints = [
+			models.UniqueConstraint(fields=['comment', 'user_attr'], name='unique like_combo')
+		]
 
 def announcement_uploadto(instance, filename):
 	return 'announcement/{0}/{1}'.format(instance.id, filename)

@@ -11,7 +11,6 @@
 			<div class="d-flex justify-content-between">
 				<h1 class="font-weight-bold">Course List</h1>
 
-
 				{% if user.is_superuser %}
 				<div class="d-inline-block">
 
@@ -47,7 +46,7 @@
 							<div class="py-3 mb-3 d-flex justify-content-between layer-container px-4" id="course-{{course.id}}">
 								<div class="my-auto">
 									<div class="d-inline-flex">
-										<div class="my-auto mr-3 course-thumb" style="{% if course.image %}background-image: url('{{course.image.url}}'); {%endif%}">
+										<div class="my-auto mr-3 course-thumb" style="{% if course.imageID %}background-image: url('https://drive.google.com/uc?export=view&id={{course.imageID}}'); {%endif%}">
 
 										</div>
 

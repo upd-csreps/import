@@ -67,9 +67,12 @@
 
 					<div>
 						<input type="file" name="image" accept="image/*" id="id_image">
+						{% if courseform.imageID.value %}
+							<a href="{{courseform.imageID.value}}">
+							</a>
+						{% endif %}
 					</div>
 				</div>
-				
 				<h6 class="font-weight-bold">Photo</h6>
 				<button class="mx-auto border-dashed import-image-drag {% if user.is_authenticated %}import-image-drag-enabled{%else%}-disabled{%endif%}" data-file-target="course-image-upload" style="border-width: 1px" type="button">
 					{% if user.is_authenticated %}
