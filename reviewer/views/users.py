@@ -25,30 +25,32 @@ def user_get(request, user_filter, error=None):
 
 	if (len(user_filter) > 0):
 
+		comments = user_filter[0].comment_set.order_by('-date_posted')
+
 		if request.user.is_authenticated:
 			liked_comments = list(Likes.objects.filter(user_attr=request.user).values_list('comment__id', flat=True))
 
-		target_user_likes = Likes.objects.filter(user_attr=user_filter[0]).reverse().prefetch_related('comment').all()
+		target_user_likes = Likes.objects.filter(user_attr=user_filter[0]).select_related('comment').all().reverse()
 
 		for like in target_user_likes:
 			liked_comments_data.append(like.comment)
 	
-		liked_comments_count, liked_comments_data_count = len(liked_comments), len(liked_comments_data)
+		user_comments_count, liked_comments_data_count = len(comments), len(liked_comments_data)
 
 		for index, item in enumerate(thousand_counter):
-			if isinstance(liked_comments_count, int) and liked_comments_count >= item:
-				liked_comments_count = (liked_comments_count/item) + thousand_marker[index]
+			if isinstance(user_comments_count, int) and user_comments_count >= item:
+				user_comments_count = (user_comments_count//item) + thousand_marker[index]
 			if isinstance(liked_comments_data_count, int) and liked_comments_data_count >= item:
-				liked_comments_data_count = (liked_comments_data_count/item) + thousand_marker[index]
+				liked_comments_data_count = (liked_comments_data_count//item) + thousand_marker[index]
 			
-		comments = user_filter[0].comment_set.order_by('-date_posted')
+		
 		context = {
 			'user_filt': user_filter[0],
 			'user_comments':comments , 
 			'error': error,
 			'liked_comments': liked_comments,
 			'liked_comments_data' : liked_comments_data,
-			'liked_comments_count' : liked_comments_count,
+			'comments_count' : user_comments_count,
 			'liked_comments_data_count' : liked_comments_data_count
 		}
 		return render(request, 'reviewer/user/user.html', context)
@@ -128,7 +130,6 @@ def user_settings(request):
 				elif (user_settings_uname_is_unique(request, data["uname"])):
 					unamecheck_callback['valid'] = 'y'
 					
-
 				return JsonResponse(unamecheck_callback)
 
 			elif (queries.get("delete") == 'true'):

@@ -6,6 +6,7 @@ from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.http import Http404, JsonResponse
 from django.shortcuts import redirect, render
+from django.template.loader import render_to_string
 from django.urls import reverse
 
 from math import ceil
@@ -39,9 +40,9 @@ def coursecpage(request, csubj, cnum, catchar = 'l', cpage = 1):
 		if cpage < 1: cpage = 1
 
 		startindex = (cpage - 1)*page_ct_limit
-		all_courses = coursefilter[0].comment_set.order_by('-date_posted')
-		course_comments_filtered = all_courses[startindex:startindex+page_ct_limit]
-		course_commentstotal = len(all_courses)
+		all_course_comments = coursefilter[0].comment_set.order_by('-date_posted')
+		course_comments_filtered = all_course_comments[startindex:startindex+page_ct_limit]
+		course_commentstotal = len(all_course_comments)
 
 		page_ct = int(ceil(course_commentstotal/page_ct_limit))
 
@@ -53,7 +54,7 @@ def coursecpage(request, csubj, cnum, catchar = 'l', cpage = 1):
 				data = request.POST
 				resultid = None 
 
-				response = redirect( reverse('coursecpage', args=[csubj, str(cnum), 'c', '1']) )
+				response = redirect( reverse('course', args=[csubj, str(cnum)]) + 'c/1/' )
 
 				if request.user.is_authenticated:
 					image_uploaded = request.FILES.get('image', None)
@@ -65,14 +66,16 @@ def coursecpage(request, csubj, cnum, catchar = 'l', cpage = 1):
 					except:
 						image_uploaded = None
 
-					# Add input validation
-					Comment.objects.create(course_attr=coursefilter[0], user_attr=request.user, body=data['body'], image=image_uploaded)	
+					new_comment = Comment.objects.create(course_attr=coursefilter[0], user_attr=request.user, body=data['body'], image=image_uploaded)	
 					resultid = new_comment.id
+					comment_html = render_to_string('reviewer/partials/comment.html', { 'comment': new_comment, 'request': request, 'user' : request.user })
 
 					if cpage == 1:
-						data = {'commentid': resultid }
-						if new_comment.image:
-							data['image'] =  new_comment.image.url
+						data = { 
+							'commentid': resultid,
+							'comment_html' : comment_html
+						}
+						
 						response = JsonResponse(data)
 
 				return response
@@ -98,7 +101,7 @@ def coursecpage(request, csubj, cnum, catchar = 'l', cpage = 1):
 								'body' : str(last_comment.body),
 								'date' : str(last_comment.date_posted),
 								'liked' : likedstat,
-								'like_ct' : last_comment.likes_set.all().count()
+								'like_ct' : Likes.objects.filter(comment=last_comment).count()
 							 }
 
 							if last_comment.image:
@@ -119,17 +122,19 @@ def coursecpage(request, csubj, cnum, catchar = 'l', cpage = 1):
 					liked_comments = list(Likes.objects.filter(user_attr=request.user).values_list('comment__id', flat=True))
 
 				context = {
-						'course_filt': coursefilter[0],
-						'course_comment_count': course_commentstotal,
-						'course_comments': course_comments_filtered,
-						'comment_form': commentform,
-						'liked_comments': liked_comments,
-						'section': catchar,
-						'page_count' : page_ct,
-						'cpage' : cpage,
-						'prev_page' : cpage-1,
-						'next_page' : cpage+1
-						}
+					'course_filt': coursefilter[0],
+					'course_comment_count': course_commentstotal,
+					'course_comments': course_comments_filtered,
+					'comment_form': commentform,
+					'liked_comments': liked_comments,
+					'section': catchar,
+					'page_count' : page_ct,
+					'cpage' : cpage,
+					'prev_page' : cpage-1,
+					'next_page' : cpage+1,
+					'page_limit' : page_ct_limit
+				}
+
 				return render(request, 'reviewer/courses/course.html', context)
 	else:
 		raise Http404("Course not found.")
@@ -144,19 +149,27 @@ def comment_like(request, csubj, cnum):
 		if request.user.is_authenticated:
 
 			comment_findid = data.get('commentID').split("-")[1]
-			comm_all_like = Comment.objects.filter(pk=comment_findid).first().likes_set.all()
+			comm_all_like = Likes.objects.filter(comment_id=comment_findid).select_related('user_attr').select_related('comment').all()
+
+			print(comm_all_like)
+
 			like_state = comm_all_like.filter(user_attr=request.user)
+
+			print(like_state)
 
 			if like_state:
 				like_state.delete()
 				like_state = False
 			else:
 				Likes.objects.create(comment_id=int(comment_findid), user_attr=request.user)
+				liked_comment = like_state.comment
+				liked_comment = render_to_string('reviewer/partials/comment.html', { 'comment': liked_comment, 'request': request, 'user' : request.user })
 				like_state = True
 
 			like_count_callback = {
 				'count': len(comm_all_like), 
-				'state': like_state
+				'state': like_state,
+				'com_html' : liked_comment
 			}
 
 			return JsonResponse(like_count_callback)

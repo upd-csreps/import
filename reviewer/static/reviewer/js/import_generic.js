@@ -1,7 +1,76 @@
 
-	// AJAX Request Dummy
-	var request;
+	const importApp = {
 
+		// Variables
+
+		name : "Import*",
+		csrfToken : Cookies.get('csrftoken'),
+		requests : {
+			ajax : undefined
+		},
+
+		// Functions
+
+		load : function(module){
+			$.extend(true, importApp, module);
+			delete module;
+		},
+		
+		setConfig: function(config, setting){
+			importApp[config] = setting;
+			return importApp[config];
+		},
+
+		debug : function(debug){
+			if (debug != "True"){
+				var console = {};
+				console.log = function(){};
+				window.console = console;
+			}
+			$('#debug-script').remove();
+			delete importApp.debug;
+		},
+
+		urls : {
+			redirect :  function(url_redirect){
+				window.location.href = window.location.origin + url_redirect;
+			},
+			refresh : function(){
+				window.location.href = window.location.href;
+			}
+		},
+
+		users: {
+			check : function(target_url){
+
+				// Redirect for Fields
+
+				if (importApp.request)
+					importApp.request.abort();
+
+				// Fire off the request to url
+				importApp.request =  $.ajax({
+					type: 'post',
+					url: target_url,
+					data: {'url' : window.location.pathname},
+					headers: {'X-CSRFToken': importApp.csrfToken }
+				});
+
+				importApp.request.done(function (response, textStatus, jqXHR){
+					if(response.field_redirect)
+						importApp.urlRedirect(response.url_redirect);
+				});
+
+				importApp.request.fail(function (jqXHR, textStatus, errorThrown){
+					console.error( "The following error occurred: " + textStatus, errorThrown );
+				});
+
+			}
+		}
+
+	}
+
+	
 	// File Image Check
 	function isFileImage(file) {
 		return file && file['type'].split('/')[0] === 'image';
@@ -69,7 +138,7 @@
 		}
 	}
 
-	function initPhotoLoad(){
+	function initPhotoDragBox(){
 
 		let targetElements = document.querySelectorAll(".import-image-drag");
 		let upphoto_drag = document.querySelectorAll(".import-image-drag-enabled");
@@ -144,7 +213,7 @@
 		PhotoUploadTooltip();
 	}
 
-	function initDragBoxUploaded(){
+	function initDragBoxData(clear=false){
 
 		// Get each Drag Box
 		var image_drops = document.querySelectorAll(".import-image-drag");
@@ -152,24 +221,29 @@
 			
 			var dragicon = image_drops[i];
 
-			//Get Image
-			var log = $("." + dragicon.getAttribute("data-file-target") +" input[type=file]").val();
-			var pic;
+			if (clear){
+				clearImage(dragicon.getAttribute("data-file-target"),dragicon)
+			}
+			else{
+				//Get Image
+				var log = $("." + dragicon.getAttribute("data-file-target") +" input[type=file]").val();
+				var pic;
 
-			try{
-				if (dragicon.parentElement.querySelector("a").getAttribute("href") != null){
-					pic = image_drops[i].parentElement.querySelector("a").getAttribute("href")
-					$(".import-image-drag-enabled").removeClass("dragging");
-			
-					dragicon.style.backgroundImage = "url("+ pic +")";
-					dragicon.querySelector(".material-icons").innerHTML = "close";
-					dragicon.querySelector(".material-icons").classList.add("import-image-uploaded-icon");		
-					//dragicon.querySelector(".addphoto-popper").innerHTML = "<small>" + pic.split("/").pop() + "</small>";	
-					dragicon.querySelector(".addphoto-popper").innerHTML = "<small>" + pic.split("=").pop() + "</small>";
+				try{
+					if (dragicon.parentElement.querySelector("a").getAttribute("href") != null){
+						pic = dragicon.parentElement.querySelector("a").getAttribute("href")
+						$(".import-image-drag-enabled").removeClass("dragging");
+				
+						dragicon.style.backgroundImage = "url("+ pic +")";
+						dragicon.querySelector(".material-icons").innerHTML = "close";
+						dragicon.querySelector(".material-icons").classList.add("import-image-uploaded-icon");		
+						//dragicon.querySelector(".addphoto-popper").innerHTML = "<small>" + pic.split("/").pop() + "</small>";	
+						dragicon.querySelector(".addphoto-popper").innerHTML = "<small>" + pic.split("=").pop() + "</small>";
+					}
+				}
+				catch(error){
 				}
 			}
-			catch(error){
-			}	
 		}
 	}
 
@@ -302,35 +376,7 @@
 		$(".import-header").addClass("import-header-scrolled");
 	}	
 
-	function URL_Redirect(url_redirect){
-		window.location.href = window.location.origin + url_redirect;
-	}
-
-	// Redirect for Fields
-
-	function UserFieldCheck(target_url, csrf){
-
-		if (request)
-			request.abort();
-
-		// Fire off the request to url
-		request =  $.ajax({
-			type: 'post',
-			url: target_url,
-			data: {'url' : window.location.pathname},
-			headers: {'X-CSRFToken': csrf}
-		});
-
-		request.done(function (response, textStatus, jqXHR){
-			if(response.field_redirect)
-				URL_Redirect(response.url_redirect);
-		});
-
-		request.fail(function (jqXHR, textStatus, errorThrown){
-			console.error( "The following error occurred: " + textStatus, errorThrown );
-		});
-
-	}
+	
 
 	// Final stuff after web Load
 
@@ -341,11 +387,15 @@
 				$(this).html( replace_url( replace_vid_url( $(this).html() ) ) );
 		});
 
+		for (let [key, value] of Object.entries(importApp)) {
+			typeof value == "function"? Object.defineProperty(importApp, key, { writable: false, configurable: false }) : null
+		}
+
 		headerEffect();
-		initPhotoLoad();
+		initPhotoDragBox();
 	});
 
-	initDragBoxUploaded();
+	initDragBoxData();
 
 	// Header Scroll
 

@@ -130,33 +130,11 @@
 
 {% block scripts %}
 
-	<!-- References 
-	<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.2.228/build/pdf.min.js"></script>
-	<script>
-		let pdfurl = "https://drive.google.com/u/0/uc?id=1CEID1w9qkpusXMHM7XBFLGH9kvqCXwk4";
-
-		let pdfDoc = null, pageisRendering = false, pagenumpend = null, pagenum = 1;
-
-		const scale = 1.5,
-		canvas =document.querySelector("#ref-1"),
-		ctx = canvas.getContext('2d');
-
-		const RenderPage = num =>{
-
-		};
-
-		//Get Document
-
-		pdfjsLib.getDocument(pdfurl).promise.then(pdfDoc_ =>{
-			pdfDoc = pdfDoc_;
-			console.log(pdfDoc);
-		});
-	</script>
-	-->
-
+	<script src="{% static 'reviewer/js/import_comments.js' %}"></script>
 
 	<!-- Comments -->
 	<script class="d-none">
+
 		var coursect =  {{course_comment_count}};
 
 		var timeoptions = {
@@ -170,75 +148,6 @@
     	};
 
 
-		// Form AJAX
-
-		function addCommentDisplay(response, datestring, bodystring){
-		
-			var newcomment = 
-
-			`<div class="py-4 px-4 d-flex mb-3 comment the-new-comment" id="comment-`+ response.commentid + `" style="display:none;">
-				<a href="#">
-					<img class="user-pic-thumb" src="
-						{%if user.prof_pic %}
-							{{ user.prof_pic.url }}
-						{% else %}
-							{% static 'reviewer/images/default_profile.png' %}
-						{% endif %}
-					">
-				</a>
-				
-				<div class="ml-4 w-100">
-					<div class="d-flex w-100 justify-content-between my-2">
-						<span class="my-auto">
-							<a href="{% url 'user' user.username %}" class="comment-username">
-								<strong>
-									{{ user.username }}
-								</strong>
-							</a> 
-						</span>
-						<div class="my-auto float-right">
-							<div class="position-relative py-1 px-2 comment-action d-flex">
-								<div class="d-inline-flex ml-auto my-auto">
-									<span class="mr-3 my-auto d-flex">
-										<i class="material-icons material-icon-sm {% if user.is_authenticated %}comment-like{%endif%}">
-											star_border
-										</i> 
-										<div class="my-auto ml-1 mr-2 comment-like-count inline-block">
-											0
-										</div>
-										<i class="material-icons  material-icon-sm comment-delete" title="Delete comment">delete</i>
-									</span>
-									<small class="my-auto">`+ datestring + `</small>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="comment-body">
-						`+  replace_url(replace_vid_url(bodystring)) +`
-					</div>
-
-					` + hasImage(response, "comment") + `
-				
-				</div>
-			</div>`;
-
-			if (coursect != 0){				
-				newcomment = newcomment + $(".course-comments").html();
-			}
-			
-			$(".course-comments").html(newcomment);
-			$(".the-new-comment").fadeIn(2000);
-			renderMathInElement(document.body)
-			$(".the-new-comment").removeClass("the-new-comment");
-
-			coursect = coursect+1;
-
-
-			$(".comme-count").html(coursect);			
-			
-		}
-
-
 		{% if cpage == 1 %}
 			$(".comment-form").submit(function(event){
 
@@ -247,67 +156,54 @@
 
 		    	{% if user.is_authenticated %}
 
-				    // Abort any pending request
-				    if (request) {
-				        request.abort();
-				    }
-				    // setup some local variables
+				    if (importApp.request)
+				        importApp.request.abort();
+				  
 				    var form = $(this);
 				    var formData = new FormData(this);
-				   
-				    // Let's disable the inputs for the duration of the Ajax request.
-				    // Note: we disable elements AFTER the form data has been serialized.
-				    // Disabled form elements will not be serialized.
 				    var inputs = form.find("input, select, button, textarea");
 				    inputs.prop("disabled", true);
-
-				    // Fire off the request to url
-				    request =  $.ajax({
-	                type: 'post',
-	                url: "{% url 'course' course_filt.code|lower course_filt.number %}",
-	                data: formData,
-	                cache: false,
-	                contentType: false,
-	                processData: false,	
+				   
+				    importApp.request =  $.ajax({
+		                type: 'post',
+		                url: "{% url 'course' course_filt.code|lower course_filt.number %}",
+		                data: formData,
+		                cache: false,
+		                contentType: false,
+		                processData: false
 	                });
 
-				    
-				     
-				    // Callback handler that will be called on success
-				    request.done(function (response, textStatus, jqXHR){
-				    
-				    	response = response;
-				        var today = new Date().toLocaleString('en-us' , timeoptions);
-				    	var commtent = $(".comment-text-area").val();
-				    	commtent =commtent.split("\n");
+				    importApp.request.done(function (response, textStatus, jqXHR){
 
-				    	for (i = 0; i < commtent.length; i++){
-				    		commtent[i] = "<p>" + commtent[i] + "</p>";
-				    	}
+				    	let newcomment = response.comment_html;
+						coursect != 0? $(".course-comments").prepend(newcomment) : $(".course-comments").html(newcomment);
+						
+						newcomment = $(".course-comments [data-comment-id='comment-" + response.commentid + "']");
+						newcomment.addClass("the-new-comment");
+						newcommentbody = newcomment.find('.comment-body');
+						console.log(newcommentbody.html());
+						newcommentbody.html( 
+							replace_url(replace_vid_url( newcommentbody.html() )) 
+						);
 
-				    	commtent = commtent.join("");
+						newcomment.fadeIn(2000);
+						newcomment.removeClass("the-new-comment");
+						renderMathInElement(document.body);
+						coursect = coursect+1;
+						$(".comme-count").html(coursect);
 
-				    	addCommentDisplay(response, today, commtent);
 				    	$(".comment-text-area").val("");
 				    	clearImage("comment-image-upload", document.querySelector(".import-image-drag"));
 
-				    	$(".course-comments .comment:nth-of-type(11)").remove();
+				    	$(".course-comments .comment:nth-of-type(" + ({{page_limit}}+1) +")").remove();
 				    });
 				    
 
-				    // Callback handler that will be called on failure
-				    request.fail(function (jqXHR, textStatus, errorThrown){
-				        // Log the error to the console
-				        console.error(
-				            "The following error occurred: "+
-				            textStatus, errorThrown
-				        );
+				    importApp.request.fail(function (jqXHR, textStatus, errorThrown){
+				        console.error( "The following error occurred: " + textStatus, errorThrown );
 				    });
 
-				    // Callback handler that will be called regardless
-				    // if the request failed or succeeded
-				    request.always(function () {
-				        // Reenable the inputs
+				    importApp.request.always(function () {
 				        inputs.prop("disabled", false);
 				    });
 
@@ -323,19 +219,19 @@
 				commentpass = $(this).parents(".comment");
 		 		commentpassid = commentpass.attr("id");
 
-		 		if (request) {
-			        request.abort();
+		 		if (importApp.request) {
+			        importApp.request.abort();
 			    }
 
-		 		request = $.ajax({
+		 		importApp.request = $.ajax({
 			        url: "{% url 'course' course_filt.code|lower course_filt.number %}",
 			        type: "delete",
 			        data: commentpassid,
-			        headers: {'X-CSRFToken': '{{ csrf_token }}'}
+			        headers: {'X-CSRFToken': importApp.csrfToken }
 			    });
 
 			    // Callback handler that will be called on success
-			    request.done(function (response, textStatus, jqXHR){
+			    importApp.request.done(function (response, textStatus, jqXHR){
 
 			        commentpass.remove();
 
@@ -439,7 +335,7 @@
 			    
 
 			    // Callback handler that will be called on failure
-			    request.fail(function (jqXHR, textStatus, errorThrown){
+			    importApp.request.fail(function (jqXHR, textStatus, errorThrown){
 			        // Log the error to the console
 			        console.error(
 			            "The following error occurred: "+
@@ -450,87 +346,15 @@
 		 	}
 		}); 
 
-
-		$(".course-comments").on("click", ".comment-like" , function(){
-			
-			let clicked = $(this);
-
-			commentpass = $(this).parents(".comment");
-	 		commentpassid = commentpass.attr("id");
-
-	 		if (request) {
-		        request.abort();
-		    }
-
-	 		request = $.ajax({
-		        url: "{% url 'comment_like' course_filt.code|lower course_filt.number %}",
-		        type: "post",
-		        data: commentpassid,
-		        headers: {'X-CSRFToken': '{{ csrf_token }}'}
-		    });
-
-		    // Callback handler that will be called on success
-		    request.done(function (response, textStatus, jqXHR){
-		    	let icons = ["star_border", "star"];
-
-		    	clicked.parent().children(".comment-like-count").html(response.count);
-
-		    	if (response.state){
-		    		clicked.html(icons[1]);
-		    		clicked.addClass("liked");
-		    	}
-		    	else{
-		    		clicked.html(icons[0]);
-		    		clicked.removeClass("liked");
-		    	}
-		    });
-		    
-
-		    // Callback handler that will be called on failure
-		    request.fail(function (jqXHR, textStatus, errorThrown){
-		        // Log the error to the console
-		        console.error(
-		            "The following error occurred: "+
-		            textStatus, errorThrown
-		        );
-		    });		 	
-		}); 
-
-
 		
-
 		function initCourseSection(){
-    		// Clear input image
-    		$(".comment-image-upload input").val("");
-
-    		var image_drops = document.querySelectorAll(".import-image-drag");
-    		for (i = 0; i < image_drops.length; i++){
-    			clearImage(image_drops[i].getAttribute("data-file-target"),image_drops[i])
-    		}
-
-    		// Visuals: Liked comments
-    		var commentvisual = {{liked_comments}};
-
-			for(i = 0; i < commentvisual.length; i++){
-				$("#comment-"+commentvisual[i]).find(".comment-like").html("star");
-				$("#comment-"+commentvisual[i]).find(".comment-like").addClass("liked");
-			}
-
-			// Image button Popup
-			var popper = new Popper($(".import-image-drag"), $(".addphoto-popper"), {
-			    placement: 'right',
-			    modifiers:{
-
-			    	arrow:{
-			    		
-			    	}
-			    }
-			});
+    		importApp.setConfig('like_url',"{% url 'comment_like' '$course_code' 123456789 %}");
+    		importApp.setConfig('comments_page_limit', {{page_limit}});
+    		importApp.comments.loadLikeIcon({{liked_comments}});
+    		initDragBoxData(true)
     	}
 
-
-
-		initCourseSection();
+    	initCourseSection();
 
 	</script>
 {% endblock %}

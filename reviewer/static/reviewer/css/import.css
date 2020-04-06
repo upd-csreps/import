@@ -23,7 +23,7 @@ html{
 }
 
 body{
-	font-size: 1em;
+	font-size: 1rem;
 }
 
 
@@ -61,6 +61,10 @@ body{
 
 .material-icon-sm{
 	font-size: 18px !important;
+}
+
+.material-icon-x-sm{
+	font-size: 0.85rem !important;
 }
 
 .btn{
@@ -106,8 +110,8 @@ body{
 }
 
 .header-toggle .dropdown-toggle::after{
-    margin-left: .5em;
-    top: 0.75em;
+    margin-left: .5rem;
+    top: 0.75rem;
     vertical-align: 0;
     position: relative;
 }
@@ -129,11 +133,15 @@ body{
 	align-self: start;
 }
 
-.user-comments{
+.user-comments, .liked-comments{
 	overflow-y: scroll;
 	overflow-x: hidden;
 	overflow-wrap: break-word; 
 	height: 550px;
+}
+
+.comment{
+	position: sticky;
 }
 
 .comments::-webkit-scrollbar {
@@ -193,6 +201,10 @@ body{
 	border-bottom: 0 solid transparent;
 }
 
+.comment-body p{
+	margin-bottom: 0.5rem;
+}
+
 .comment-image{
 	max-height: 320px;
 	max-width:480px;
@@ -208,7 +220,7 @@ body{
 }
 
 .title{
-	font-size: 4.5em;
+	font-size: 4.5rem;
 }
 
 .comment{
@@ -248,7 +260,7 @@ body{
 }
 
 .comment-like-count{
-	width: 0.5em;
+	width: 0.5rem;
 	font-size: 80%;
 }
 
@@ -257,7 +269,7 @@ body{
 }
 
 .user-comment-course-link:hover{
-	padding-left: 0.1em;
+	padding-left: 0.1rem;
 }
 
 .border-dashed{
@@ -322,7 +334,7 @@ body{
 
 .link-ico{
 	opacity: 0.35;
-	font-size: 0.85em;
+	font-size: 0.85rem;
 }
 
 .import-ex-link:hover{
@@ -378,7 +390,7 @@ body{
 }
 
 #quill-editor{
-	height: 20em !important;
+	height: 20rem !important;
 	overflow: visible;
 }
 
@@ -389,12 +401,12 @@ body{
 }
 
 .import-image-drag.import-image-drag-large i{
-	font-size: 4em;
+	font-size: 4rem;
 }
 
 .announcement-image{
 	width:100%;
-	height: 12em;
+	height: 12rem;
 	border-bottom: 1px solid #e6e6e6;
 }
 
@@ -431,7 +443,7 @@ body{
 }
 
 .loader-container{
-	background: #232323;position:relative; bottom: 2em;
+	background: #232323;position:relative; bottom: 2rem;
 }
 
 .loader {

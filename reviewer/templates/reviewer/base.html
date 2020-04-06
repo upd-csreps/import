@@ -10,7 +10,6 @@
 		<meta name="keywords" content="cs, network, import, star, esc">
 		<meta name="color-scheme" content="{% if user.dark_mode %} dark light {% else %} light dark {% endif%} ">
 
-
 		<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 		{% include 'reviewer/partials/favicon.html' %}
 
@@ -88,13 +87,13 @@
 			<script src="{% static 'reviewer/js/bootstrap.min.js' %}"></script>
 			<script defer src="{% static 'reviewer/js/katex.min.js' %}"></script>
 			<script defer src="{% static 'reviewer/js/auto-render.min.js' %}" onload="renderMathInElement(document.body);"></script>
-
+			<script src="https://cdn.jsdelivr.net/npm/js-cookie@rc/dist/js.cookie.min.js"></script>
 			<script src="{% static 'reviewer/js/import_generic.js' %}"></script>
-			
+			<script id="debug-script">importApp.debug("{{debug}}")</script>
 			{% if user.is_authenticated %}
 				{% if not user.email or not user.first_name or not user.last_name %}
 					<script>
-						UserFieldCheck("{% url 'user_redirect_info' %}", "{{ csrf_token }}");
+						importApp.users.Check("{% url 'user_redirect_info' %}");
 					</script>
 				{% endif %}
 			{% endif %}

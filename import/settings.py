@@ -27,6 +27,7 @@ SECRET_KEY=os.environ.get('SECRET_KEY')
 DEBUG = (os.environ.get('DEBUG_VALUE') == "True")
 
 ALLOWED_HOSTS = ['0.0.0.0','localhost', 'dcs-import.herokuapp.com']
+INTERNAL_IPS = ['127.0.0.1']
 
 
 # Application definition

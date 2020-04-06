@@ -1,10 +1,10 @@
 {% load static %}
-<div class="m-3 d-flex py-3">
+<div class="m-3 m-lg-2 d-flex py-3 col-lg-8 ml-lg-auto">
 	<div class="mx-auto page-count-parent my-auto">
 			
 			{% if page_count > 1 %}
 
-				{% if cpage > 1 %} <a href="{% url 'course' course_filt.code|lower course_filt.number %}c/1">{% endif %}
+				{% if cpage > 1 %} <a href="{% url 'course' course_filt.code|lower course_filt.number %}c/1"  {% if cpage <= 1 %} class="-disabled" {%endif%}  >{% endif %}
 					<button class="btn btn-sm btn-light d-inline-flex p-1" {% if cpage <= 1 %} disabled {%endif%}>
 	  				<i class="material-icons material-icon-sm my-auto">
 						first_page
@@ -20,7 +20,7 @@
 	  			</button>
 	  		</a>
 
-	  		<span class="mx-3">Page {{cpage}}</span>
+	  		<span class="mx-3 font-weight-bold">Page {{cpage}}</span>
 
 	  		{% if cpage < page_count %}
 		  		<a href="{% url 'course' course_filt.code|lower course_filt.number %}c/{{next_page}}"> {%endif%}
@@ -49,7 +49,7 @@
 <div class="row mx-0 pb-4">
 
 	<div class="col-lg-4">
-  		<form class="form-group comment-form pb-5" enctype="multipart/form-data" method="POST" action="{% url 'course' course_filt.code|lower course_filt.number %}c/{{cpage}}" id="{{comment_form.auto_id}}">
+  		<form class="form-group comment-form pb-5" enctype="multipart/form-data" method="POST" action="{% url 'course' course_filt.code|lower course_filt.number %}c/{{cpage}}/" id="{{comment_form.auto_id}}">
 			{% csrf_token %}
 
 			{{ comment_form.body }}
@@ -85,7 +85,7 @@
 			</div>
 		</form>
 	</div>
-	<div class="col-lg-8 course-comments">
+	<div class="comments col-lg-8 course-comments">
 		{% if course_comments.count == 0 %}
 			<p class="d-inline-flex">
 				<i class="material-icons my-auto">comment</i>
@@ -99,55 +99,7 @@
 			</p>
 		{% else %}
 	  		{% for comment in course_comments %}
-				<div class="py-4 px-4 d-flex mb-3 comment" id="comment-{{comment.id}}">
-					<a href="{% url 'user' comment.user_attr.username %}">
-						<img class="user-pic-thumb" src="
-						{% if comment.user_attr.prof_picID %}
-							https://drive.google.com/uc?export=view&id={{comment.user_attr.prof_picID}}
-						{% else %}
-							{% static 'reviewer/images/default_profile.png' %}
-						{% endif %}
-						">
-					</a>
-					
-					<div class="ml-4 w-100">
-						<div class="d-flex w-100 justify-content-between my-2">
-							<span class="my-auto">
-								<a href="{% url 'user' comment.user_attr.username %}" class="comment-username">
-									<strong>
-										{{comment.user_attr.username}}
-									</strong>
-								</a> 
-							</span>
-							<div class="my-auto float-right">
-								<div class="position-relative py-1 px-2 comment-action d-flex">
-									<div class="d-inline-flex ml-auto my-auto">
-										<span class="mr-3 my-auto d-flex">
-											<i class="material-icons material-icon-sm {% if user.is_authenticated %}comment-like{%endif%}">
-												star_border
-											</i> 
-											<div class="my-auto ml-1 mr-2 comment-like-count inline-block">
-												{{ comment.likes_set.all.count }}
-											</div>
-											{% if user == comment.user_attr %}
-												<i class="material-icons  material-icon-sm comment-delete" title="Delete comment">delete</i>
-											{% endif %}
-										</span>
-										<small class="my-auto">{{comment.date_posted|date:"M d, Y, h:i A"}}</small>
-									</div>
-								</div>
-							</div>
-						</div>
-						<div class="comment-body">
-							{{comment.body|linebreaks}}
-						</div>
-
-						{% if comment.image %}
-							<img class="mt-3 d-block comment-image" src="{{comment.image.url}}">
-						{% endif %}
-					
-					</div>
-				</div>
+				{% include 'reviewer/partials/comment.html' %}
 			{% endfor %}
 		{% endif %}
 	</div>
