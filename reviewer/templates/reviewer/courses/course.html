@@ -137,17 +137,6 @@
 
 		var coursect =  {{course_comment_count}};
 
-		var timeoptions = {
-	    	year: 'numeric',
-	    	month: 'short',
-	    	day: 'numeric',
-	    	timeZone: "Asia/Manila",
-	    	hour12: true,
-	    	hour: "2-digit", 
-	    	minute: "2-digit"  
-    	};
-
-
 		{% if cpage == 1 %}
 			$(".comment-form").submit(function(event){
 
@@ -156,59 +145,53 @@
 
 		    	{% if user.is_authenticated %}
 
-				    if (importApp.request)
-				        importApp.request.abort();
+				    if (importApp.requests.ajax)
+				        importApp.requests.ajax.abort();
 				  
 				    var form = $(this);
 				    var formData = new FormData(this);
 				    var inputs = form.find("input, select, button, textarea");
 				    inputs.prop("disabled", true);
 				   
-				    importApp.request =  $.ajax({
+				    importApp.requests.ajax =  $.ajax({
 		                type: 'post',
 		                url: "{% url 'course' course_filt.code|lower course_filt.number %}",
 		                data: formData,
 		                cache: false,
 		                contentType: false,
-		                processData: false
+		                processData: false,
+		                error: importApp.requests.ajaxFail,
+		                complete: function(){ inputs.prop("disabled", false); },
+		                success: function (response, status, xhr){
+
+					    	let newcomment = response.comment_html;
+							coursect != 0? $(".course-comments").prepend(newcomment) : $(".course-comments").html(newcomment);
+							
+							newcomment = $(".course-comments [data-comment-id='comment-" + response.commentid + "']");
+							newcomment.addClass("the-new-comment");
+							newcommentbody = newcomment.find('.comment-body');
+
+							newcommentbody.html( 
+								replace_url(replace_vid_url( newcommentbody.html() )) 
+							);
+
+							newcomment.fadeIn(2000);
+							newcomment.removeClass("the-new-comment");
+							renderMathInElement(document.body);
+							coursect = coursect+1;
+							$(".comme-count").html(coursect);
+
+					    	$(".comment-text-area").val("");
+					    	clearImage("comment-image-upload", document.querySelector(".import-image-drag"));
+
+					    	$(".course-comments .comment:nth-of-type(" + ({{page_limit}}+1) +")").remove();
+					    }
 	                });
 
-				    importApp.request.done(function (response, textStatus, jqXHR){
-
-				    	let newcomment = response.comment_html;
-						coursect != 0? $(".course-comments").prepend(newcomment) : $(".course-comments").html(newcomment);
-						
-						newcomment = $(".course-comments [data-comment-id='comment-" + response.commentid + "']");
-						newcomment.addClass("the-new-comment");
-						newcommentbody = newcomment.find('.comment-body');
-						console.log(newcommentbody.html());
-						newcommentbody.html( 
-							replace_url(replace_vid_url( newcommentbody.html() )) 
-						);
-
-						newcomment.fadeIn(2000);
-						newcomment.removeClass("the-new-comment");
-						renderMathInElement(document.body);
-						coursect = coursect+1;
-						$(".comme-count").html(coursect);
-
-				    	$(".comment-text-area").val("");
-				    	clearImage("comment-image-upload", document.querySelector(".import-image-drag"));
-
-				    	$(".course-comments .comment:nth-of-type(" + ({{page_limit}}+1) +")").remove();
-				    });
+				    importApp.requests.ajax.done();
 				    
 
-				    importApp.request.fail(function (jqXHR, textStatus, errorThrown){
-				        console.error( "The following error occurred: " + textStatus, errorThrown );
-				    });
-
-				    importApp.request.always(function () {
-				        inputs.prop("disabled", false);
-				    });
-
 		    	{% endif %}
-
 			});
 		{% endif %}
 
@@ -217,141 +200,56 @@
 
 			if(decision){
 				commentpass = $(this).parents(".comment");
-		 		commentpassid = commentpass.attr("id");
+		 		commentpassid = commentpass.attr("data-comment-id");
 
-		 		if (importApp.request) {
-			        importApp.request.abort();
+		 		console.log(commentpassid);
+
+		 		if (importApp.requests.ajax) {
+			        importApp.requests.ajax.abort();
 			    }
 
-		 		importApp.request = $.ajax({
-			        url: "{% url 'course' course_filt.code|lower course_filt.number %}",
-			        type: "delete",
-			        data: commentpassid,
-			        headers: {'X-CSRFToken': importApp.csrfToken }
-			    });
+		 		importApp.requests.ajax = $.ajax({
+					url: importApp.urls.courseURL,
+					method: "delete",
+					data: {'commentID': commentpassid },
+					headers: {'X-CSRFToken': importApp.csrfToken },
+					error: importApp.requests.ajaxFail,
+					success: function (response, status, xhr){
+						commentpass.fadeOut(1000, function(){
 
-			    // Callback handler that will be called on success
-			    importApp.request.done(function (response, textStatus, jqXHR){
-
-			        commentpass.remove();
-
-			        if (coursect > 0)
-			        	coursect = coursect-1;
-
-			        if (coursect == 0){
-			        	var halaml = 
-			        	`<p class="d-inline-flex">
-							<i class="material-icons my-auto">comment</i>
-							<span class="my-auto mx-3">
-								{% if user.is_authenticated %}
-									Be the first to comment!
-								{% else %}
-									There are no comments to display.
-								{% endif %}
-							</span>
-						</p>`;	
-						$(".course-comments").html(halaml);
-			        }
-
-					
-					$(".comme-count").html(coursect);	
-
-
-			    	if (jQuery.isEmptyObject(response) == false){
-
-			    		function delshow(){
-
-			    			retval = "";
-							if (response.user == "{{user.username}}"){
-								retval = `<i class="material-icons  material-icon-sm comment-delete" title="Delete comment">delete</i>`
+							commentpass.remove();
+							if(coursect > 0){
+								coursect = response.course_comment_count;
+								$(".comme-count").html(coursect);
 							}
-							return retval;
-						};
-
-						function lkshow(a){
-
-							var returnval = ``;
-							if (response.liked){
-
-								if (a == "status")
-									returnval = `liked`;
-								else if (a == "icon")
-									returnval = `star`;
+							
+							if ( $(".course-comments .comment").length > 0){
+								if (response.comment_html)
+									$(".course-comments").append(response.comment_html);
 							}
 							else{
-								if (a == "icon")
-									returnval = `star_border`
+								response.page_count > 0? importApp.urls.redirect(importApp.urls.courseURL + `c/${response.page_count}/`) : $(".course-comments").append(response.empty_html);				
 							}
 
-							return returnval
-						};
-
-						$(".course-comments").html($(".course-comments").html() + 
-							`<div class="py-4 px-4 d-flex mb-3 comment" id="comment-`+response.id + `">
-								<a href="` + window.location.origin + response.user_url + `">
-									<img class="user-pic-thumb" src="` + hasImage(response, "profile") + `">
-								</a>
-								
-								<div class="ml-4 w-100">
-									<div class="d-flex w-100 justify-content-between my-2">
-										<span class="my-auto">
-											<a href="` + window.location.origin + response.user_url +`" class="comment-username">
-												<strong>
-													` + response.user + `
-												</strong>
-											</a> 
-										</span>
-										<div class="my-auto float-right">
-											<div class="position-relative py-1 px-2 comment-action d-flex">
-												<div class="d-inline-flex ml-auto my-auto">
-													<span class="mr-3 my-auto d-flex">
-														<i class="material-icons material-icon-sm {% if user.is_authenticated %}comment-like{%endif%} ` + lkshow("status") + `">` + 
-																lkshow("icon") + `
-														</i> 
-														<div class="my-auto ml-1 mr-2 comment-like-count inline-block">
-															`+ response.like_ct+ `
-														</div>
-														` + delshow() +`
-													</span>
-													<small class="my-auto">`+ new Date(response.date).toLocaleString('en-us' , timeoptions) +`</small>
-												</div>
-											</div>
-										</div>
-									</div>
-									<div class="comment-body">
-										`+  replace_url(replace_vid_url(response.body)) +`
-									</div>
-
-									` + hasImage(response, "comment") + `
-								
-								</div>
-							</div>`
-						);
-
-						renderMathInElement(document.body)
+							renderMathInElement(document.querySelector('.course-comments'));
+						});
 					}
-			   
 			    });
-			    
-
-			    // Callback handler that will be called on failure
-			    importApp.request.fail(function (jqXHR, textStatus, errorThrown){
-			        // Log the error to the console
-			        console.error(
-			            "The following error occurred: "+
-			            textStatus, errorThrown
-			        );
-			    });
-
 		 	}
 		}); 
 
-		
 		function initCourseSection(){
-    		importApp.setConfig('like_url',"{% url 'comment_like' '$course_code' 123456789 %}");
-    		importApp.setConfig('comments_page_limit', {{page_limit}});
+    		importApp.load({
+    			comments: {
+    				pageLimit : {{page_limit}}
+    			},
+    			urls: {  
+					likeURL : "{% url 'comment_like' '$course_code' 123456789 %}",
+					courseURL : "{% url 'course' course_filt.code|lower course_filt.number %}"
+				}	 
+    		});
     		importApp.comments.loadLikeIcon({{liked_comments}});
-    		initDragBoxData(true)
+    		initDragBoxData(true);
     	}
 
     	initCourseSection();

@@ -2,16 +2,20 @@
 	const importApp = {
 
 		// Variables
-
 		name : "Import*",
 		csrfToken : Cookies.get('csrftoken'),
+		modules : [],
 		requests : {
-			ajax : undefined
+			ajax : undefined,
+			ajaxFail: function (xhr, status, error){
+				// Callback handler that will be called on failure
+				console.error( "The following error occurred: "+ xhr.status, error);
+			}
 		},
 
 		// Functions
-
 		load : function(module){
+			module.module_name? importApp.modules.push(module.module_name) : null;
 			$.extend(true, importApp, module);
 			delete module;
 		},
@@ -32,8 +36,8 @@
 		},
 
 		urls : {
-			redirect :  function(url_redirect){
-				window.location.href = window.location.origin + url_redirect;
+			redirect :  function(url, bool=true){
+				bool? (window.location.href = window.location.origin + url) : null;
 			},
 			refresh : function(){
 				window.location.href = window.location.href;
@@ -41,30 +45,21 @@
 		},
 
 		users: {
-			check : function(target_url){
-
+			check : function(url){
 				// Redirect for Fields
+				if (importApp.requests.ajax)
+					importApp.requests.ajax.abort();
 
-				if (importApp.request)
-					importApp.request.abort();
-
-				// Fire off the request to url
-				importApp.request =  $.ajax({
+				importApp.requests.ajax =  $.ajax({
 					type: 'post',
-					url: target_url,
-					data: {'url' : window.location.pathname},
-					headers: {'X-CSRFToken': importApp.csrfToken }
+					url: url,
+					data: {'url' : window.location.pathname },
+					headers: {'X-CSRFToken': importApp.csrfToken },
+					error: importApp.requests.ajaxFail,
+					success: function (response, status, xhr){
+						importApp.urls.redirect(response.url_redirect, response.field_redirect);
+					}
 				});
-
-				importApp.request.done(function (response, textStatus, jqXHR){
-					if(response.field_redirect)
-						importApp.urlRedirect(response.url_redirect);
-				});
-
-				importApp.request.fail(function (jqXHR, textStatus, errorThrown){
-					console.error( "The following error occurred: " + textStatus, errorThrown );
-				});
-
 			}
 		}
 
@@ -87,7 +82,7 @@
 		dragicon.querySelector(".material-icons").innerHTML = "add_a_photo";
 		dragicon.querySelector(".material-icons").classList.remove("import-image-uploaded-icon");
 		dragicon.style.backgroundImage = "";
-		dragicon.querySelector(".addphoto-popper").innerHTML = "Add a photo"
+		document.querySelector(".addphoto-popper").innerHTML = "Add a photo"
 	}
 
 	function hasImage(response, req){
@@ -113,7 +108,7 @@
 				dragicon.style.backgroundImage = "url("+ reader.result +")";
 				dragicon.querySelector(".material-icons").innerHTML = "close";
 				dragicon.querySelector(".material-icons").classList.add("import-image-uploaded-icon");		
-				dragicon.querySelector(".addphoto-popper").innerHTML = "<small>" + files[0].name + "</small>";
+				document.querySelector(".addphoto-popper").innerHTML = "<small>" + files[0].name + "</small>";
 			}
 			else{
 				alert("Please upload an image file.");
@@ -125,17 +120,61 @@
 
 	// Image Button Events
 	function PhotoUploadTooltip(){
-		// Image button Popup
+
 		try{
-			var popper = new Popper($(".import-image-drag"), $(".addphoto-popper"), {
-				placement: 'right',
-				modifiers:{
-					arrow:{}
-				}
+			let popperInstance = null;
+			const button = document.querySelector('#photo_upload');
+			const tooltip = document.querySelector('#addphoto-popper');
+
+			function create() {
+				popperInstance = Popper.createPopper(button, tooltip, {
+					placement: 'right',
+					modifiers: [
+						{
+							name: 'offset',
+							options: {
+							  offset: [0, 8],
+							},
+						}
+					],
+				});
+			}
+
+			function destroy() {
+			  if (popperInstance) {
+				popperInstance.destroy();
+				popperInstance = null;
+			  }
+			}
+
+			function show() {
+			  	tooltip.setAttribute('data-show', '');
+			}
+
+			function hide() {
+				tooltip.removeAttribute('data-show');
+			}
+
+			create();
+
+			const showEvents = ['mouseenter', 'focus'];
+			const hideEvents = ['mouseleave', 'blur'];
+
+			showEvents.forEach(event => {
+			  button.addEventListener(event, show);
 			});
+
+			hideEvents.forEach(event => {
+			  button.addEventListener(event, hide);
+			});
+
 		}
-		catch(error){
+		catch(err){
+
 		}
+
+		
+
 	}
 
 	function initPhotoDragBox(){
@@ -238,7 +277,7 @@
 						dragicon.querySelector(".material-icons").innerHTML = "close";
 						dragicon.querySelector(".material-icons").classList.add("import-image-uploaded-icon");		
 						//dragicon.querySelector(".addphoto-popper").innerHTML = "<small>" + pic.split("/").pop() + "</small>";	
-						dragicon.querySelector(".addphoto-popper").innerHTML = "<small>" + pic.split("=").pop() + "</small>";
+						document.querySelector(".addphoto-popper").innerHTML = "<small>" + pic.split("=").pop() + "</small>";
 					}
 				}
 				catch(error){

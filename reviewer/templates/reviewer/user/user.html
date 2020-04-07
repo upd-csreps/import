@@ -210,9 +210,14 @@
 	<div class="modal fade" id="CropImageModal" tabindex="-1" role="dialog" aria-labelledby="CropImageModalTitle" aria-hidden="true">
 			  <div class="modal-dialog modal-dialog-centered" role="document">
 			    <div class="modal-content">
-			      <div class="modal-header">
-			        <h5 class="modal-title">Crop Image</h5>
-			        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			      <div class="modal-header d-flex align-items-center">
+			        <h5 class="modal-title d-flex">
+			        	<i class="material-icons my-auto import-font-primary mr-2">
+							crop
+						</i>
+			        	<span class="font-weight-bold my-auto">Crop Image</span>
+			        </h5>
+			        <button type="button" class="close" data-dismiss="modal" aria-label="Close" >
 			          <span aria-hidden="true">&times;</span>
 			        </button>
 			      </div>
@@ -221,13 +226,13 @@
 				        <div class="croppie m-auto" style="height:300px; width:300px"></div>
 				      </div>
 				      <div class="modal-footer d-flex justify-content-between">
-				      	 <button class="btn btn-light d-inline-flex save-skip-image">
+				      	 <button class="btn btn-sm btn-light d-inline-flex save-skip-image px-2">
 							<i class="material-icons my-auto material-icon-sm mr-2">
 							save
 							</i>
 							<span class="my-auto">Skip Cropping</span>
 						</button>
-				        <button class="btn btn-primary d-inline-flex save-crop-image">
+				        <button class="btn btn-sm btn-primary d-inline-flex save-crop-image px-2">
 							<i class="material-icons my-auto material-icon-sm mr-2">
 							crop
 							</i>
@@ -257,6 +262,8 @@
 	<script>
 
 		var croppie_size = 200; 
+		var image_has_file = false;
+		var submitting = false;
 
 		var croppie = $('.croppie').croppie({
 		    viewport: { width: croppie_size, height: croppie_size,  type: 'circle'},
@@ -266,6 +273,12 @@
 		$('.prof-pic').on('click', function(){
 			$("#user-pic-form input[type=file]").click();
 		});
+
+		function clearFile(){
+			$("#user-pic-form input[type=file]").val('');
+			image_has_file = false;
+			submitting = false;
+		}
 
 		function readFile(file) {                                                       
 		    var reader = new FileReader();
@@ -289,7 +302,9 @@
 				    zoom: size
 				});                               
 		    };
-		    reader.readAsDataURL(file);                                             
+
+		    reader.readAsDataURL(file);
+		                                               
 		} 
 
 		function CropSubmit(form_name, crop){
@@ -330,36 +345,36 @@
 		            data: fd,
 		            contentType: false,
 		            processData: false,
-		        });		
-
-		        importApp..requests.ajax.done(function (response, textStatus, jqXHR){
-					console.log(response);
-
-					if (response.error)
-						alert(response.error);
-					window.location.href = window.location.href;
-				});
-					    
-
-			    // Callback handler that will be called on failure
-			    importApp.requests.ajax.fail(function (jqXHR, textStatus, errorThrown){
-			        // Log the error to the console
-			        console.error("The following error occurred: " + textStatus, errorThrown );
-			        $(".loader").addClass("failed");
-			    });
-
-			    importApp.requests.ajax.always(function(){
-			    	$(".loader").removeClass("failed");
-			    	$(".loader-screen").fadeOut();
-			    });
-
+		            error: function(xhr, status, error){
+		            	importApp.requests.ajaxFail(xhr,status,error);
+		            	$(".loader").addClass("failed");
+		            },
+		            success: function (response, status, xhr){
+						response.error? alert(response.error): null;
+						importApp.urls.refresh();
+					},
+					complete: function(){
+						$(".loader").removeClass("failed");
+				    	$(".loader-screen").fadeOut();
+				    	clearFile();
+					}
+		        });
 	        }
 		}
 
 
 		$('#user-pic-upload').on("change", function(){ 
-			readFile(this.files[0])
-			$('#CropImageModal').modal('show');
+			if (!image_has_file){
+				image_has_file = true;
+				try{
+
+					readFile(this.files[0])
+					$('#CropImageModal').modal('show');
+				}
+				catch(err){
+					console.warn(err);
+				}
+			}
 		});
 
 		$(".user-pic-form").on("submit", function(e){
@@ -369,12 +384,13 @@
 		});
 
 		$(".save-skip-image").on("click", function(){
+			submitting = true;
 			$('#CropImageModal').modal('hide');
 			CropSubmit('user-pic-form', false);
-			
 		});
 
 		$(".save-crop-image").on("click", function(){
+			submitting = true;
 			$('#CropImageModal').modal('hide');
 			CropSubmit('user-pic-form', true);
 		});
@@ -384,8 +400,10 @@
 		{% endif %}
 
 		importApp.comments.loadLikeIcon({{liked_comments}});
-		importApp.load({ 
-			urls: {  like_url : "{% url 'comment_like' '$course_code' 123456789 %}" } 
+		importApp.load({
+			urls: {  
+				likeURL : "{% url 'comment_like' '$course_code' 123456789 %}"
+			} 
 		});
 
 		$(".course-comments").on("click", ".comment-delete" , function(){
@@ -408,7 +426,8 @@
 			        url: del_url,
 			        type: "delete",
 			        data: commentpassid,
-			        headers: {'X-CSRFToken': csrfToken }
+			        headers: {'X-CSRFToken': csrfToken },
+			        error: importApp.requests.ajax
 			    });
 
 			    // Callback handler that will be called on success
@@ -417,19 +436,13 @@
 			        var commecount = parseInt($(".created-count").html());
 			        $(".created-count").html(commecount-1);
 			    });
-
-
-			    // Callback handler that will be called on failure
-			    importApp.requests.ajax.fail(function (jqXHR, textStatus, errorThrown){
-			        // Log the error to the console
-			        console.error(
-			            "The following error occurred: "+
-			            textStatus, errorThrown
-			        );
-			    });
-
 		 	}
 		}); 
+
+		$('#CropImageModal').on('hidden.bs.modal', function (e) {
+			if (!submitting)
+				clearFile();
+		})
 
 	</script>
 

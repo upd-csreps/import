@@ -289,17 +289,17 @@ body{
 }
 
 .import-image-uploaded-icon, .addphoto-popper{
+	transition: 0.15s ease-out;
 	opacity: 0;
-	transition: 0.15s;
-	z-index: -1;
+	z-index: 0;
 }
 
-.import-image-drag-enabled:hover .addphoto-popper, .import-image-drag-enabled:hover .import-image-uploaded-icon{
+.import-image-drag-enabled:hover .addphoto-popper[data-show], .import-image-drag-enabled:hover .import-image-uploaded-icon{
 	opacity: 1;
 	z-index: 1;
 }
 
-.import-image-drag-enabled:hover .addphoto-popper{
+.import-image-drag-enabled:hover .addphoto-popper[data-show]{
 	background-color: #fefefe;
 
 }
@@ -460,6 +460,38 @@ body{
 .spin {
   animation: spin 0.65s linear infinite;
 }
+
+#arrow,
+#arrow::before {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  z-index: 4;
+}
+
+#arrow::before {
+  content: '';
+  transform: rotate(45deg);
+  background: #ffffff;
+}
+
+#addphoto-popper[data-popper-placement^='top'] > #arrow {
+  bottom: -4px;
+}
+
+#addphoto-popper[data-popper-placement^='bottom'] > #arrow {
+  top: -4px;
+}
+
+#addphoto-popper[data-popper-placement^='left'] > #arrow {
+  right: -4px;
+}
+
+#addphoto-popper[data-popper-placement^='right'] > #arrow {
+  left: -4px;
+}
+
+
 
 @keyframes spin {
   0% { transform: rotate(0deg); }

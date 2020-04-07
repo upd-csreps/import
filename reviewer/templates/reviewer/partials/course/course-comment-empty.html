@@ -1,0 +1,10 @@
+<p class="d-inline-flex">
+	<i class="material-icons my-auto">comment</i>
+	<span class="my-auto mx-3">
+		{% if user.is_authenticated %}
+			Be the first to comment!
+		{% else %}
+			There are no comments to display.
+		{% endif %}
+	</span>
+</p>

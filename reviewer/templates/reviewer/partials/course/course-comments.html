@@ -59,10 +59,11 @@
 			</div>
 
 			<div class="d-flex my-3">
-				<button class="mr-auto border-dashed import-image-drag {% if user.is_authenticated %}import-image-drag-enabled{%else%}-disabled{%endif%}" data-file-target="comment-image-upload" style="border-width: 1px" type="button">
+				<button class="mr-auto border-dashed import-image-drag {% if user.is_authenticated %}import-image-drag-enabled{%else%}-disabled{%endif%}" data-file-target="comment-image-upload" style="border-width: 1px" type="button" id="photo_upload" aria-describedby="addphoto-popper">
 					{% if user.is_authenticated %}
-						<div class="addphoto-popper ml-2 p-3">
+						<div id="addphoto-popper" class="addphoto-popper p-3 position-absolute" role="tooltip">
 							Add a photo
+							<div id="arrow" data-popper-arrow></div>
 						</div>
 					{% endif %}
 					<i class="material-icons p-3">
@@ -86,17 +87,8 @@
 		</form>
 	</div>
 	<div class="comments col-lg-8 course-comments">
-		{% if course_comments.count == 0 %}
-			<p class="d-inline-flex">
-				<i class="material-icons my-auto">comment</i>
-				<span class="my-auto mx-3">
-					{% if user.is_authenticated %}
-						Be the first to comment!
-					{% else %}
-						There are no comments to display.
-					{% endif %}
-				</span>
-			</p>
+		{% if course_comment_count == 0 %}
+			{% include 'reviewer/partials/course/course-comment-empty.html' %}
 		{% else %}
 	  		{% for comment in course_comments %}
 				{% include 'reviewer/partials/comment.html' %}

@@ -271,8 +271,13 @@
 			<div class="modal fade" id="PasswordModalCenter" tabindex="-1" role="dialog" aria-labelledby="PasswordModalCenterTitle" aria-hidden="true">
 			  <div class="modal-dialog modal-dialog-centered" role="document">
 			    <div class="modal-content">
-			      <div class="modal-header">
-			        <h5 class="modal-title">Confirm action</h5>
+			      <div class="modal-header d-flex align-items-center">
+			        <h5 class="modal-title d-flex">
+			        	<i class="material-icons my-auto import-font-primary mr-2">
+							delete_forever
+						</i>
+			        	<span class="my-auto font-weight-bold">Confirm action</span>
+			    	</h5>
 			        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
 			          <span aria-hidden="true">&times;</span>
 			        </button>
@@ -286,7 +291,7 @@
 				      </div>
 				      <div class="modal-footer">
 				        <button class="btn btn-danger d-inline-flex delete-account" type="submit" >
-							<i class="material-icons my-auto material-icon-sm ">
+							<i class="material-icons my-auto material-icon-sm mr-1">
 							delete_forever
 							</i>
 							<span class="my-auto">Delete account</span>
