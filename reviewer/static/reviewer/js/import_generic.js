@@ -5,19 +5,31 @@
 		name : "Import*",
 		csrfToken : Cookies.get('csrftoken'),
 		modules : [],
+		initfunc: [],
 		requests : {
 			ajax : undefined,
-			ajaxFail: function (xhr, status, error){
-				// Callback handler that will be called on failure
-				console.error( "The following error occurred: "+ xhr.status, error);
+			ajaxFail: function (event, xhr, settings, error){
+				console.error(`The following error occurred:\n ${settings.method.toUpperCase()} ${settings.url} ${xhr.status} (${error})`);
 			}
 		},
 
 		// Functions
+		initialize: function(){
+			for (i = 0; i < importApp.initfunc.length; i++) {
+			  	importApp.initfunc[i]();
+			}
+
+		},
+
+		log : function(){
+			return this.name;
+		},
+		
 		load : function(module){
 			module.module_name? importApp.modules.push(module.module_name) : null;
+			module.init? importApp.initfunc.push(module.init) : null;
 			$.extend(true, importApp, module);
-			delete module;
+			eval(module.module_name + " = undefined");
 		},
 		
 		setConfig: function(config, setting){
@@ -41,6 +53,41 @@
 			},
 			refresh : function(){
 				window.location.href = window.location.href;
+			},
+
+			hyperlink: function (content){
+				//Hyperlink Support
+
+				let linksFound = [];
+
+				let url_length = 30;
+				let linkico = `<i class="material-icons link-ico my-auto ml-1">link</i>`;
+
+
+				let hlinkRegExParts = {
+					scheme : /(?:([a-z][a-z0-9+.-]*):)?/ig,
+					slash : /(?:\/\/)?/ig,
+					auth : /(?:([-a-z0-9_'](?:(?:\.?(?:[-a-z0-9_'~]|%[a-f]{2}))*[-a-z0-9_'])?)(?::((?:[-a-z0-9_'~!$&()\*+,;=]|%[a-f]{2})*))@)?/ig,
+					host : /((?:localhost)|(?:(?:1?[0-9]{1,2}|2[0-5]{1,2})(?:\.(?:1?[0-9]{1,2}|2[0-5]{1,2})){3})|(?:\[(?:[0-9a-f:]+)\])|(?:[a-z0-9](?:(?:\.?[-a-z0-9])*[a-z0-9])?\.[a-z0-9](?:[-a-z0-9]*[a-z0-9])?))/ig,
+					port : /(?::[0-9]+)?/ig,
+					path : /((?:\/(?:[-a-z0-9._~:@!$&'()*+,;=]|%[a-f]{2})+)*\/?)/,
+					query : /(\?(?:[-a-z0-9._~:@!$&'()*+,;=/?]|%[a-f]{2})*)?/,
+					fragment : /(#(?:[-a-z0-9._~:@!$&'()*+,;=/?]|%[a-f]{2})*)?/
+				}
+
+				var hlinkRegEx = /(?:([a-z][a-z0-9+.-]*):)?(?:\/\/)?(?:([-a-z0-9_'](?:(?:\.?(?:[-a-z0-9_'~]|%[a-f]{2}))*[-a-z0-9_'])?)(?::((?:[-a-z0-9_'~!$&()\*+,;=]|%[a-f]{2})*))@)?((?:localhost)|(?:(?:1?[0-9]{1,2}|2[0-5]{1,2})(?:\.(?:1?[0-9]{1,2}|2[0-5]{1,2})){3})|(?:\[(?:[0-9a-f:]+)\])|(?:[a-z0-9](?:(?:\.?[-a-z0-9])*[a-z0-9])?\.[a-z0-9](?:[-a-z0-9]*[a-z0-9])?))(?::[0-9]+)?((?:\/(?:[-a-z0-9._~:@!$&'()*+,;=]|%[a-f]{2})+)*\/?)(\?(?:[-a-z0-9._~:@!$&'()*+,;=/?]|%[a-f]{2})*)?(#(?:[-a-z0-9._~:@!$&'()*+,;=/?]|%[a-f]{2})*)?/ig;
+				
+				var element_content=content.replace(hlinkRegEx, function(url){
+
+					console.log(url.match(hlinkRegEx));
+					console.log(url);
+
+					var retval = ` <a class="d-inline-flex import-ex-link" target='_blank' href='${url}'>` 
+					+ `<img class="ml-1 mr-2 my-auto" src='http://s2.googleusercontent.com/s2/favicons?domain_url=${url}'>${url} ${linkico}</a>`;
+
+					return url;	
+
+				});
 			}
 		},
 
@@ -55,7 +102,6 @@
 					url: url,
 					data: {'url' : window.location.pathname },
 					headers: {'X-CSRFToken': importApp.csrfToken },
-					error: importApp.requests.ajaxFail,
 					success: function (response, status, xhr){
 						importApp.urls.redirect(response.url_redirect, response.field_redirect);
 					}
@@ -64,6 +110,11 @@
 		}
 
 	}
+
+	$(document).ajaxError(importApp.requests.ajaxFail);
+	importApp.toString = importApp.log;
+	importApp.valueOf = importApp.log;
+
 
 	
 	// File Image Check
@@ -320,94 +371,7 @@
 		}
 	}); 
 
-	function replace_vid_url(content){
-		var pattern1 = /(?:http?s?:\/\/)?(?:www\.)?(?:vimeo\.com)\/?(.+)/g;
-		var pattern2 = /(?:http?s?:\/\/)?(?:www\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=)?(.+)/g;
-		// var pattern3 = /([-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?(?:jpg|jpeg|gif|png))/gi;
-
-		// var replacement = '<iframe width="420" height="345" src="//player.vimeo.com/video/$1" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>';
-		// var new_content = content.replace(pattern1, replacement);
-
-		var new_content = content.replace(pattern2, function(url){
-
-			var newpattern2 = /(?:http?s?:\/\/)?(?:www\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=)?/g
-			url = url.replace(newpattern2, '');
-
-			var hotfix = url.includes('</p>');
-
-			if(hotfix){
-				url = url.replace('</p>', '');
-			}
-			
-			var new_url = '<iframe class="mt-2" width="445" height="250" src="https://www.youtube.com/embed/' + url +'"" frameborder="0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
-
-			if (hotfix){
-				new_url = new_url +'</p>';
-			}
-
-			return new_url;
-
-			});
-
-		return new_content;
-	}
-
-	//Hyperlink Support
-	function replace_url(content){
-
-		let url_length = 40;
-		let linkico = ` <i class="material-icons link-ico my-auto ml-1 ">link</i>`;
-
-		var exp_match = /(\b[^\"](https?|):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
-		var element_content=content.replace(exp_match, function(url){
-
-			hotfix = (url.charAt(0) == ">");
-
-			url = url.trim().replace(/>/g, '');
-			let urltrim = url;
-
-			if (urltrim.length > url_length)
-				urltrim = urltrim.substring(0, url_length) + "..."
-
-			var retval = ` <a class="d-inline-flex import-ex-link" target='_blank' href='` + url +`'>` 
-			+ `<img class="ml-1 mr-2 my-auto" src='http://s2.googleusercontent.com/s2/favicons?domain_url=` + url + 
-			`'>` + urltrim + linkico + `</a>`;
-
-			if (hotfix)
-				retval = ">" + retval;
-
-			return retval;	
-
-		});
-		var new_exp_match =/(^|[^\/])(www\.[\S]+(\b|$))/gim;
-		var new_content= element_content.replace(new_exp_match, function(url){
-
-			hotfix = false;
-			if (url.charAt(0) == ">")
-				hotfix = true;
-
-			url = url.trim().replace(/>/g, '');
-
-			let urltrim = url;
-
-			if (urltrim.length > url_length)
-				urltrim = urltrim.substring(0, url_length) + "..."
-
-			url = "http://" + url;
-
-			retval =  `<a class="d-inline-flex import-ex-link" target="_blank" href="` + url +`">` 
-			+ `<img class="ml-1 mr-2 my-auto" src='http://s2.googleusercontent.com/s2/favicons?domain_url=` + url + 
-			`'>` + urltrim + linkico + `</a>`;
-
-			if (hotfix)
-				retval = ">" + retval;
-
-			return retval;
-
-		});
-		return new_content;
-	}
-
+	
 	// Scroll Header
 	function headerEffect(){
 		( $(window).scrollTop() < 15)? 
@@ -421,16 +385,12 @@
 
 	$(document).ready(function(){
 
-		//Initialize
-		$('.comment-body').each(function(){
-				$(this).html( replace_url( replace_vid_url( $(this).html() ) ) );
-		});
-
-		for (let [key, value] of Object.entries(importApp)) {
-			typeof value == "function"? Object.defineProperty(importApp, key, { writable: false, configurable: false }) : null
-		}
-
 		headerEffect();
+
+		//Initialize
+		importApp.initialize();
+
+	
 		initPhotoDragBox();
 	});
 

@@ -13,7 +13,6 @@ from math import ceil
 from PIL import Image
 
 
-
 def comment_delete(request, course, startindex, page_ct_limit):
 
 	data = request.body
@@ -24,36 +23,46 @@ def comment_delete(request, course, startindex, page_ct_limit):
 	if (request.user == delcom.user_attr):
 		delcom.delete()
 
-		all_course_comments = course.comment_set.order_by('-date_posted')
+		all_course_comments = Comment.objects.filter(course_attr=course).order_by('-date_posted')
 		course_comment_count = len(all_course_comments)
 		page_ct = int(ceil(course_comment_count/page_ct_limit))
 		try:
 			last_comment = all_course_comments[startindex+page_ct_limit-1]
-			result['comment_html'] = render_to_string('reviewer/partials/comment.html', { 'comment': last_comment, 'request': request, 'user' : request.user })
-
 			last_comment_likestat = last_comment.likes_set.filter(user_attr=request.user)
-			result['comment_likestate'] = { 
-				'ID': last_comment_likestat.comment_id,
-				'status': True if len(last_comment_likestat) != 0 else False
-			}
 
-		except IndexError:
 			result.update({
-				'comment_html' : None,
-				'course_comment_count' : course_comment_count,
-				'page_count' : page_ct
+				'comment_html' : render_to_string('reviewer/partials/comment.html', { 'comment': last_comment, 'request': request, 'user' : request.user }).strip(),
+				'comment_likestate' : { 
+					'ID': last_comment.id,
+					'status': True if len(last_comment_likestat) != 0 else False
+				}
 			})
-			if len(all_course_comments) == 0:
-				result['empty_html'] = render_to_string('reviewer/partials/course/course-comment-empty.html', { 'request': request, 'user' : request.user })
+		except IndexError as e:
+			if settings.DEBUG:
+				print(e)
+			result.update({
+				'comment_html' : None
+			})
+
+		result.update({
+			'course_comment_count' : course_comment_count,
+			'page_count' : page_ct
+		})
+
+		if len(all_course_comments) == 0:
+			result['empty_html'] = render_to_string('reviewer/partials/course/course-comment-empty.html', { 'request': request, 'user' : request.user }).strip()
 
 	return JsonResponse(result)
 
-def comment_add(request, csubj, cnum, course):
+def comment_add(request, pass_args):
 
 	data = request.POST
 	resultid = None 
 
-	response = redirect( reverse('course', args=[csubj, str(cnum)]) + 'c/1/' )
+	response = redirect( reverse('course', args=[pass_args['csubj'], str(pass_args['cnum'])]) + 'c/1/' )
+
+	cpagect = pass_args['page_count']
+	npagect = int(ceil( (pass_args['course_commentstotal']+1) / pass_args['page_ct_limit'] ))
 
 	if request.user.is_authenticated:
 		image_uploaded = request.FILES.get('image', None)
@@ -65,15 +74,20 @@ def comment_add(request, csubj, cnum, course):
 		except:
 			image_uploaded = None
 
-		new_comment = Comment.objects.create(course_attr=coursefilter[0], user_attr=request.user, body=data['body'], image=image_uploaded)	
+		new_comment = Comment.objects.create(course_attr=pass_args['course_filt'], user_attr=request.user, body=data['body'], image=image_uploaded)	
 		resultid = new_comment.id
-		comment_html = render_to_string('reviewer/partials/comment.html', { 'comment': new_comment, 'request': request, 'user' : request.user })
-
-		if cpage == 1:
+		comment_html = render_to_string('reviewer/partials/comment.html', { 'comment': new_comment, 'request': request, 'user' : request.user }).strip()
+		if pass_args['cpage'] == 1:
 			data = { 
 				'commentid': resultid,
 				'comment_html' : comment_html
 			}
+
+			if (npagect != cpagect) and ((pass_args['course_commentstotal']+1) > pass_args['page_ct_limit']):
+				pass_args.update({ 'page_count' : npagect,  'request': request, 'user' : request.user })
+				data['page_create'] = render_to_string('reviewer/partials/course/course-comments-pagination.html', pass_args ).strip()
+			else:
+				data['page_create'] = ''
 			
 			response = JsonResponse(data)
 
@@ -100,7 +114,7 @@ def comment_like(request, csubj, cnum):
 				liked_comment  = None
 			else:
 				Likes.objects.create(comment_id=int(comment_findid), user_attr=request.user)
-				liked_comment = render_to_string('reviewer/partials/comment.html', { 'comment': liked_comment, 'request': request, 'user' : request.user })
+				liked_comment = render_to_string('reviewer/partials/comment.html', { 'comment': liked_comment, 'request': request, 'user' : request.user }).strip()
 				like_state = True
 
 			like_count_callback = {
@@ -124,7 +138,7 @@ def courselist(request):
 
 def course(request, csubj, cnum):
 	return coursecpage( request, csubj, cnum, 'l', '1')
-
+ 
 def coursecpage(request, csubj, cnum, catchar = 'l', cpage = 1):
 
 	if not catchar:
@@ -151,7 +165,17 @@ def coursecpage(request, csubj, cnum, catchar = 'l', cpage = 1):
 			return redirect('course', csubj, cnum)
 		else:
 			if request.method == "POST":
-				return comment_add(request, csubj, cnum, coursefilter[0])
+				pass_args = { 	'course_filt': coursefilter[0],
+								'csubj': csubj,
+								'cnum' : cnum,
+								'cpage' : cpage,
+								'prev_page' : cpage-1,
+								'next_page' : cpage+1,
+								'course_commentstotal' : course_commentstotal,
+								'page_ct_limit' : page_ct_limit,
+								'page_count' :	page_ct
+							}
+				return comment_add(request, pass_args)
 			elif request.method == "DELETE":
 				return comment_delete(request, coursefilter[0], startindex, page_ct_limit)
 			elif request.method == "GET":

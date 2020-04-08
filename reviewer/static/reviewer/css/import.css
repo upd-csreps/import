@@ -60,7 +60,7 @@ body{
 }
 
 .material-icon-sm{
-	font-size: 18px !important;
+	font-size: 1.16rem !important;
 }
 
 .material-icon-x-sm{
@@ -142,6 +142,7 @@ body{
 
 .comment{
 	position: sticky;
+	word-break: break-word;
 }
 
 .comments::-webkit-scrollbar {
@@ -251,12 +252,30 @@ body{
 	opacity: 1;
 }
 
+.comment-action{
+	bottom: 2em;
+	right: -1.5em;
+	border-bottom-left-radius: 20px;
+	border-top-right-radius: 3px;
+	background-color: #f8f8f8;
+}
+
 .comment-delete, .comment-reply,.comment-like, .togglable, .header-toggle, .pointer-cursor{
 	cursor: pointer;
+	align-self: center;
 }
 
 .comment-delete:hover , .comment-reply:hover, .comment-like:hover {
 	opacity: 0.65;
+}
+
+.comment-delete:active , .comment-reply:active, .comment-like:active {
+	font-size: 1.2rem !important;
+	transition: 0.1s ease-in-out;
+}
+
+.comment-delete:focus , .comment-reply:focus, .comment-like:focus, .comment-delete:active , .comment-reply:active, .comment-like:active{
+	opacity: 1;
 }
 
 .comment-like-count{

@@ -1,0 +1,47 @@
+{% if page_count > 1 %}
+
+	{% if cpage > 1 %}
+		<a href="{% url 'course' course_filt.code|lower course_filt.number %}c/1"  {% if cpage <= 1 %} class="-disabled" {%endif%}  >
+	{% endif %}
+			<button class="btn btn-sm btn-light d-inline-flex p-1" {% if cpage <= 1 %} disabled {%endif%}>
+				<i class="material-icons material-icon-sm my-auto">
+					first_page
+				</i>
+			</button>
+	{% if cpage > 1 %}
+		</a>
+		<a href="{% url 'course' course_filt.code|lower course_filt.number %}c/{{prev_page}}">
+	{% endif %}
+			<button class="btn btn-sm btn-light d-inline-flex p-1"  {% if cpage <= 1 %} disabled {%endif%}>
+				<i class="material-icons material-icon-sm my-auto">
+					chevron_left
+				</i>
+			</button>
+	{% if cpage > 1 %}
+		</a>
+	{% endif %}
+
+	<span class="mx-3 font-weight-bold">Page {{cpage}}</span>
+
+	{% if cpage < page_count %}
+		<a href="{% url 'course' course_filt.code|lower course_filt.number %}c/{{next_page}}">
+	{% endif %}
+			<button class="btn btn-sm btn-light d-inline-flex p-1" {% if cpage >= page_count %} disabled {%endif%}>
+				<i class="material-icons material-icon-sm my-auto">
+					chevron_right
+				</i>
+			</button>
+	{% if cpage < page_count %}
+		</a>
+		<a href="{% url 'course' course_filt.code|lower course_filt.number %}c/{{page_count}}">
+	{% endif %}
+			<button class="btn btn-sm btn-light d-inline-flex p-1" {% if cpage >= page_count %} disabled {%endif%}>
+					<i class="material-icons material-icon-sm my-auto">
+						last_page
+					</i>
+			</button>
+	{% if cpage < page_count %}
+		</a>
+	{% endif %}
+
+{% endif %}

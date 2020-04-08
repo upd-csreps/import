@@ -1,5 +1,5 @@
 	
-	const importComment =  {
+	let importComment =  {
 
 		module_name: "importComment",
 		comments : {
@@ -7,13 +7,79 @@
 			likeLimit : 6,
 			likedPressed : {},
 			spamMsg : "You are not supposed to spam the like buttons.",
+			deleteMsg : 'Do you want to delete this comment?',
 
 			// Functions
-			loadLikeIcon : function(commentArray){
-				var commentvisual = commentArray;
 
-				for(i = 0; i < commentvisual.length; i++){
-					let liked_vis = "[data-comment-id='comment-" + commentvisual[i] + "']";
+			count: {
+				mem : {},
+				byCourse : function(ct){
+					ct === undefined? null : this.mem['course'] = ct;
+					return this.mem['course']
+				},
+				byUser : function(ct){
+					ct === undefined? null : this.mem['user'] = ct;
+					return this.mem['user']
+				},
+			},
+
+			delete:  function(that){
+
+				let decision = confirm(importApp.comments.deleteMsg);
+
+				if(decision){
+					commentpass = $(that).parents(".comment");
+			 		commentpassid = commentpass.attr("data-comment-id");
+			 		if (importApp.requests.ajax) {
+				        importApp.requests.ajax.abort();
+				    }
+
+			 		importApp.requests.ajax = $.ajax({
+						url: encodeURI(importApp.urls.courseURL.replace('$course_code', commentpass.attr("data-code")).replace('123456789', commentpass.attr("data-number"))),
+						method: "delete",
+						data: {'commentID': commentpassid },
+						headers: {'X-CSRFToken': importApp.csrfToken },
+						success: function (response, status, xhr){
+							commentpass.fadeOut(1000, function(){
+
+								commentpass.remove();
+
+								if ($(".course-comments").length){
+									if(importApp.comments.count.byCourse > 0){
+										importApp.comments.count.byCourse = response.course_comment_count;
+										$(".comme-count").html(importApp.comments.count.byCourse);
+									}
+
+									response.page_count>1? null: $(".page-count-parent").html('');
+									
+									if ( $(".course-comments .comment").length > 0){
+										if (response.comment_html){
+											$(".course-comments").append(response.comment_html);
+											response.comment_likestate.status? importApp.comments.loadLikeIcon([response.comment_likestate.ID]) : null;
+										}
+									}
+									else{
+										response.page_count > 0? importApp.urls.redirect(importApp.urls.courseURL + encodeURI(`c/${response.page_count}/`) ) : $(".course-comments").append(response.empty_html);				
+									}
+								}
+								else if ($(".created-comments").length){
+
+									var commecount = parseInt($(".created-count").html());
+			        				$(".created-count").html(commecount-1);
+								}
+
+								renderMathInElement(document.body);
+								
+							});
+						}
+				    });
+			 	}
+			},
+
+
+			loadLikeIcon : function(commentArray){
+				for(i = 0; i < commentArray.length; i++){
+					let liked_vis = `[data-comment-id='comment-${commentArray[i]}']`;
 					$(liked_vis).find(".comment-like").html("star");
 					$(liked_vis).find(".comment-like").addClass("liked");
 				}
@@ -22,7 +88,7 @@
 			updateLikeIcon: function(id, state, count, addhtml){
 
 				let icons = ["star_border", "star"];
-				let liked_comm = "[data-comment-id='" + id + "']";
+				let liked_comm = `[data-comment-id='${id}']`;
 				let cvars = [".liked-count", ".liked-comments", ".comment-like"];
 
 				let liked_ct = parseInt($(cvars[0]).html());
@@ -36,12 +102,11 @@
 
 				if (state){
 					$(cvars[1]).prepend(addhtml);
-					renderMathInElement(document.querySelector(cvars[1]));
-					liked_comm = $(liked_comm);
-					liked_comm.find(cvars[2]).html(icons[1]);
-					liked_comm.find(cvars[2]).addClass("liked");
-					liked_comm.removeClass("mb-3");
-					liked_comm.addClass("my-3");
+					$(cvars[1]).length? renderMathInElement(document.querySelector(cvars[1])): null;
+					$(liked_comm).find(cvars[2]).html(icons[1]);
+					$(liked_comm).find(cvars[2]).addClass("liked");
+					$( `${cvars[1]} ${liked_comm}`).removeClass("mb-3");
+					$( `${cvars[1]} ${liked_comm}`).addClass("my-3");
 					$(cvars[0]).html(liked_ct+1);
 				}
 				else{
@@ -74,15 +139,15 @@
 				}
 			},
 
-			likeClick : function(thes){
+			likeClick : function(that){
 
-				let commentpass = $(thes).parents(".comment");
+				let commentpass = $(that).parents(".comment");
 		 		let commentpassID = commentpass.attr("data-comment-id");
 
 		 		commentpassID in importApp.comments.likedPressed? importApp.comments.likedPressed[commentpassID]++ : (importApp.comments.likedPressed[commentpassID] = 1);
 		 		importApp.comments.detectManyLike();
 
-		 		current_likd = $("[data-comment-id='" + commentpassID + "']");
+		 		current_likd = $(`[data-comment-id='${commentpassID}']`);
 				curr_likdct = parseInt(current_likd.find(".comment-like-count").html());
 				curr_state = current_likd.find(".comment-like").html();
 				curr_state = !(curr_state == 'star');
@@ -90,11 +155,10 @@
 				importApp.comments.updateLikeIcon(commentpassID, curr_state, curr_likdct);
 	
 				importApp.requests.likeRequest = $.ajax({
-					url: importApp.urls.likeURL.replace('$course_code', commentpass.attr("data-code")).replace('123456789', commentpass.attr("data-number")),
+					url: encodeURI(importApp.urls.likeURL.replace('$course_code', commentpass.attr("data-code")).replace('123456789', commentpass.attr("data-number"))),
 					method: "post",
 					data: {'commentID': commentpassID},
 					headers: {'X-CSRFToken': importApp.csrfToken },
-					error: importApp.requests.ajaxFail,
 					success: function (response, textStatus, xhr){
 						importApp.comments.updateLikeIcon(commentpassID, response.state, response.count, response.com_html);
 					}
@@ -107,7 +171,14 @@
 		},
 
 		urls: {
+			courseURL : undefined,
 			likeURL : undefined
+		},
+
+		init: function(){
+			$('.comment-body').each(function(){
+				importApp.urls.hyperlink($(this).html());
+			});
 		}
 	}
 	

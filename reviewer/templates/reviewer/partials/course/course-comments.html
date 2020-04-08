@@ -1,54 +1,14 @@
 {% load static %}
 <div class="m-3 m-lg-2 d-flex py-3 col-lg-8 ml-lg-auto">
-	<div class="mx-auto page-count-parent my-auto">
-			
-			{% if page_count > 1 %}
-
-				{% if cpage > 1 %} <a href="{% url 'course' course_filt.code|lower course_filt.number %}c/1"  {% if cpage <= 1 %} class="-disabled" {%endif%}  >{% endif %}
-					<button class="btn btn-sm btn-light d-inline-flex p-1" {% if cpage <= 1 %} disabled {%endif%}>
-	  				<i class="material-icons material-icon-sm my-auto">
-						first_page
-					</i>
-	  			</button>
-	  		{% if cpage > 1 %}</a>{%endif%}
-
-	  		{% if cpage > 1 %}<a href="{% url 'course' course_filt.code|lower course_filt.number %}c/{{prev_page}}">{% endif %}
-					<button class="btn btn-sm btn-light d-inline-flex p-1"  {% if cpage <= 1 %} disabled {%endif%}>
-	  				<i class="material-icons material-icon-sm my-auto">
-						chevron_left
-					</i>
-	  			</button>
-	  		</a>
-
-	  		<span class="mx-3 font-weight-bold">Page {{cpage}}</span>
-
-	  		{% if cpage < page_count %}
-		  		<a href="{% url 'course' course_filt.code|lower course_filt.number %}c/{{next_page}}"> {%endif%}
-  					<button class="btn btn-sm btn-light d-inline-flex p-1" {% if cpage >= page_count %} disabled {%endif%}>
-		  				<i class="material-icons material-icon-sm my-auto">
-							chevron_right
-						</i>
-		  			</button>
-		  	{% if cpage < page_count %}	</a> {%endif%}
-	  				
-		  	{% if cpage < page_count %}	<a href="{% url 'course' course_filt.code|lower course_filt.number %}c/{{page_count}}"> {%endif%}
-  					<button class="btn btn-sm btn-light d-inline-flex p-1" {% if cpage >= page_count %} disabled {%endif%}>
-		  				<i class="material-icons material-icon-sm my-auto">
-							last_page
-						</i>
-		  			</button>
-		  	{% if cpage < page_count %}
-		  		</a>
-		  	{% endif %}
-		 {% endif %}
-				
-	</div>
+	<nav class="mx-auto page-count-parent my-auto">
+		{% include 'reviewer/partials/course/course-comments-pagination.html' %}
+	</nav>
 </div>
 
 
 <div class="row mx-0 pb-4">
 
-	<div class="col-lg-4">
+	<section class="col-lg-4">
   		<form class="form-group comment-form pb-5" enctype="multipart/form-data" method="POST" action="{% url 'course' course_filt.code|lower course_filt.number %}c/{{cpage}}/" id="{{comment_form.auto_id}}">
 			{% csrf_token %}
 
@@ -85,8 +45,8 @@
 				</div>
 			</div>
 		</form>
-	</div>
-	<div class="comments col-lg-8 course-comments">
+	</section>
+	<section class="comments col-lg-8 course-comments">
 		{% if course_comment_count == 0 %}
 			{% include 'reviewer/partials/course/course-comment-empty.html' %}
 		{% else %}
@@ -94,5 +54,5 @@
 				{% include 'reviewer/partials/comment.html' %}
 			{% endfor %}
 		{% endif %}
-	</div>
+	</section>
 </div>

@@ -1,13 +1,13 @@
 {% load static %}
 
 {% with request.resolver_match.view_name as view_name %}
-<div class="py-4 px-4 d-flex {% if view_name != 'course' and view_name != 'coursecpage' and forloop.counter0 == 0  %} my-3 {% else %} mb-3 {% endif %} comment" data-comment-id="comment-{{comment.id}}" data-code="{{comment.course_attr.code|lower}}" data-number="{{comment.course_attr.number}}">
+<article class="py-4 px-4 d-flex {% if view_name != 'course' and view_name != 'coursecpage' and forloop.counter0 == 0  %} my-3 {% else %} mb-3 {% endif %} comment" data-comment-id="comment-{{comment.id}}" data-code="{{comment.course_attr.code|lower}}" data-number="{{comment.course_attr.number}}">
 
 	{% if comment.user_attr != user or view_name == 'course' %}
 	<a href="{% url 'user' comment.user_attr.username %}">{% endif %}
 		<div>
 			<img class="user-pic-thumb" src="{% if comment.user_attr.prof_picID %}
-			https://drive.google.com/uc?export=view&id={{comment.user_attr.prof_picID}}
+			https://drive.google.com/uc?export=view&id={{comment.user_attr.prof_picID | urlencode }}
 			{% else %}
 				{% static 'reviewer/images/default_profile.png' %}
 			{% endif %}
@@ -66,6 +66,6 @@
 		{% endif %}
 	
 	</div>
-</div>
+</article>
 			
 {% endwith %}

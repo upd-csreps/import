@@ -14,7 +14,7 @@
 					<div class="mx-auto prof-pic" >
 						<img class="user-pic" src="
 						{% if user_filt.prof_picID %}
-							https://drive.google.com/uc?export=view&id={{user_filt.prof_picID}}
+							https://drive.google.com/uc?export=view&id={{user_filt.prof_picID | urlencode }}
 						{% else %}
 							{% static 'reviewer/images/default_profile.png' %}
 						{% endif %}
@@ -399,45 +399,19 @@
 			alert("{{error}}");
 		{% endif %}
 
-		importApp.comments.loadLikeIcon({{liked_comments}});
+		
 		importApp.load({
-			urls: {  
+			urls: {
+				courseURL : "{% url 'course' '$course_code' 123456789 %}",  
 				likeURL : "{% url 'comment_like' '$course_code' 123456789 %}"
-			} 
+			},
+
+			init: function(){
+				importApp.comments.loadLikeIcon({{liked_comments}});
+			}
 		});
 
-		$(".course-comments").on("click", ".comment-delete" , function(){
-
-			let decision = confirm('Do you want to delete this comment?');
-
-			if(decision){
-				commentpass = $(this).parents(".comment");
-	 			commentpassid = commentpass.attr("data-comment-id");
-
-		 		if (importApp.requests.ajax)
-			        importApp.requests.ajax.abort();
-
-			    let del_url = "{% url 'course' '$course_code' 123456789 %}";
-
-		 		del_url = del_url.replace('$course_code', commentpass.attr("data-code"));
-		 		del_url = del_url.replace('123456789', commentpass.attr("data-number"));
-
-		 		importApp.requests.ajax = $.ajax({
-			        url: del_url,
-			        type: "delete",
-			        data: commentpassid,
-			        headers: {'X-CSRFToken': csrfToken },
-			        error: importApp.requests.ajax
-			    });
-
-			    // Callback handler that will be called on success
-			    importApp.requests.ajax.done(function (response, textStatus, jqXHR){
-			        commentpass.remove();
-			        var commecount = parseInt($(".created-count").html());
-			        $(".created-count").html(commecount-1);
-			    });
-		 	}
-		}); 
+		$(".course-comments").on("click", ".comment-delete" ,  function(e){ e.stopPropagation(); importApp.comments.delete(this); }); 
 
 		$('#CropImageModal').on('hidden.bs.modal', function (e) {
 			if (!submitting)
