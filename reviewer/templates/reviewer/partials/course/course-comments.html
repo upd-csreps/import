@@ -9,13 +9,13 @@
 <div class="row mx-0 pb-4">
 
 	<section class="col-lg-4">
-  		<form class="form-group comment-form pb-5" enctype="multipart/form-data" method="POST" action="{% url 'course' course_filt.code|lower course_filt.number %}c/{{cpage}}/" id="{{comment_form.auto_id}}">
+  		<form class="form-group comment-form pb-5" enctype="multipart/form-data" method="POST" action="{% url 'course' course_filt.code|lower course_filt.number %}c/{{commentpage.current}}/" id="{{course_comments.form.auto_id}}">
 			{% csrf_token %}
 
-			{{ comment_form.body }}
+			{{ course_comments.form.body }}
 
 			<div class="my-3 comment-image-upload d-none position-absolute">
-				{{ comment_form.image }}
+				{{ course_comments.form.image }}
 			</div>
 
 			<div class="d-flex my-3">
@@ -33,7 +33,7 @@
 
 
 				<div class="ml-auto my-auto">
-					<button type="submit" form="{{comment_form.auto_id}}" class="btn btn-primary {% if user.is_anonymous %} -disabled {% endif %} course-comment-submit d-flex" >
+					<button type="submit" form="{{course_comments.form.auto_id}}" class="btn btn-primary {% if user.is_anonymous %} -disabled {% endif %} course-comment-submit d-flex" >
 						<div class="my-auto d-flex">
 							<span class="my-auto mr-1">
 							Submit</span>	
@@ -47,10 +47,10 @@
 		</form>
 	</section>
 	<section class="comments col-lg-8 course-comments">
-		{% if course_comment_count == 0 %}
+		{% if course_comments.count == 0 %}
 			{% include 'reviewer/partials/course/course-comment-empty.html' %}
 		{% else %}
-	  		{% for comment in course_comments %}
+	  		{% for comment in course_comments.content %}
 				{% include 'reviewer/partials/comment.html' %}
 			{% endfor %}
 		{% endif %}

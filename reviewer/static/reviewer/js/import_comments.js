@@ -13,13 +13,15 @@
 
 			count: {
 				mem : {},
+				byType: function(ct, type){
+					ct === undefined? null : this.mem[type] = ct;
+					return this.mem[type]
+				},
 				byCourse : function(ct){
-					ct === undefined? null : this.mem['course'] = ct;
-					return this.mem['course']
+					return this.byType(ct, 'course');
 				},
 				byUser : function(ct){
-					ct === undefined? null : this.mem['user'] = ct;
-					return this.mem['user']
+					return this.byType(ct, 'user');
 				},
 			},
 
@@ -45,8 +47,8 @@
 								commentpass.remove();
 
 								if ($(".course-comments").length){
-									if(importApp.comments.count.byCourse > 0){
-										importApp.comments.count.byCourse = response.course_comment_count;
+									if(importApp.comments.count.byCourse() > 0){
+										importApp.comments.count.byCourse(response.course_comment_count);
 										$(".comme-count").html(importApp.comments.count.byCourse);
 									}
 
@@ -74,15 +76,6 @@
 						}
 				    });
 			 	}
-			},
-
-
-			loadLikeIcon : function(commentArray){
-				for(i = 0; i < commentArray.length; i++){
-					let liked_vis = `[data-comment-id='comment-${commentArray[i]}']`;
-					$(liked_vis).find(".comment-like").html("star");
-					$(liked_vis).find(".comment-like").addClass("liked");
-				}
 			},
 
 			updateLikeIcon: function(id, state, count, addhtml){
@@ -176,9 +169,15 @@
 		},
 
 		init: function(){
+			/*
 			$('.comment-body').each(function(){
-				importApp.urls.hyperlink($(this).html());
+				let hlinks = $(this).clone();
+				hlinks.find('.katex-display').remove();
+				hlinks = importApp.urls.hyperlink($(hlinks).html());
+				if (hlinks.length)
+					console.log(hlinks);
 			});
+			*/
 		}
 	}
 	

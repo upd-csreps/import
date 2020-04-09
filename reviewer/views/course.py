@@ -12,8 +12,13 @@ from django.urls import reverse
 from math import ceil
 from PIL import Image
 
+import re
 
-def comment_delete(request, course, startindex, page_ct_limit):
+
+def hlink_regex():
+	return "((?:^|\b)(?:([A-Za-z][A-Za-z0-9+.-]*):)?(?:\/\/)?(?:([-A-Za-z0-9_'](?:(?:\.?(?:[-A-Za-z0-9_'~]|%[A-Fa-f]{2}))*[-A-Za-z0-9_'])?)(?::((?:[-A-Za-z0-9_'~!$&()\*+,;=]|%[A-Fa-f]{2})*))@)?((?:localhost)|(?:(?:1?[0-9]{1,2}|2[0-5]{1,2})(?:\.(?:1?[0-9]{1,2}|2[0-5]{1,2})){3})|(?:\[(?:[0-9A-Fa-f:]+)\])|(?:[A-Za-z0-9](?:(?:\.?[-A-Za-z0-9])*[A-Za-z0-9])?\.[A-Za-z0-9](?:[-A-Za-z0-9]*[A-Za-z0-9])?))(?::[0-9]+)?((?:\/(?:[-A-Za-z0-9._~:@!$&'()*+,;=]|%[A-Fa-f]{2})+)*\/?)(\?(?:[-A-Za-z0-9._~:@!$&'()*+,;=/?]|%[A-Fa-f]{2})*)?(#(?:[-A-Za-z0-9._~:@!$&'()*+,;=/?]|%[A-Fa-f]{2})*)?(?:\b|$))"
+
+def comment_delete(request, course, startindex, pagect_limit):
 
 	data = request.body
 	comment_findid = data.decode('utf-8').split("-")[1]
@@ -25,9 +30,9 @@ def comment_delete(request, course, startindex, page_ct_limit):
 
 		all_course_comments = Comment.objects.filter(course_attr=course).order_by('-date_posted')
 		course_comment_count = len(all_course_comments)
-		page_ct = int(ceil(course_comment_count/page_ct_limit))
+		page_ct = int(ceil(course_comment_count/pagect_limit))
 		try:
-			last_comment = all_course_comments[startindex+page_ct_limit-1]
+			last_comment = all_course_comments[startindex+pagect_limit-1]
 			last_comment_likestat = last_comment.likes_set.filter(user_attr=request.user)
 
 			result.update({
@@ -61,8 +66,8 @@ def comment_add(request, pass_args):
 
 	response = redirect( reverse('course', args=[pass_args['csubj'], str(pass_args['cnum'])]) + 'c/1/' )
 
-	cpagect = pass_args['page_count']
-	npagect = int(ceil( (pass_args['course_commentstotal']+1) / pass_args['page_ct_limit'] ))
+	cpagect = pass_args['commentpage']['count']
+	npagect = int(ceil( (pass_args['course_commentstotal']+1) / pass_args['commentpage']['limit'] ))
 
 	if request.user.is_authenticated:
 		image_uploaded = request.FILES.get('image', None)
@@ -78,12 +83,15 @@ def comment_add(request, pass_args):
 		resultid = new_comment.id
 		comment_html = render_to_string('reviewer/partials/comment.html', { 'comment': new_comment, 'request': request, 'user' : request.user }).strip()
 		if pass_args['cpage'] == 1:
+
+			## Replace HTML content here
+
 			data = { 
 				'commentid': resultid,
 				'comment_html' : comment_html
 			}
 
-			if (npagect != cpagect) and ((pass_args['course_commentstotal']+1) > pass_args['page_ct_limit']):
+			if (npagect != cpagect) and ((pass_args['course_commentstotal']+1) > pass_args['commentpage']['limit']):
 				pass_args.update({ 'page_count' : npagect,  'request': request, 'user' : request.user })
 				data['page_create'] = render_to_string('reviewer/partials/course/course-comments-pagination.html', pass_args ).strip()
 			else:
@@ -141,63 +149,69 @@ def course(request, csubj, cnum):
  
 def coursecpage(request, csubj, cnum, catchar = 'l', cpage = 1):
 
-	if not catchar:
-		catchar = "l"
-		cpage = 1
+	coursefilter = Course.objects.filter(code__iexact=csubj).filter(number__iexact=str(cnum)).first()
 
-	if not cpage: cpage = 1
-	cpage = int(cpage)
-	page_ct_limit = settings.IMPORT_COMMENT_CT	
+	if coursefilter:
 
-	coursefilter = Course.objects.filter(code__iexact=csubj).filter(number__iexact=str(cnum))
+		cpage = 1 if int(cpage) < 1 else int(cpage)
+		pagect_limit = settings.IMPORT_COMMENT_CT	
 
-	if (len(coursefilter) > 0):
-		if cpage < 1: cpage = 1
-
-		startindex = (cpage - 1)*page_ct_limit
-		all_course_comments = coursefilter[0].comment_set.order_by('-date_posted')
-		course_comments_filtered = all_course_comments[startindex:startindex+page_ct_limit]
+		startindex = pagect_limit*(cpage - 1)
+		all_course_comments = coursefilter.comment_set.order_by('-date_posted')
+		course_comments_filtered = all_course_comments[startindex:startindex+pagect_limit]
 		course_commentstotal = len(all_course_comments)
 
-		page_ct = int(ceil(course_commentstotal/page_ct_limit))
+		page_ct = int(ceil(course_commentstotal/pagect_limit))
 
-		if cpage > page_ct and page_ct != 0:
+		commentpage = {
+				'current': cpage,
+				'prev' : cpage-1,
+				'next'	: cpage+1,
+				'count': page_ct,
+				'limit' : pagect_limit
+		}
+
+		if commentpage['current'] > commentpage['count'] and commentpage['count'] != 0:
 			return redirect('course', csubj, cnum)
 		else:
 			if request.method == "POST":
-				pass_args = { 	'course_filt': coursefilter[0],
+				pass_args = { 	'course_filt': coursefilter,
 								'csubj': csubj,
 								'cnum' : cnum,
-								'cpage' : cpage,
-								'prev_page' : cpage-1,
-								'next_page' : cpage+1,
 								'course_commentstotal' : course_commentstotal,
-								'page_ct_limit' : page_ct_limit,
-								'page_count' :	page_ct
+								'commentpage' : commentpage
 							}
 				return comment_add(request, pass_args)
 			elif request.method == "DELETE":
-				return comment_delete(request, coursefilter[0], startindex, page_ct_limit)
+				return comment_delete(request, coursefilter, startindex, commentpage['limit'])
 			elif request.method == "GET":
 
-				liked_comments = None
+				liked_comments = list(Likes.objects.filter(user_attr=request.user).values_list('comment__id', flat=True)) if request.user.is_authenticated else [] 
 				commentform = CommentForm(auto_id="comment-form", request=request)
 
-				if request.user.is_authenticated:
-					liked_comments = list(Likes.objects.filter(user_attr=request.user).values_list('comment__id', flat=True))
+				course_comments = {
+					'content' : [],
+					'form' : commentform,
+					'count' : course_commentstotal
+				}
+
+
+				for comment in course_comments_filtered:
+					## Replace hyperlinks, change like status in back-end, escape characters here as tradeoff
+
+					comment_index = {
+						'base' : comment,
+						'proc' : re.sub( hlink_regex(), "<a href='\\1'>\\1</a>", comment.body),
+						'liked' : comment.id in liked_comments
+					}
+
+					course_comments['content'].append(comment_index)
 
 				context = {
-					'course_filt': coursefilter[0],
-					'course_comment_count': course_commentstotal,
-					'course_comments': course_comments_filtered,
-					'comment_form': commentform,
-					'liked_comments': liked_comments,
+					'course_filt': coursefilter,
+					'course_comments': course_comments,
 					'section': catchar,
-					'page_count' : page_ct,
-					'cpage' : cpage,
-					'prev_page' : cpage-1,
-					'next_page' : cpage+1,
-					'page_limit' : page_ct_limit
+					'commentpage' : commentpage
 				}
 
 				return render(request, 'reviewer/courses/course.html', context)

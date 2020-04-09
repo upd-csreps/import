@@ -104,7 +104,7 @@
 			    		<div class="d-flex position-relative" style="left: 4.7em; bottom:2.5em">
 							<i class="material-icons my-auto mr-2 import-font-primary">mode_comment</i> 
 							<div class="position-absolute d-flex" style="color: white; width: 1.5em"><small class="comme-count position-relative m-auto font-weight-bold" style="top:0.05rem">
-								{{ course_comment_count }}
+								{{ course_comments.count }}
 							</small></div>
 						</div>
 					</div>
@@ -133,11 +133,10 @@
 {% block scripts %}
 
 	<script src="{% static 'reviewer/js/import_comments.js' %}"></script>
+	<script>
 
-	<!-- Comments -->
-	<script class="d-none">
 
-		{% if cpage == 1 %}
+		{% if commentpage.current == 1 %}
 			$(".comment-form").submit(function(event){
 
 		    // Prevent default posting of form - put here to work in case of errors
@@ -164,14 +163,14 @@
 		                success: function (response, status, xhr){
 
 					    	let newcomment = response.comment_html;
-							importApp.comments.count.byCourse != 0? $(".course-comments").prepend(newcomment) : $(".course-comments").html(newcomment);
+							importApp.comments.count.byCourse() != 0? $(".course-comments").prepend(newcomment) : $(".course-comments").html(newcomment);
 							
 							newcomment = $(`.course-comments [data-comment-id='comment-${response.commentid}']`);
 							newcomment.addClass("the-new-comment");
 							newcommentbody = newcomment.find('.comment-body');
 
 							newcommentbody.html( 
-								replace_url(replace_vid_url( newcommentbody.html() )) 
+								
 							);
 
 							newcomment.fadeIn(2000);
@@ -179,8 +178,10 @@
 							renderMathInElement(document.body);
 	
 							$('.page-count-parent').html(response.page_create);
-							coursect = coursect+1;
-							$(".comme-count").html(coursect);
+							importApp.comments.count.byCourse(
+								importApp.comments.count.byCourse()+1
+							);
+							$(".comme-count").html();
 
 					    	$(".comment-text-area").val("");
 					    	clearImage("comment-image-upload", document.querySelector(".import-image-drag"));
@@ -197,15 +198,14 @@
 		
 		importApp.load({
 			comments: {
-				pageLimit : {{page_limit}}
+				pageLimit : {{commentpage.limit}}
 			},
 			urls: {  
 				likeURL : "{% url 'comment_like' '$course_code' 123456789 %}",
 				courseURL : "{% url 'course' '$course_code' 123456789 %}"
 			},
 			init : function(){
-				importApp.comments.count.byCourse({{course_comment_count}});
-				importApp.comments.loadLikeIcon({{liked_comments}});
+				importApp.comments.count.byCourse({{course_comments.count}});
 			}
 		});
 		initDragBoxData(true);

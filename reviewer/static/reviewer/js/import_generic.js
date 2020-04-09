@@ -57,37 +57,60 @@
 
 			hyperlink: function (content){
 				//Hyperlink Support
-
 				let linksFound = [];
 
 				let url_length = 30;
-				let linkico = `<i class="material-icons link-ico my-auto ml-1">link</i>`;
-
+				let linkIco = `<i class="material-icons link-ico my-auto ml-1">link</i>`;
 
 				let hlinkRegExParts = {
-					scheme : /(?:([a-z][a-z0-9+.-]*):)?/ig,
-					slash : /(?:\/\/)?/ig,
-					auth : /(?:([-a-z0-9_'](?:(?:\.?(?:[-a-z0-9_'~]|%[a-f]{2}))*[-a-z0-9_'])?)(?::((?:[-a-z0-9_'~!$&()\*+,;=]|%[a-f]{2})*))@)?/ig,
-					host : /((?:localhost)|(?:(?:1?[0-9]{1,2}|2[0-5]{1,2})(?:\.(?:1?[0-9]{1,2}|2[0-5]{1,2})){3})|(?:\[(?:[0-9a-f:]+)\])|(?:[a-z0-9](?:(?:\.?[-a-z0-9])*[a-z0-9])?\.[a-z0-9](?:[-a-z0-9]*[a-z0-9])?))/ig,
-					port : /(?::[0-9]+)?/ig,
-					path : /((?:\/(?:[-a-z0-9._~:@!$&'()*+,;=]|%[a-f]{2})+)*\/?)/,
-					query : /(\?(?:[-a-z0-9._~:@!$&'()*+,;=/?]|%[a-f]{2})*)?/,
-					fragment : /(#(?:[-a-z0-9._~:@!$&'()*+,;=/?]|%[a-f]{2})*)?/
+					scheme : /(?:([a-z][a-z0-9+.-]*):)?/i,
+					slash : /(?:\/\/)?/i,
+					auth : /(?:([-a-z0-9_'](?:(?:\.?(?:[-a-z0-9_'~]|%[a-f]{2}))*[-a-z0-9_'])?)(?::((?:[-a-z0-9_'~!$&()\*+,;=]|%[a-f]{2})*))@)?/i,
+					host : /((?:localhost)|(?:(?:1?[0-9]{1,2}|2[0-5]{1,2})(?:\.(?:1?[0-9]{1,2}|2[0-5]{1,2})){3})|(?:\[(?:[0-9a-f:]+)\])|(?:[a-z0-9](?:(?:\.?[-a-z0-9])*[a-z0-9])?\.[a-z0-9](?:[-a-z0-9]*[a-z0-9])?))/i,
+					port : /(?::[0-9]+)?/i,
+					path : /((?:\/(?:[-a-z0-9._~:@!$&'()*+,;=]|%[a-f]{2})+)*\/?)/i,
+					query : /(\?(?:[-a-z0-9._~:@!$&'()*+,;=/?]|%[a-f]{2})*)?/i,
+					fragment : /(#(?:[-a-z0-9._~:@!$&'()*+,;=/?]|%[a-f]{2})*)?/i
 				}
 
-				var hlinkRegEx = /(?:([a-z][a-z0-9+.-]*):)?(?:\/\/)?(?:([-a-z0-9_'](?:(?:\.?(?:[-a-z0-9_'~]|%[a-f]{2}))*[-a-z0-9_'])?)(?::((?:[-a-z0-9_'~!$&()\*+,;=]|%[a-f]{2})*))@)?((?:localhost)|(?:(?:1?[0-9]{1,2}|2[0-5]{1,2})(?:\.(?:1?[0-9]{1,2}|2[0-5]{1,2})){3})|(?:\[(?:[0-9a-f:]+)\])|(?:[a-z0-9](?:(?:\.?[-a-z0-9])*[a-z0-9])?\.[a-z0-9](?:[-a-z0-9]*[a-z0-9])?))(?::[0-9]+)?((?:\/(?:[-a-z0-9._~:@!$&'()*+,;=]|%[a-f]{2})+)*\/?)(\?(?:[-a-z0-9._~:@!$&'()*+,;=/?]|%[a-f]{2})*)?(#(?:[-a-z0-9._~:@!$&'()*+,;=/?]|%[a-f]{2})*)?/ig;
+				var hlinkRegEx = /(?:^|\b)(?:([a-z][a-z0-9+.-]*):)?(?:\/\/)?(?:([-a-z0-9_'](?:(?:\.?(?:[-a-z0-9_'~]|%[a-f]{2}))*[-a-z0-9_'])?)(?::((?:[-a-z0-9_'~!$&()\*+,;=]|%[a-f]{2})*))@)?((?:localhost)|(?:(?:1?[0-9]{1,2}|2[0-5]{1,2})(?:\.(?:1?[0-9]{1,2}|2[0-5]{1,2})){3})|(?:\[(?:[0-9a-f:]+)\])|(?:[a-z0-9](?:(?:\.?[-a-z0-9])*[a-z0-9])?\.[a-z0-9](?:[-a-z0-9]*[a-z0-9])?))(?::[0-9]+)?((?:\/(?:[-a-z0-9._~:@!$&'()*+,;=]|%[a-f]{2})+)*\/?)(\?(?:[-a-z0-9._~:@!$&'()*+,;=/?]|%[a-f]{2})*)?(#(?:[-a-z0-9._~:@!$&'()*+,;=/?]|%[a-f]{2})*)?(?:\b|$)/ig;
 				
-				var element_content=content.replace(hlinkRegEx, function(url){
+				content.replace(hlinkRegEx, function(url){
 
-					console.log(url.match(hlinkRegEx));
-					console.log(url);
+					var tempURL = url;
+					var linkMeta = {
+						'full_url' : url,
+						'favicon' : `http://s2.googleusercontent.com/s2/favicons?domain_url=${url}`,
+						'anchor' : `<a class="d-inline-flex import-ex-link" target='_blank' href='${url}'>${url}</a>`
+					}
 
-					var retval = ` <a class="d-inline-flex import-ex-link" target='_blank' href='${url}'>` 
-					+ `<img class="ml-1 mr-2 my-auto" src='http://s2.googleusercontent.com/s2/favicons?domain_url=${url}'>${url} ${linkico}</a>`;
+					for (let key of Object.keys(hlinkRegExParts)) {
+						tempURL = tempURL.replace(hlinkRegExParts[key], function(item){
+								 if (item != ''){
+								 	if (key == 'query'){
+										linkMeta[key] = {string: item};
 
-					return url;	
+										var searchParams = new URLSearchParams(item);
+										for (let p of searchParams) {
+											linkMeta[key][p[0].replace("amp;", '')] = p[1];
+										}
+									}
+									else
+										linkMeta[key] = item;
+								 } 
 
+								return '';
+							});
+					}
+
+					
+					
+					linksFound.push(linkMeta);
+
+					return '';	
 				});
+
+				return linksFound;
 			}
 		},
 
