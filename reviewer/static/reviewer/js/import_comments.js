@@ -49,16 +49,13 @@
 								if ($(".course-comments").length){
 									if(importApp.comments.count.byCourse() > 0){
 										importApp.comments.count.byCourse(response.course_comment_count);
-										$(".comme-count").html(importApp.comments.count.byCourse);
+										$(".comme-count").html(importApp.comments.count.byCourse());
 									}
 
 									response.page_count>1? null: $(".page-count-parent").html('');
 									
 									if ( $(".course-comments .comment").length > 0){
-										if (response.comment_html){
-											$(".course-comments").append(response.comment_html);
-											response.comment_likestate.status? importApp.comments.loadLikeIcon([response.comment_likestate.ID]) : null;
-										}
+										response.comment_html? $(".course-comments").append(response.comment_html) : null;
 									}
 									else{
 										response.page_count > 0? importApp.urls.redirect(importApp.urls.courseURL + encodeURI(`c/${response.page_count}/`) ) : $(".course-comments").append(response.empty_html);				

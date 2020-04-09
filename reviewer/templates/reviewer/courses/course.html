@@ -36,7 +36,6 @@
 						</div>
 						<div class="mt-1 row">
 							<div class="d-flex flex-column col-lg-8 ml-lg-0 ml-auto mr-auto">
-
 								<p class="text-center text-lg-left">{{course_filt.description}}</p>
 								<small>
 									<div class="mb-1">
@@ -134,13 +133,9 @@
 
 	<script src="{% static 'reviewer/js/import_comments.js' %}"></script>
 	<script>
-
-
 		{% if commentpage.current == 1 %}
 			$(".comment-form").submit(function(event){
-
-		    // Prevent default posting of form - put here to work in case of errors
-		    event.preventDefault();
+		    	event.preventDefault();
 
 		    	{% if user.is_authenticated %}
 
@@ -167,15 +162,10 @@
 							
 							newcomment = $(`.course-comments [data-comment-id='comment-${response.commentid}']`);
 							newcomment.addClass("the-new-comment");
-							newcommentbody = newcomment.find('.comment-body');
-
-							newcommentbody.html( 
-								
-							);
 
 							newcomment.fadeIn(2000);
 							newcomment.removeClass("the-new-comment");
-							renderMathInElement(document.body);
+							renderMathInElement(document.querySelector('.course-comments'));
 	
 							$('.page-count-parent').html(response.page_create);
 							importApp.comments.count.byCourse(
@@ -198,14 +188,14 @@
 		
 		importApp.load({
 			comments: {
-				pageLimit : {{commentpage.limit}}
+				pageLimit : {{commentpage.limit| escapejs}}
 			},
 			urls: {  
 				likeURL : "{% url 'comment_like' '$course_code' 123456789 %}",
 				courseURL : "{% url 'course' '$course_code' 123456789 %}"
 			},
 			init : function(){
-				importApp.comments.count.byCourse({{course_comments.count}});
+				importApp.comments.count.byCourse({{course_comments.count | escapejs}});
 			}
 		});
 		initDragBoxData(true);

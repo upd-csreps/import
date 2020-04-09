@@ -3,7 +3,7 @@
 {% with request.resolver_match.view_name as view_name %}
 <article class="py-4 px-4 d-flex {% if view_name != 'course' and view_name != 'coursecpage' and forloop.counter0 == 0  %} my-3 {% else %} mb-3 {% endif %} comment" data-comment-id="comment-{{comment.base.id}}" data-code="{{comment.base.course_attr.code|lower}}" data-number="{{comment.base.course_attr.number}}">
 
-	{% if comment.user_attr != user or view_name == 'course' %}
+	{% if comment.base.user_attr != user or view_name == 'course' %}
 	<a href="{% url 'user' comment.base.user_attr.username %}">{% endif %}
 		<div>
 			<img class="user-pic-thumb" src="{% if comment.base.user_attr.prof_picID %}
@@ -48,7 +48,7 @@
 							<div class="my-auto ml-1 mr-2 comment-like-count inline-block">
 								{{ comment.base.likes_set.all.count }}
 							</div>
-							{% if user == comment.user_attr %}
+							{% if user == comment.base.user_attr %}
 								<i class="material-icons  material-icon-sm comment-delete" title="Delete comment">delete</i>
 							{% endif %}
 						</span>
@@ -58,10 +58,10 @@
 			</div>
 		</div>
 		<div class="comment-body mt-1">
-			{{comment.proc|safe}}
+			{{comment.proc|safe|linebreaks}}
 		</div>
 
-		{% if comment.image %}
+		{% if comment.base.image %}
 			<img class="mt-3 d-block comment-image" src="{{comment.base.image.url}}">
 		{% endif %}
 	
