@@ -25,6 +25,42 @@
 				},
 			},
 
+			submit: function(that){
+				if (importApp.requests.ajax)
+				        importApp.requests.ajax.abort();
+				  
+				var form = $(that);
+				var formData = new FormData(that);
+				var inputs = form.find("input, select, button, textarea");
+				inputs.prop("disabled", true);
+
+				importApp.requests.ajax =  $.ajax({
+				    type: 'post',
+				    url: "{% url 'course' course_filt.code|lower course_filt.number %}",
+				    data: formData,
+				    cache: false,
+				    contentType: false,
+				    processData: false,
+				    complete: function(){ inputs.prop("disabled", false); },
+				    success: function (response, status, xhr){
+
+				    	let newcomment = response.comment_html;
+						importApp.comments.count.byCourse() != 0? $(".course-comments").prepend(newcomment) : $(".course-comments").html(newcomment);
+						newcomment = $(`.course-comments [data-comment-id='comment-${response.commentid}']`);
+						newcomment.addClass("the-new-comment");
+						newcomment.fadeIn(2000);
+						newcomment.removeClass("the-new-comment");
+						renderMathInElement(document.querySelector('.course-comments'));
+						$('.page-count-parent').html(response.page_create);
+						importApp.comments.count.byCourse( importApp.comments.count.byCourse()+1);
+						$(".comme-count").html(importApp.comments.count.byCourse());
+				    	$(".comment-text-area").val("");
+				    	clearImage("comment-image-upload", document.querySelector(".import-image-drag"));
+				    	$(`.course-comments .comment:nth-of-type(${(importApp.comments.pageLimit+1)})`).remove();
+				    }
+				});
+			},
+
 			delete:  function(that){
 
 				let decision = confirm(importApp.comments.deleteMsg);
@@ -58,13 +94,13 @@
 										response.comment_html? $(".course-comments").append(response.comment_html) : null;
 									}
 									else{
-										response.page_count > 0? importApp.urls.redirect(importApp.urls.courseURL + encodeURI(`c/${response.page_count}/`) ) : $(".course-comments").append(response.empty_html);				
+										response.page_count > 0? importApp.urls.redirect(encodeURI(importApp.urls.courseURL.replace('$course_code', commentpass.attr("data-code")).replace('123456789', commentpass.attr("data-number")) + `c/${response.page_count}/`) ) : $(".course-comments").append(response.empty_html);				
 									}
 								}
 								else if ($(".created-comments").length){
 
 									var commecount = parseInt($(".created-count").html());
-			        				$(".created-count").html(commecount-1);
+									$(".created-count").html(commecount-1);
 								}
 
 								renderMathInElement(document.body);
@@ -163,18 +199,6 @@
 		urls: {
 			courseURL : undefined,
 			likeURL : undefined
-		},
-
-		init: function(){
-			/*
-			$('.comment-body').each(function(){
-				let hlinks = $(this).clone();
-				hlinks.find('.katex-display').remove();
-				hlinks = importApp.urls.hyperlink($(hlinks).html());
-				if (hlinks.length)
-					console.log(hlinks);
-			});
-			*/
 		}
 	}
 	

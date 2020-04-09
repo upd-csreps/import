@@ -21,10 +21,12 @@ def hlinkify(string, url_trunct):
 
 	for link in hlinkdata:
 		urltrunc = escape(link[0][0:url_trunct]+'...')
-		if not (link [4] == 'youtube.com' and link[4] == 'youtu.be' ):
-			comment_body = comment_body.replace(link[0], '<a class="d-inline-flex import-ex-link" target="_blank" href="{}{}">{}</a>'.format("" if link[1] else "http://",link[0], urltrunc if len(link[0]) > url_trunct else escape(link[0]) ))
-		else:
-			comment_body = comment_body.replace(link[0], '<a class="d-inline-flex import-ex-link" target="_blank" href="{}{}">{}</a>'.format("" if link[1] else "http://",link[0], urltrunc if len(link[0]) > url_trunct else escape(link[0]) ))
+		if (link [4] == 'youtube.com' or link[4] == 'youtu.be' ):
+			pass
+		elif (link [4] == 'twitter.com'):
+			pass
+
+		comment_body = comment_body.replace(link[0], '<a class="d-inline-flex import-ex-link" target="_blank" href="{}{}">{}</a>'.format("" if link[1] else "http://",link[0], urltrunc if len(link[0]) > url_trunct else escape(link[0]) ))
 
 	return comment_body
 
@@ -49,7 +51,7 @@ def comment_delete(request, course, startindex, pagect_limit):
 			last_comment_likestat = last_comment.likes_set.filter(user_attr=request.user).first()
 			last_comment = {
 				'base' : last_comment,
-				'proc' : hlinkify(new_comment.body, 33),
+				'proc' : hlinkify(last_comment.body, 50),
 				'liked' : bool(last_comment_likestat)
 			}
 
@@ -75,7 +77,7 @@ def comment_add(request, pass_args):
 	data = request.POST
 	resultid = None 
 
-	response = redirect( reverse('course', args=[pass_args['csubj'], str(pass_args['cnum'])]) + 'c/1/' )
+	response = redirect('coursecpage', csubj, cnum, 'c', 1 )
 
 	cpagect = pass_args['commentpage']['count']
 	npagect = int(ceil( (pass_args['course_commentstotal']+1) / pass_args['commentpage']['limit'] ))
@@ -97,7 +99,7 @@ def comment_add(request, pass_args):
 
 		new_comment = {
 			'base' : new_comment,
-			'proc' : hlinkify(new_comment.body, 33),
+			'proc' : hlinkify(new_comment.body, 50),
 			'liked' : False
 		}
 
@@ -177,58 +179,59 @@ def coursecpage(request, csubj, cnum, catchar = 'l', cpage = 1):
 
 		startindex = pagect_limit*(cpage - 1)
 		all_course_comments = coursefilter.comment_set.order_by('-date_posted')
-		course_comments_filtered = all_course_comments[startindex:startindex+pagect_limit]
 		course_commentstotal = len(all_course_comments)
 
-		page_ct = int(ceil(course_commentstotal/pagect_limit))
-
-		commentpage = {
-				'current': cpage,
-				'prev' : cpage-1,
-				'next'	: cpage+1,
-				'count': page_ct,
-				'limit' : pagect_limit
-		}
-
-		if commentpage['current'] > commentpage['count'] and commentpage['count'] != 0:
-			return redirect('course', csubj, cnum)
+		if ( ((course_commentstotal-1) < startindex) and (course_commentstotal != 0)):
+			return redirect( 'coursecpage', csubj, cnum, 'c',  1 )
 		else:
-			if request.method == "POST":
-				pass_args = { 	'course_filt': coursefilter,
-								'csubj': csubj,
-								'cnum' : cnum,
-								'course_commentstotal' : course_commentstotal,
-								'commentpage' : commentpage
-							}
-				return comment_add(request, pass_args)
-			elif request.method == "DELETE":
-				return comment_delete(request, coursefilter, startindex, commentpage['limit'])
-			elif request.method == "GET":
+			course_comments_filtered = all_course_comments[startindex:startindex+pagect_limit]
+			page_ct = int(ceil(course_commentstotal/pagect_limit))
 
-				liked_comments = list(Likes.objects.filter(user_attr=request.user).values_list('comment__id', flat=True)) if request.user.is_authenticated else [] 
-				commentform = CommentForm(auto_id="comment-form", request=request)
-				course_comments = { 'content' : [], 'form' : commentform, 'count' : course_commentstotal }
+			commentpage = {
+					'current': cpage,
+					'prev' : cpage-1,
+					'next'	: cpage+1,
+					'count': page_ct,
+					'limit' : pagect_limit
+			}
 
-				for comment in course_comments_filtered:
-					comment_body = hlinkify(comment.body, 33)
-					
-					# Add found links tab
+			if commentpage['current'] > commentpage['count'] and commentpage['count'] != 0:
+				return redirect('course', csubj, cnum)
+			else:
+				if request.method == "POST":
+					pass_args = { 	'course_filt': coursefilter,
+									'csubj': csubj,
+									'cnum' : cnum,
+									'course_commentstotal' : course_commentstotal,
+									'commentpage' : commentpage
+								}
+					return comment_add(request, pass_args)
+				elif request.method == "DELETE":
+					return comment_delete(request, coursefilter, startindex, commentpage['limit'])
+				elif request.method == "GET":
 
-					comment_index = {
-						'base' : comment,
-						'proc' : comment_body,
-						'liked' : comment.id in liked_comments
+					liked_comments = list(Likes.objects.filter(user_attr=request.user).values_list('comment__id', flat=True)) if request.user.is_authenticated else [] 
+					commentform = CommentForm(auto_id="comment-form", request=request)
+					course_comments = { 'content' : [], 'form' : commentform, 'count' : course_commentstotal }
+
+					for comment in course_comments_filtered:
+						comment_body = hlinkify(comment.body, 50)
+
+						comment_index = {
+							'base' : comment,
+							'proc' : comment_body,
+							'liked' : comment.id in liked_comments
+						}
+
+						course_comments['content'].append(comment_index)
+
+					context = {
+						'course_filt': coursefilter,
+						'course_comments': course_comments,
+						'section': catchar,
+						'commentpage' : commentpage
 					}
 
-					course_comments['content'].append(comment_index)
-
-				context = {
-					'course_filt': coursefilter,
-					'course_comments': course_comments,
-					'section': catchar,
-					'commentpage' : commentpage
-				}
-
-				return render(request, 'reviewer/courses/course.html', context)
+					return render(request, 'reviewer/courses/course.html', context)
 	else:
 		raise Http404("Course not found.")

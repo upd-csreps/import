@@ -204,6 +204,7 @@ body{
 
 .comment-body p{
 	margin-bottom: 0.5rem;
+	font-size: 0.85rem;
 }
 
 .comment-image{
@@ -234,9 +235,9 @@ body{
 }
 
 .-disabled{
-	opacity: 0.5;
-	pointer-events: none;
-	cursor: default;
+	opacity: 0.15 !important;
+	pointer-events: none !important;
+	cursor: default !important;
 }
 
 .info-help{

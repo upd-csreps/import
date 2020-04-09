@@ -1,7 +1,6 @@
 
 {% extends 'reviewer/base.html' %}
 
-
 {% block title %}
 	{{ course_filt.name }}
 {% endblock %}
@@ -133,58 +132,15 @@
 
 	<script src="{% static 'reviewer/js/import_comments.js' %}"></script>
 	<script>
+
 		{% if commentpage.current == 1 %}
 			$(".comment-form").submit(function(event){
 		    	event.preventDefault();
-
-		    	{% if user.is_authenticated %}
-
-				    if (importApp.requests.ajax)
-				        importApp.requests.ajax.abort();
-				  
-				    var form = $(this);
-				    var formData = new FormData(this);
-				    var inputs = form.find("input, select, button, textarea");
-				    inputs.prop("disabled", true);
-				   
-				    importApp.requests.ajax =  $.ajax({
-		                type: 'post',
-		                url: "{% url 'course' course_filt.code|lower course_filt.number %}",
-		                data: formData,
-		                cache: false,
-		                contentType: false,
-		                processData: false,
-		                complete: function(){ inputs.prop("disabled", false); },
-		                success: function (response, status, xhr){
-
-					    	let newcomment = response.comment_html;
-							importApp.comments.count.byCourse() != 0? $(".course-comments").prepend(newcomment) : $(".course-comments").html(newcomment);
-							
-							newcomment = $(`.course-comments [data-comment-id='comment-${response.commentid}']`);
-							newcomment.addClass("the-new-comment");
-
-							newcomment.fadeIn(2000);
-							newcomment.removeClass("the-new-comment");
-							renderMathInElement(document.querySelector('.course-comments'));
-	
-							$('.page-count-parent').html(response.page_create);
-							importApp.comments.count.byCourse(
-								importApp.comments.count.byCourse()+1
-							);
-							$(".comme-count").html();
-
-					    	$(".comment-text-area").val("");
-					    	clearImage("comment-image-upload", document.querySelector(".import-image-drag"));
-
-					    	$(".course-comments .comment:nth-of-type(" + (importApp.comments.pageLimit+1) + ")").remove();
-					    }
-	                });
-		    	{% endif %}
+		    	{% if user.is_authenticated %}importApp.comments.submit(this);{% endif %}
 			});
 		{% endif %}
 
 		$(".course-comments").on("click", ".comment-delete" , function(e){ e.stopPropagation(); importApp.comments.delete(this); }); 
-
 		
 		importApp.load({
 			comments: {
@@ -200,8 +156,5 @@
 		});
 		initDragBoxData(true);
    
-
-    	
-
 	</script>
 {% endblock %}

@@ -1,18 +1,19 @@
+
 {% if commentpage.count > 1 %}
 
 	{% if commentpage.current > 1 %}
-		<a href="{% url 'course' course_filt.code|lower course_filt.number %}c/1"  {% if commentpage.current <= 1 %} class="-disabled" {%endif%}  >
+		<a href="{% url 'coursecpage' course_filt.code|lower course_filt.number 'c' '1' %}"  {% if commentpage.current <= 1 %} class="-disabled" disabled{%endif%}  >
 	{% endif %}
-			<button class="btn btn-sm btn-light d-inline-flex p-1"{% if commentpage.current <= 1 %} disabled {%endif%}>
+			<button class="btn btn-sm btn-light d-inline-flex p-1{% if commentpage.current <= 1 %} -disabled {%endif%} "{% if commentpage.current <= 1 %} disabled {%endif%}>
 				<i class="material-icons material-icon-sm my-auto">
 					first_page
 				</i>
 			</button>
 	{% if commentpage.current > 1 %}
 		</a>
-		<a href="{% url 'course' course_filt.code|lower course_filt.number %}c/{{commentpage.prev}}">
+		<a href="{% url 'coursecpage' course_filt.code|lower course_filt.number 'c' commentpage.prev  %}" {% if commentpage.current <= 1 %} class="-disabled" disabled{%endif%}>
 	{% endif %}
-			<button class="btn btn-sm btn-light d-inline-flex p-1"  {% if commentpage.current <= 1 %} disabled {%endif%}>
+			<button class="btn btn-sm btn-light d-inline-flex p-1 {% if commentpage.current <= 1 %} -disabled {%endif%}" {% if commentpage.current <= 1 %} class="-disabled" disabled{%endif%} >
 				<i class="material-icons material-icon-sm my-auto">
 					chevron_left
 				</i>
@@ -24,18 +25,18 @@
 	<span class="mx-3 font-weight-bold">Page {{commentpage.current}}</span>
 
 	{% if commentpage.current < commentpage.count %}
-		<a href="{% url 'course' course_filt.code|lower course_filt.number %}c/{{commentpage.next}}">
+		<a href="{% url 'coursecpage' course_filt.code|lower course_filt.number 'c' commentpage.next %}" {% if commentpage.current >= commentpage.count %} class="-disabled" disabled{%endif%}>
 	{% endif %}
-			<button class="btn btn-sm btn-light d-inline-flex p-1" {% if commentpage.current >= commentpage.count %} disabled {%endif%}>
-				<i class="material-icons material-icon-sm my-auto">
+			<button class="btn btn-sm btn-light d-inline-flex p-1 {% if commentpage.current >= commentpage.count %} -disabled{%endif%}"  {% if commentpage.current >= commentpage.count %} disabled{%endif%}>
+				<i class="material-icons material-icon-sm my-auto" {% if commentpage.current >= commentpage.count %} disabled{%endif%}>
 					chevron_right
 				</i>
 			</button>
 	{% if commentpage.current < commentpage.count %}
 		</a>
-		<a href="{% url 'course' course_filt.code|lower course_filt.number %}c/{{commentpage.count}}">
+		<a href="{% url 'coursecpage' course_filt.code|lower course_filt.number 'c' commentpage.count %}" {% if commentpage.current >= commentpage.count %} class="-disabled" disabled{%endif%}>
 	{% endif %}
-			<button class="btn btn-sm btn-light d-inline-flex p-1" {% if commentpage.current >= commentpage.count %} disabled {%endif%}>
+			<button class="btn btn-sm btn-light d-inline-flex p-1 {% if commentpage.current >= commentpage.count %} -disabled{%endif%}"  {% if commentpage.current >= commentpage.count %} disabled{%endif%}>
 					<i class="material-icons material-icon-sm my-auto">
 						last_page
 					</i>
