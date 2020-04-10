@@ -102,7 +102,7 @@ class Comment(models.Model):
 
 	course_attr = models.ForeignKey(Course, on_delete=models.CASCADE)
 	user_attr = models.ForeignKey(ImportUser, on_delete=models.CASCADE)
-	body = models.CharField(max_length=150)
+	body = models.CharField(max_length=240)
 	image = models.ImageField(verbose_name="Image", null=True, blank=True, upload_to=post_uploadto)
 	date_posted = models.DateTimeField("Date Posted", default=timezone.now)
 

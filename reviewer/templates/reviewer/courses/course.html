@@ -130,8 +130,21 @@
 
 {% block scripts %}
 
+	<script src="{% static 'reviewer/js/circle-progress.min.js' %}"></script>
 	<script src="{% static 'reviewer/js/import_comments.js' %}"></script>
 	<script>
+
+		$('#comment-circle').circleProgress({
+			value: 0,
+			size: 25,
+			lineCap: 'round',
+			startAngle : (-Math.PI)/2,
+			fill: {
+				color: ["#ff9172"],
+				emptyFill: '#f8ef60'
+			},
+			animation: false
+		});
 
 		{% if commentpage.current == 1 %}
 		$(".comment-form").submit(function(event){
@@ -155,6 +168,23 @@
 			}
 		});
 		initDragBoxData(true);
+
+		$('.comment-text-area').keydown(function(event){
+			var max_length = $(this).attr("maxlength");
+			var letterct = max_length - $('.comment-text-area').val().length;
+			var percent = $('.comment-text-area').val().length/max_length;
+			$('.comment-letter-count').html(letterct);
+			$('#comment-circle').circleProgress('value', percent); 
+		});
+
+		$('.comment-text-area').keyup(function(event){
+			var max_length = $(this).attr("maxlength");
+			var letterct = max_length - $('.comment-text-area').val().length;
+			var percent = $('.comment-text-area').val().length/max_length;
+			$('.comment-letter-count').html(letterct);
+			$('#comment-circle').circleProgress('value', percent); 
+		});
+
    
 	</script>
 {% endblock %}

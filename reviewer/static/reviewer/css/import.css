@@ -312,7 +312,7 @@ body{
 .import-image-uploaded-icon, .addphoto-popper{
 	transition: 0.15s ease-out;
 	opacity: 0;
-	z-index: 0;
+	z-index: -1;
 }
 
 .import-image-drag-enabled:hover .addphoto-popper[data-show], .import-image-drag-enabled:hover .import-image-uploaded-icon{

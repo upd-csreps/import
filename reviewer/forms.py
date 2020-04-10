@@ -57,7 +57,7 @@ class CommentForm(forms.Form):
 			}
 			disabled = False
 
-		self.fields['body'] = forms.CharField(max_length=150, widget=forms.Textarea(attrs=attributes))
+		self.fields['body'] = forms.CharField(max_length=240, widget=forms.Textarea(attrs=attributes))
 		self.fields['image'] = forms.ImageField(required=False, disabled=disabled)
 
 

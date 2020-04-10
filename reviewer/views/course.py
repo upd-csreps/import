@@ -7,7 +7,7 @@ from django.http import Http404, JsonResponse
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from django.utils.html import escape
-from django.urls import reverse
+from django.urls import resolve
 from math import ceil
 from PIL import Image
 from urllib.parse import parse_qs
@@ -34,13 +34,18 @@ def hlinkify(string, url_trunct):
 					yt_id = parse_qs(link[6][1:])['v']
 				media = render_to_string(embeds_dir + '/youtube-embed.html', { 'youtubeID': yt_id }).strip()
 			elif (link [4] == 'facebook.com' or link[4] == 'www.facebook.com'):
+				fb_type = ''
 				if 'video' in link[5]:
 					fb_type = 'video'
 				elif 'comment' in link[6]:
 					fb_type = 'comment'
-				else:
+				elif 'post' in link[5]:
 					fb_type = 'post'
-				media = render_to_string(embeds_dir + 'fb-embed.html', { 'type': fb_type, 'fb_link': 'http://{}{}{}'.format(link[4],link[5],link[6]) }).strip()
+
+				if fb_type:
+					media = render_to_string(embeds_dir + '/fb-embed.html', { 'type': fb_type, 'fb_link': 'http://{}{}{}'.format(link[4],link[5],link[6]) }).strip()
+				else:
+					pass
 			elif (link [4] == 'twitter.com' or link [4] == 'www.twitter.com'):
 				media = render_to_string(embeds_dir + '/tweet-widget.html', { 'twitter_link': 'http://{}{}'.format(link[4],link[5]) }).strip()
 			elif (link [4] == 'giphy.com'):
@@ -58,11 +63,9 @@ def hlinkify(string, url_trunct):
 			elif (link [4] == 'github.com'):
 				media = render_to_string(embeds_dir + '/github-button.html', { 'github_link': link[0] }).strip()
 
-
 		comment_body = comment_body.replace(link[0], '<a class="d-inline-flex import-ex-link" target="_blank" href="{}{}">{}</a>'.format("" if link[1] else "http://",link[0], urltrunc if len(link[0]) > url_trunct else escape(link[0]) ))
 
-	return comment_body + media
-
+	return { 'body' : comment_body, 'media' : media}
 
 def comment_delete(request, course, startindex, pagect_limit):
 
@@ -82,9 +85,13 @@ def comment_delete(request, course, startindex, pagect_limit):
 		try:
 			last_comment = all_course_comments[startindex+pagect_limit-1]
 			last_comment_likestat = last_comment.likes_set.filter(user_attr=request.user).first()
+
+			comment_finding = hlinkify(last_comment.body, 50)
+
 			last_comment = {
 				'base' : last_comment,
-				'proc' : hlinkify(last_comment.body, 50),
+				'proc' : comment_finding['body'],
+				'media' : comment_finding['media'],
 				'liked' : bool(last_comment_likestat)
 			}
 
@@ -128,11 +135,12 @@ def comment_add(request, pass_args):
 		new_comment = Comment.objects.create(course_attr=pass_args['course_filt'], user_attr=request.user, body=data['body'].strip(), image=image_uploaded)	
 		resultid = new_comment.id
 
-		## Replace HTML content here
+		comment_finding = hlinkify(new_comment.body, 50)
 
 		new_comment = {
 			'base' : new_comment,
-			'proc' : hlinkify(new_comment.body, 50),
+			'proc' : comment_finding['body'],
+			'media' : comment_finding['media'],
 			'liked' : False
 		}
 
@@ -176,8 +184,21 @@ def comment_like(request, csubj, cnum):
 				liked_comment  = None
 			else:
 				Likes.objects.create(comment_id=int(comment_findid), user_attr=request.user)
-				liked_comment = render_to_string('reviewer/partials/comment.html', { 'comment': liked_comment, 'request': request, 'user' : request.user }).strip()
 				like_state = True
+
+				if resolve(request.path)[0] == 'user':
+					comment_finding = hlinkify(liked_comment.body, 50)
+					liked_comment = {
+						'base' : liked_comment,
+						'proc' : comment_finding['body'],
+						'media' : comment_finding['media'],
+						'liked' : True
+					}
+
+					liked_comment = render_to_string('reviewer/partials/comment.html', { 'comment': liked_comment, 'request': request, 'user' : request.user }).strip()
+				else:
+					liked_comment = None
+
 
 			like_count_callback = {
 				'count': len(comm_all_like), 
@@ -248,11 +269,12 @@ def coursecpage(request, csubj, cnum, catchar = 'l', cpage = 1):
 					course_comments = { 'content' : [], 'form' : commentform, 'count' : course_commentstotal }
 
 					for comment in course_comments_filtered:
-						comment_body = hlinkify(comment.body, 50)
+						comment_finding = hlinkify(comment.body, 50)
 
 						comment_index = {
 							'base' : comment,
-							'proc' : comment_body,
+							'proc' : comment_finding['body'],
+							'media' : comment_finding['media'],
 							'liked' : comment.id in liked_comments
 						}
 

@@ -7,17 +7,13 @@
 
 
 <div class="row mx-0 pb-4">
-
 	<section class="col-lg-4">
   		<form class="form-group comment-form pb-5" enctype="multipart/form-data" method="POST" action="{% url 'course' course_filt.code|lower course_filt.number %}c/{{commentpage.current}}/" id="{{course_comments.form.auto_id}}">
 			{% csrf_token %}
-
 			{{ course_comments.form.body }}
-
 			<div class="my-3 comment-image-upload d-none position-absolute">
 				{{ course_comments.form.image }}
 			</div>
-
 			<div class="d-flex my-3">
 				<button class="mr-auto border-dashed import-image-drag {% if user.is_authenticated %}import-image-drag-enabled{%else%}-disabled{%endif%}" data-file-target="comment-image-upload" style="border-width: 1px" type="button" id="photo_upload" aria-describedby="addphoto-popper">
 					{% if user.is_authenticated %}
@@ -31,8 +27,11 @@
 					</i>
 				</button>
 
-
-				<div class="ml-auto my-auto">
+				<div class="ml-auto my-auto d-flex">
+					<div id="comment-circle" class="my-auto" style="line-height: 0;"></div>
+					<small class="mx-2 my-auto comment-letter-count text-center" style="width: 2rem;">150</small>
+				</div>
+				<div class="my-auto">
 					<button type="submit" form="{{course_comments.form.auto_id}}" class="btn btn-primary {% if user.is_anonymous %} -disabled {% endif %} course-comment-submit d-flex" >
 						<div class="my-auto d-flex">
 							<span class="my-auto mr-1">
