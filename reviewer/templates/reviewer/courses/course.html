@@ -134,10 +134,10 @@
 	<script>
 
 		{% if commentpage.current == 1 %}
-			$(".comment-form").submit(function(event){
-		    	event.preventDefault();
-		    	{% if user.is_authenticated %}importApp.comments.submit(this);{% endif %}
-			});
+		$(".comment-form").submit(function(event){
+			event.preventDefault();
+			{% if user.is_authenticated %}importApp.comments.submit(this);{% endif %}
+		});
 		{% endif %}
 
 		$(".course-comments").on("click", ".comment-delete" , function(e){ e.stopPropagation(); importApp.comments.delete(this); }); 

@@ -247,8 +247,6 @@
 
 		}
 
-		
-
 	}
 
 	function initPhotoDragBox(){

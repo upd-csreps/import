@@ -1,0 +1,8 @@
+
+{% if spotify_embed == 'artist' %}
+	<iframe src="https://open.spotify.com/follow/1/?uri=spotify:artist:{{spotify_id}}&size=detail&theme={% if user.dark_mode %}dark{%else%}light{%endif%}" width="300" height="56" scrolling="no" frameborder="0" style="border:none; overflow:hidden;" allowtransparency="true"></iframe>
+{% else%}
+	{% if spotify_embed == 'track' or spotify_embed == 'album'}
+	<iframe src="https://open.spotify.com/embed/{{spotify_embed}}/{{spotify_id}}" width="300" height="80" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+	{% endif %}
+{% endif %}

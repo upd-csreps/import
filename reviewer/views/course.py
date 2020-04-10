@@ -10,25 +10,58 @@ from django.utils.html import escape
 from django.urls import reverse
 from math import ceil
 from PIL import Image
+from urllib.parse import parse_qs
 import re
 
-hlink_regex = "(?:^|\b|\s)((?:([A-Za-z][A-Za-z0-9+.-]*):)?(?:\/\/)?(?:([-A-Za-z0-9_'](?:(?:\.?(?:[-A-Za-z0-9_'~]|%[A-Fa-f]{2}))*[-A-Za-z0-9_'])?)(?::((?:[-A-Za-z0-9_'~!$&()\*+,;=]|%[A-Fa-f]{2})*))@)?((?:localhost)|(?:(?:1?[0-9]{1,2}|2[0-5]{1,2})(?:\.(?:1?[0-9]{1,2}|2[0-5]{1,2})){3})|(?:\[(?:[0-9A-Fa-f:]+:[0-9A-Fa-f:]+)+\])|(?:(?:[Ww]{3}\.)?[A-Za-z0-9](?:(?:\.?[-A-Za-z0-9])*[A-Za-z0-9])?\.[A-Za-z0-9](?:[-A-Za-z0-9]*[A-Za-z0-9])?))(?::[0-9]+)?((?:\/(?:[-A-Za-z0-9._~:@!$&'()*+,;=]|%[A-Fa-f]{2})+)*\/?)(\?(?:[-A-Za-z0-9._~:@!$&'()*+,;=/?]|%[A-Fa-f]{2})*)?(#(?:[-A-Za-z0-9._~:@!$&'()*+,;=/?]|%[A-Fa-f]{2})*)?)(?:\b|\s|$)"
+hlink_regex = "(?:^|\b|\s)((?:([A-Za-z][A-Za-z0-9+.-]*):)?(?:\/\/)?(?:([-A-Za-z0-9_'](?:(?:\.?(?:[-A-Za-z0-9_'~]|%[A-Fa-f]{2}))*[-A-Za-z0-9_'])?)(?::((?:[-A-Za-z0-9_'~!$&()\*+,;=]|%[A-Fa-f]{2})*))@)?((?:localhost)|(?:(?:1?[0-9]{1,2}|2[0-5]{1,2})(?:\.(?:1?[0-9]{1,2}|2[0-5]{1,2})){3})|(?:\[(?:[0-9A-Fa-f:]+:[0-9A-Fa-f:]+)+\])|(?:[A-Za-z0-9](?:(?:\.?[-A-Za-z0-9])*[A-Za-z0-9])?\.[A-Za-z0-9](?:[-A-Za-z0-9]*[A-Za-z0-9])?))(?::[0-9]+)?((?:\/(?:[-A-Za-z0-9._~:@!$&'()*+,;=]|%[A-Fa-f]{2})+)*\/?)(\?(?:[-A-Za-z0-9._~:@!$&'()*+,;=/?]|%[A-Fa-f]{2})*)?(#(?:[-A-Za-z0-9._~:@!$&'()*+,;=/?]|%[A-Fa-f]{2})*)?)(?:\b|\s|$)"
 
 def hlinkify(string, url_trunct):
 
 	comment_body = string
 	hlinkdata = re.findall( hlink_regex, comment_body)
+	media = ''
 
 	for link in hlinkdata:
+		
 		urltrunc = escape(link[0][0:url_trunct]+'...')
-		if (link [4] == 'youtube.com' or link[4] == 'youtu.be' ):
-			pass
-		elif (link [4] == 'twitter.com'):
-			pass
+		embeds_dir = 'reviewer/partials/media-embeds'
+
+		if not media:
+			if (link [4] == 'www.youtube.com'  or link[4] == 'youtube.com' or link[4] == 'youtu.be' ):
+				if link[4] == 'youtu.be' and link[5]:
+					yt_id = link[5][1:]
+				elif link[6]:
+					yt_id = parse_qs(link[6][1:])['v']
+				media = render_to_string(embeds_dir + '/youtube-embed.html', { 'youtubeID': yt_id }).strip()
+			elif (link [4] == 'facebook.com' or link[4] == 'www.facebook.com'):
+				if 'video' in link[5]:
+					fb_type = 'video'
+				elif 'comment' in link[6]:
+					fb_type = 'comment'
+				else:
+					fb_type = 'post'
+				media = render_to_string(embeds_dir + 'fb-embed.html', { 'type': fb_type, 'fb_link': 'http://{}{}{}'.format(link[4],link[5],link[6]) }).strip()
+			elif (link [4] == 'twitter.com' or link [4] == 'www.twitter.com'):
+				media = render_to_string(embeds_dir + '/tweet-widget.html', { 'twitter_link': 'http://{}{}'.format(link[4],link[5]) }).strip()
+			elif (link [4] == 'giphy.com'):
+				giphy_ID = link[5].split('-')
+				giphy_ID = giphy_ID[len(giphy_ID)-1]
+				media = render_to_string(embeds_dir + '/giphy-embed.html', { 'giphy_ID': giphy_ID, 'giphy_link': link[0] }).strip()
+			elif (link [4] == 'www.desmos.com'):
+				media = render_to_string(embeds_dir + '/desmos-embed.html', { 'desmos_link': link[0] }).strip()
+			elif (link [4] == 'codepen.io'):
+				pen_paths  = link[5][1:].split('/')
+				media = render_to_string(embeds_dir + '/codepen-embed.html', { 'pen_user': pen_paths[0], 'pen_slug': spotify_paths[2], 'user' : request.user  }).strip()
+			elif (link [4] == 'open.spotify.com' and link[5]):
+				spotify_paths = link[5][1:].split('/')
+				media = render_to_string(embeds_dir + 'spotify-widget.html', { 'spotify_embed': spotify_paths[0], 'spotify_id': spotify_paths[1], 'user' : request.user }).strip()
+			elif (link [4] == 'github.com'):
+				media = render_to_string(embeds_dir + '/github-button.html', { 'github_link': link[0] }).strip()
+
 
 		comment_body = comment_body.replace(link[0], '<a class="d-inline-flex import-ex-link" target="_blank" href="{}{}">{}</a>'.format("" if link[1] else "http://",link[0], urltrunc if len(link[0]) > url_trunct else escape(link[0]) ))
 
-	return comment_body
+	return comment_body + media
 
 
 def comment_delete(request, course, startindex, pagect_limit):
@@ -77,7 +110,7 @@ def comment_add(request, pass_args):
 	data = request.POST
 	resultid = None 
 
-	response = redirect('coursecpage', csubj, cnum, 'c', 1 )
+	response = redirect('coursecpage', pass_args['csubj'], pass_args['cnum'], 'c', 1 )
 
 	cpagect = pass_args['commentpage']['count']
 	npagect = int(ceil( (pass_args['course_commentstotal']+1) / pass_args['commentpage']['limit'] ))
@@ -92,7 +125,7 @@ def comment_add(request, pass_args):
 		except:
 			image_uploaded = None
 
-		new_comment = Comment.objects.create(course_attr=pass_args['course_filt'], user_attr=request.user, body=data['body'], image=image_uploaded)	
+		new_comment = Comment.objects.create(course_attr=pass_args['course_filt'], user_attr=request.user, body=data['body'].strip(), image=image_uploaded)	
 		resultid = new_comment.id
 
 		## Replace HTML content here

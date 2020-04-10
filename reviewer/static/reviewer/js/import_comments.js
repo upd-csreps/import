@@ -1,5 +1,5 @@
 	
-	let importComment =  {
+	var importComment =  {
 
 		module_name: "importComment",
 		comments : {
@@ -36,7 +36,7 @@
 
 				importApp.requests.ajax =  $.ajax({
 				    type: 'post',
-				    url: "{% url 'course' course_filt.code|lower course_filt.number %}",
+				    url: window.location.href,
 				    data: formData,
 				    cache: false,
 				    contentType: false,
@@ -204,5 +204,6 @@
 	
 	Object.defineProperty(importComment.comments, 'likeLimit', { writable: false, configurable: false });
 	importApp.load(importComment);
+	delete importComment;
 
 	$(".comment-action").on("click", ".comment-like" , function(e){ e.stopPropagation(); importApp.comments.likeClick(this) }); 
