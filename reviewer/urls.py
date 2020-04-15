@@ -9,6 +9,7 @@ urlpatterns = [
     path('course/<str:csubj>/<int:cnum>/', views.course, name="course"),
     re_path(r'^course/(?P<csubj>[a-zA-Z]+)/(?P<cnum>\d+)(?:/(?P<catchar>[c,l,r])(?:/(?P<cpage>\d+))?)?/$', views.coursecpage, name="coursecpage"),
     path('course/<str:csubj>/<int:cnum>/like/', views.comment_like, name="comment_like"),
+    path('course/<str:csubj>/<int:cnum>/ref-get/', views.course_ref, name="course_ref"),
 
     # Super User URLs
     path('su/', views.admin , name="admin"),

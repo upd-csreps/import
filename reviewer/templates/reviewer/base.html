@@ -92,16 +92,12 @@
 			<script src="{% static 'reviewer/js/import_generic.js' %}"></script>
 			<script id="debug-script">importApp.debug("{{debug}}")</script>
 			{% if user.is_authenticated %}
-				{% if not user.email or not user.first_name or not user.last_name %}
-					<script>
-						importApp.users.Check("{% url 'user_redirect_info' %}");
-					</script>
-				{% endif %}
+			{% if not user.email or not user.first_name or not user.last_name %}
+			<script>importApp.users.Check("{% url 'user_redirect_info' %}");</script>
 			{% endif %}
-
+			{% endif %}
 			{% block scripts %}
 			{% endblock %}
-
 		</div>
 	</body>
 </html>

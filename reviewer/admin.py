@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Course, Lesson, Module, Question, ImportUser, Language, Comment
+from .models import Course, Lesson, Question, ImportUser, Language, Comment
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
 from .forms import ImportUserCreationForm, ImportUserChangeForm
@@ -27,6 +27,5 @@ admin.site.register(ImportUser, ImportUserAdmin)
 admin.site.register(Course)
 admin.site.register(Comment)
 admin.site.register(Lesson)
-admin.site.register(Module)
 admin.site.register(Question)
 admin.site.register(Language)

@@ -137,12 +137,15 @@ body{
 	overflow-y: scroll;
 	overflow-x: hidden;
 	overflow-wrap: break-word; 
-	height: 550px;
+	height: 65vh;
 }
 
 .comment{
-	position: sticky;
 	word-break: break-word;
+}
+
+.comment-text-area{
+	font-size: 0.85rem;
 }
 
 .comments::-webkit-scrollbar {
@@ -471,6 +474,12 @@ body{
   border-radius: 50%;
   width: 75px;
   height: 75px;
+}
+
+.loader-sm {
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
 }
 
 .loader.failed{

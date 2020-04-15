@@ -121,7 +121,7 @@
 			  		{% include 'reviewer/partials/course/course-comments.html' %}
 			  </div>
 			  <div class="tab-pane fade {% if section == 'r' %} show active{%endif%}" id="ref" role="tabpanel" aria-labelledby="ref-tab">
-			  		{% include 'reviewer/partials/course/course-references.html' %}
+			  		{% include 'reviewer/partials/course/course-refs-load.html' %}
 			  </div>
 			</div>
 		</div>
@@ -130,10 +130,30 @@
 
 {% block scripts %}
 
+
+	<script async>
+
+		refRequest = $.ajax({
+			url: "{% url 'course_ref' course_filt.code|lower course_filt.number %}",
+			method: "get",
+			timeout: 30000,
+			error: function(xhr, status, error){
+				$('.course-ref').html(
+					`<div class="d-flex my-5"><i class="material-icons text-danger mr-2">error_outline</i>
+					Failed to connect. Please refresh the page or try again later.</div>`
+				)
+			},
+			success: function (response, textStatus, xhr){
+				$('.course-ref').html(response.ref_result);
+			}
+		});			
+
+	</script>
 	<script src="{% static 'reviewer/js/circle-progress.min.js' %}"></script>
 	<script src="{% static 'reviewer/js/import_comments.js' %}"></script>
-	<script>
 
+	<script>
+		
 		$('#comment-circle').circleProgress({
 			value: 0,
 			size: 25,
@@ -159,6 +179,10 @@
 			comments: {
 				pageLimit : {{commentpage.limit| escapejs}}
 			},
+			course:{
+				code: "{{ course_filt.code | escapejs}}",
+				number: {{ course_filt.number }}
+			},
 			urls: {  
 				likeURL : "{% url 'comment_like' '$course_code' 123456789 %}",
 				courseURL : "{% url 'course' '$course_code' 123456789 %}"
@@ -168,23 +192,14 @@
 			}
 		});
 		initDragBoxData(true);
+		
+		$('.comment-text-area').keyup(function(event){importApp.comments.trackCount(this);});
+		$('.comment-text-area').keydown(function(event){importApp.comments.trackCount(this)});
 
-		$('.comment-text-area').keydown(function(event){
-			var max_length = $(this).attr("maxlength");
-			var letterct = max_length - $('.comment-text-area').val().length;
-			var percent = $('.comment-text-area').val().length/max_length;
-			$('.comment-letter-count').html(letterct);
-			$('#comment-circle').circleProgress('value', percent); 
-		});
-
-		$('.comment-text-area').keyup(function(event){
-			var max_length = $(this).attr("maxlength");
-			var letterct = max_length - $('.comment-text-area').val().length;
-			var percent = $('.comment-text-area').val().length/max_length;
-			$('.comment-letter-count').html(letterct);
-			$('#comment-circle').circleProgress('value', percent); 
-		});
-
-   
 	</script>
+
+
+	
+
 {% endblock %}
+

@@ -189,6 +189,14 @@
 						importApp.comments.updateLikeIcon(commentpassID, response.state, response.count, response.com_html);
 					}
 				});			
+			},
+
+			trackCount: function(that){
+				var max_length = $(that).attr("maxlength");
+				var letterct = max_length - $('.comment-text-area').val().length;
+				var percent = $('.comment-text-area').val().length/max_length;
+				$('.comment-letter-count').html(letterct);
+				$('#comment-circle').circleProgress('value', percent); 
 			}
 		},
 	
@@ -199,6 +207,10 @@
 		urls: {
 			courseURL : undefined,
 			likeURL : undefined
+		},
+
+		init: function(){
+			$('.comment-letter-count').html($('.comment-text-area').attr("maxlength"));
 		}
 	}
 	

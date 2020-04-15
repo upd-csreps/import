@@ -193,9 +193,10 @@ def admin_get_course(request, purpose, course_subj="", course_num=""):
 			for i in range(1, settings.GOOGLE_API_RECONNECT_TRIES):
 				try:
 					service = gdrive_connect()
-					userfolder = 'media/users/{}'.format(del_course.name)
-					userfolder = gdrive_traverse_path(service, path=userfolder, create=True)
-					gdrive_delete_file(service, userfolder['id'])
+					reffolder = 'references/{}'.format(del_course.name)
+					reffolder = gdrive_traverse_path(service, path=reffolder, create=True)
+					gdrive_delete_file(service, reffolder['id'])
+					gdrive_delete_file(service, del_course.imageID)
 					break
 				except Exception as e:
 					if settings.DEBUG: print(e)

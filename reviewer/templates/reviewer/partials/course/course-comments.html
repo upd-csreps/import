@@ -5,12 +5,14 @@
 	</nav>
 </div>
 
-
 <div class="row mx-0 pb-4">
 	<section class="col-lg-4">
   		<form class="form-group comment-form pb-5" enctype="multipart/form-data" method="POST" action="{% url 'course' course_filt.code|lower course_filt.number %}c/{{commentpage.current}}/" id="{{course_comments.form.auto_id}}">
 			{% csrf_token %}
+
+		
 			{{ course_comments.form.body }}
+			
 			<div class="my-3 comment-image-upload d-none position-absolute">
 				{{ course_comments.form.image }}
 			</div>
@@ -28,8 +30,10 @@
 				</button>
 
 				<div class="ml-auto my-auto d-flex">
-					<div id="comment-circle" class="my-auto" style="line-height: 0;"></div>
-					<small class="mx-2 my-auto comment-letter-count text-center" style="width: 2rem;">150</small>
+					{% if user.is_authenticated %}
+						<div id="comment-circle" class="my-auto" style="line-height: 0;"></div>
+						<small class="mx-2 my-auto comment-letter-count text-center" style="width: 2rem;"></small>
+					{% endif %}
 				</div>
 				<div class="my-auto">
 					<button type="submit" form="{{course_comments.form.auto_id}}" class="btn btn-primary {% if user.is_anonymous %} -disabled {% endif %} course-comment-submit d-flex" >

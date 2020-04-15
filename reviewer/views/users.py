@@ -3,6 +3,7 @@ from ..models import ImportUser, Comment, Likes, Language
 from ..forms import ImportUserCreationForm
 
 from ..custom import *
+from .course import hlinkify
 
 from django.conf import settings
 from django.contrib.auth import authenticate, login,logout
@@ -21,38 +22,57 @@ def user_get(request, user_filter, error=None):
 	thousand_counter = [10**9, 10**6, 10**3]
 	thousand_marker = ['B', 'M', 'K']
 	liked_comments = []
-	liked_comments_data = []
+	liked_comments_data = {'content': [], 'count': None}
 
 	if (len(user_filter) > 0):
 
-		comments = user_filter[0].comment_set.order_by('-date_posted')
-
+		targetuser_comments = user_filter[0].comment_set.order_by('-date_posted')
 		if request.user.is_authenticated:
 			liked_comments = list(Likes.objects.filter(user_attr=request.user).values_list('comment__id', flat=True))
-
 		target_user_likes = Likes.objects.filter(user_attr=user_filter[0]).select_related('comment').all().reverse()
 
 		for like in target_user_likes:
-			liked_comments_data.append(like.comment)
+			tempcomment = like.comment
+			comment_finding = hlinkify(tempcomment.body, 50)
+
+			comment_index = {
+				'base' : tempcomment,
+				'proc' : comment_finding['body'],
+				'media' : comment_finding['media'],
+				'liked' : (tempcomment.id in liked_comments) if liked_comments else False
+			}
+
+			liked_comments_data['content'].append(comment_index)
 	
-		user_comments_count, liked_comments_data_count = len(comments), len(liked_comments_data)
+		liked_comments_data['count'] = len(liked_comments_data)
+
+		user_comments = { 'content' : [], 'count' : len(targetuser_comments) }
 
 		for index, item in enumerate(thousand_counter):
-			if isinstance(user_comments_count, int) and user_comments_count >= item:
-				user_comments_count = (user_comments_count//item) + thousand_marker[index]
-			if isinstance(liked_comments_data_count, int) and liked_comments_data_count >= item:
-				liked_comments_data_count = (liked_comments_data_count//item) + thousand_marker[index]
-			
+			if isinstance(user_comments['count'], int) and user_comments['count'] >= item:
+				user_comments['count'] = (user_comments['count']//item) + thousand_marker[index]
+			if isinstance(liked_comments_data['count'], int) and liked_comments_data['count'] >= item:
+				liked_comments_data['count'] = (liked_comments_data['count']//item) + thousand_marker[index]
+
+		for comment in targetuser_comments:
+			comment_finding = hlinkify(comment.body, 50)
+
+			comment_index = {
+				'base' : comment,
+				'proc' : comment_finding['body'],
+				'media' : comment_finding['media'],
+				'liked' : (comment.id in liked_comments) if liked_comments else False
+			}
+
+			user_comments['content'].append(comment_index)
 		
 		context = {
 			'user_filt': user_filter[0],
-			'user_comments':comments , 
+			'user_comments': user_comments, 
 			'error': error,
-			'liked_comments': liked_comments,
-			'liked_comments_data' : liked_comments_data,
-			'comments_count' : user_comments_count,
-			'liked_comments_data_count' : liked_comments_data_count
+			'liked_comments_data' : liked_comments_data
 		}
+
 		return render(request, 'reviewer/user/user.html', context)
 	else:
 		raise Http404("User does not exist.")

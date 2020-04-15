@@ -52,7 +52,7 @@ def gdrive_connect(api_creds=settings.GOOGLE_API_CREDS, api_scopes=settings.GOOG
 	creds = service_account.Credentials.from_service_account_info(api_creds, scopes=api_scopes)
 
 	if settings.DEBUG == True:
-		print("Connecting to Google Drive...\n")
+		print("Connecting to Google Drive...")
 
 	return build('drive', 'v3', credentials=creds)
 
@@ -75,7 +75,7 @@ def gdrive_create_file(service, file_metadata):
 def gdrive_get_file(service, fileID, fields=None):
 
 	if fields == None:
-		fields = 'id, name, mimeType, thumbnailLink'
+		fields = 'id, name, mimeType, thumbnailLink, webViewLink, webContentLink'
 
 	try:
 		file = service.files().get(fileId=fileID, fields=fields).execute()
@@ -88,7 +88,7 @@ def gdrive_get_file(service, fileID, fields=None):
 def gdrive_update_file(service, fileID, file_metadata, fields=None):
 
 	if fields == None:
-		fields = 'id, name, mimeType, thumbnailLink'
+		fields = 'id, name, mimeType, thumbnailLink, webViewLink, webContentLink'
 
 	try:
 		file = service.files().update(fileId=fileID, body=file_metadata, fields=fields).execute()
@@ -128,7 +128,7 @@ def gdrive_download_file(service, fileID):
 
 	return fh
 
-def gdrive_list_meta(service, query=None, pageSize=10):
+def gdrive_list_meta(service, query=None, pageSize=10, order=None):
 
 	returned_list = {}
 
@@ -139,8 +139,8 @@ def gdrive_list_meta(service, query=None, pageSize=10):
 	while True:
 		results = service.files().list(pageSize=pageSize,
 	    								q=query,
-	    								fields='nextPageToken, files(id, name, mimeType, thumbnailLink)',
-	                                    pageToken=page_token).execute()
+	    								fields='nextPageToken, files(id, name, mimeType, thumbnailLink, webViewLink, webContentLink)',
+	                                    pageToken=page_token, orderBy=order).execute()
 		
 		items = results.get('files', [])
 
@@ -148,10 +148,18 @@ def gdrive_list_meta(service, query=None, pageSize=10):
 			return None
 		else:
 			for item in items:
+				thumbnail = item.get('thumbnailLink',None)
+
+
+				if thumbnail:
+					thumbnail = '='.join(thumbnail.split('=')[:-1])
+
 				returned_list[ item['id'] ] = {
 					'name' : item.get('name', None), 
-					'mimetype' : item.get('mimeType', None), 
-					'thumbnailLink' : item.get('thumbnailLink',None) 
+					'mimetype' : item.get('mimeType', None),
+					'thumbnailLink' : thumbnail,
+					'webViewLink' : item.get('webViewLink', None),
+					'webContentLink' : item.get('webContentLink', None),
 				}
 
 		page_token = results.get('nextPageToken', None)
@@ -182,7 +190,7 @@ def gdrive_list_meta_files(service, query=None, pageSize=10):
 	return gdrive_list_meta(service, query=query, pageSize=pageSize)
 
 
-def gdrive_list_meta_children(service, folderID=None, query="", pageSize=None):
+def gdrive_list_meta_children(service, folderID=None, query="", pageSize=None, order=None):
 
 	if folderID == None:
 		folderID = gdrive_import_folderID()
@@ -191,7 +199,7 @@ def gdrive_list_meta_children(service, folderID=None, query="", pageSize=None):
 		query = "\'"+ folderID + "\' in parents"
 	else:
 		query = "\'"+ folderID + "\' in parents and " + query
-	return gdrive_list_meta(service, query, pageSize=pageSize)
+	return gdrive_list_meta(service, query, pageSize=pageSize, order=order)
 
 
 def gdrive_traverse_path(service, path, create=False):

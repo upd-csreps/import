@@ -1,6 +1,8 @@
 
+from ..custom import *
 from ..models import Course, Comment, Likes, Announcement
 from ..forms import CourseForm, CommentForm
+
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.http import Http404, JsonResponse
@@ -8,10 +10,13 @@ from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from django.utils.html import escape
 from django.urls import resolve
+
+from io import BytesIO
 from math import ceil
 from PIL import Image
 from urllib.parse import parse_qs
 import re
+import mimetypes
 
 hlink_regex = "(?:^|\b|\s)((?:([A-Za-z][A-Za-z0-9+.-]*):)?(?:\/\/)?(?:([-A-Za-z0-9_'](?:(?:\.?(?:[-A-Za-z0-9_'~]|%[A-Fa-f]{2}))*[-A-Za-z0-9_'])?)(?::((?:[-A-Za-z0-9_'~!$&()\*+,;=]|%[A-Fa-f]{2})*))@)?((?:localhost)|(?:(?:1?[0-9]{1,2}|2[0-5]{1,2})(?:\.(?:1?[0-9]{1,2}|2[0-5]{1,2})){3})|(?:\[(?:[0-9A-Fa-f:]+:[0-9A-Fa-f:]+)+\])|(?:[A-Za-z0-9](?:(?:\.?[-A-Za-z0-9])*[A-Za-z0-9])?\.[A-Za-z0-9](?:[-A-Za-z0-9]*[A-Za-z0-9])?))(?::[0-9]+)?((?:\/(?:[-A-Za-z0-9._~:@!$&'()*+,;=]|%[A-Fa-f]{2})+)*\/?)(\?(?:[-A-Za-z0-9._~:@!$&'()*+,;=/?]|%[A-Fa-f]{2})*)?(#(?:[-A-Za-z0-9._~:@!$&'()*+,;=/?]|%[A-Fa-f]{2})*)?)(?:\b|\s|$)"
 
@@ -75,6 +80,16 @@ def comment_delete(request, course, startindex, pagect_limit):
 	delcom = Comment.objects.filter(pk=comment_findid).first()
 	result = {}
 	if (request.user == delcom.user_attr):
+
+		if delcom.imageID:
+			for i in range(1, settings.GOOGLE_API_RECONNECT_TRIES):
+				try:
+					service = gdrive_connect()
+					gdrive_delete_file(service, delcom.imageID)
+					break
+				except Exception as e:
+					if settings.DEBUG: print(e)
+
 		delcom.delete()
 
 		all_course_comments = Comment.objects.filter(course_attr=course).order_by('-date_posted')
@@ -82,21 +97,22 @@ def comment_delete(request, course, startindex, pagect_limit):
 		page_ct = int(ceil(course_comment_count/pagect_limit))
 		comment_html = None
 
+
 		try:
-			last_comment = all_course_comments[startindex+pagect_limit-1]
-			last_comment_likestat = last_comment.likes_set.filter(user_attr=request.user).first()
+			if resolve(request.path)[0] != 'user':
+				last_comment = all_course_comments[startindex+pagect_limit-1]
+				last_comment_likestat = last_comment.likes_set.filter(user_attr=request.user).first()
 
-			comment_finding = hlinkify(last_comment.body, 50)
+				comment_finding = hlinkify(last_comment.body, 50)
 
-			last_comment = {
-				'base' : last_comment,
-				'proc' : comment_finding['body'],
-				'media' : comment_finding['media'],
-				'liked' : bool(last_comment_likestat)
-			}
+				last_comment = {
+					'base' : last_comment,
+					'proc' : comment_finding['body'],
+					'media' : comment_finding['media'],
+					'liked' : bool(last_comment_likestat)
+				}
 
-			comment_html = render_to_string('reviewer/partials/comment.html', { 'comment': last_comment, 'request': request, 'user' : request.user }).strip()
-
+				comment_html = render_to_string('reviewer/partials/comment.html', { 'comment': last_comment, 'request': request, 'user' : request.user }).strip()
 		except IndexError as e:
 			if settings.DEBUG:
 				print(e)
@@ -125,14 +141,38 @@ def comment_add(request, pass_args):
 	if request.user.is_authenticated:
 		image_uploaded = request.FILES.get('image', None)
 
+		new_comment = Comment(course_attr=pass_args['course_filt'], user_attr=request.user, body=data['body'].strip(), imageID=image_uploaded)
+		new_comment.save()
+
 		try:
 			image_test =  Image.open(image_uploaded)
 			image_test.verify()
-			
-		except:
-			image_uploaded = None
 
-		new_comment = Comment.objects.create(course_attr=pass_args['course_filt'], user_attr=request.user, body=data['body'].strip(), image=image_uploaded)	
+			image_test =  Image.open(image_uploaded)
+			image_mime = mimetypes.guess_type(str(image_uploaded))[0]
+			image_test.thumbnail((800,800))
+			image_bytes = BytesIO()
+			image_test.save(image_bytes, format=image_test.format)	### 
+
+			for i in range(1, settings.GOOGLE_API_RECONNECT_TRIES):
+				try:
+					service = gdrive_connect()
+					userfolder = 'media/users/{}/comments'.format(request.user.username)
+					userfolder = gdrive_traverse_path(service, path=userfolder, create=True)
+
+					metadata = {'name': 'comment-{}.{}'.format(str(new_comment.id), image_test.format.lower()), 'parents': [userfolder['id']] }
+					new_comment.imageID = gdrive_upload_bytes_tofile(service, image_bytes, metadata, image_mime)
+					new_comment.save()
+					break
+				except Exception as e:
+					if settings.DEBUG: print(e)
+
+		except Exception as e:
+			if settings.DEBUG: print(e)
+			error = "Upload failed. Try uploading again in a few moments." if isinstance(e, TimeoutError) else "Upload a valid image file or try again."
+
+		
+		
 		resultid = new_comment.id
 
 		comment_finding = hlinkify(new_comment.body, 50)
@@ -162,7 +202,6 @@ def comment_add(request, pass_args):
 			response = JsonResponse(data)
 
 	return response
-
 
 def comment_like(request, csubj, cnum):
 
@@ -238,7 +277,7 @@ def coursecpage(request, csubj, cnum, catchar = 'l', cpage = 1):
 		if ( ((course_commentstotal-1) < startindex) and (course_commentstotal != 0)):
 			return redirect( 'coursecpage', csubj, cnum, 'c',  1 )
 		else:
-			course_comments_filtered = all_course_comments[startindex:startindex+pagect_limit]
+			
 			page_ct = int(ceil(course_commentstotal/pagect_limit))
 
 			commentpage = {
@@ -263,6 +302,8 @@ def coursecpage(request, csubj, cnum, catchar = 'l', cpage = 1):
 				elif request.method == "DELETE":
 					return comment_delete(request, coursefilter, startindex, commentpage['limit'])
 				elif request.method == "GET":
+
+					course_comments_filtered = all_course_comments[startindex:startindex+pagect_limit]
 
 					liked_comments = list(Likes.objects.filter(user_attr=request.user).values_list('comment__id', flat=True)) if request.user.is_authenticated else [] 
 					commentform = CommentForm(auto_id="comment-form", request=request)
@@ -290,3 +331,23 @@ def coursecpage(request, csubj, cnum, catchar = 'l', cpage = 1):
 					return render(request, 'reviewer/courses/course.html', context)
 	else:
 		raise Http404("Course not found.")
+
+
+
+def course_ref(request, csubj, cnum):
+
+	coursefilter = Course.objects.filter(code__iexact=csubj).filter(number__iexact=str(cnum)).first()
+	retjson = {'error': "Failed to connect. Please refresh the page or try again later."}
+
+	for i in range(1, settings.GOOGLE_API_RECONNECT_TRIES):
+		try:
+			service = gdrive_connect()
+			reffolder = 'references/{}'.format(coursefilter.name)
+			reffolder = gdrive_traverse_path(service, path=reffolder, create=True)
+
+			retjson = {'obj': gdrive_list_meta_children(service, folderID=reffolder['id'], order="name")}
+			break
+		except Exception as e:
+			if settings.DEBUG: print(e)
+
+	return JsonResponse({ 'ref_result' : render_to_string('reviewer/partials/course/course-refs.html', { 'references': retjson['obj'] , 'request': request, 'user' : request.user }).strip() })

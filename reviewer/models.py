@@ -6,10 +6,6 @@ from django.utils import timezone
 # Create your models here.
 
 
-def course_uploadto(instance, filename):
-	return 'course/{0}-{1}/{2}'.format(instance.code, instance.number, filename)
-
-
 class Course(models.Model):
 	name = models.CharField("Course Name", max_length=20, unique=True)
 	code = models.CharField("Course Code", max_length=10)
@@ -23,7 +19,6 @@ class Course(models.Model):
 	coreqs = models.ManyToManyField('self', blank=True, default=None,symmetrical=False , related_name="creq")
 	lastupdated = models.DateTimeField("Last Updated", default=timezone.now)
 
-	# image = models.ImageField(verbose_name="Photo", null=True, blank=True, upload_to=course_uploadto)
 	imageID = models.CharField("Photo ID", max_length=40, blank=True, null=True, default=None)
 
 	def __str__(self):
@@ -50,14 +45,6 @@ class Language(models.Model):
 	def __str__(self):
 		return	'{}'.format(self.name)
 
-'''
-
-def user_uploadto(instance, filename):
-
-	fileex = filename.split('.')[-1]
-	return 'users/{0}/image.{1}'.format(instance.username, fileex)
-
-'''
 
 class ImportUser(AbstractUser):
 
@@ -81,7 +68,6 @@ class ImportUser(AbstractUser):
 	is_superuser = models.BooleanField("Is SuperUser?", default=False)
 	exp = models.PositiveIntegerField("Experience Points", default=0)
 	
-	#prof_pic = models.ImageField(verbose_name="Profile Picture", null=True, blank=True, upload_to=user_uploadto)
 	prof_picID = models.CharField("Prof Pic ID", max_length=40, blank=True, null=True, default=None)
 
 	fave_lang = models.ForeignKey(Language, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Favorite Language")
@@ -95,15 +81,13 @@ class ImportUser(AbstractUser):
 		return	'{} - {}, {}'.format(self.username, self.last_name, self.first_name)
 
 
-def post_uploadto(instance, filename):
-	return 'users/{0}/posts/{1}'.format(instance.user_attr.username, filename)
-
 class Comment(models.Model):
 
 	course_attr = models.ForeignKey(Course, on_delete=models.CASCADE)
 	user_attr = models.ForeignKey(ImportUser, on_delete=models.CASCADE)
 	body = models.CharField(max_length=240)
-	image = models.ImageField(verbose_name="Image", null=True, blank=True, upload_to=post_uploadto)
+	
+	imageID = models.CharField("Image ID", max_length=40, blank=True, null=True, default=None)
 	date_posted = models.DateTimeField("Date Posted", default=timezone.now)
 
 	def __str__(self):
@@ -145,38 +129,24 @@ class Lesson(models.Model):
 	verified = models.BooleanField("Verified?", default=False)
 	verifier = models.CharField(max_length=50)
 
+	module_content = models.TextField(null=True, blank=True, default=None)
+	module_code = JSONField(null=True, default=None)
+
 	ex_lang = models.ForeignKey(Language, on_delete=models.SET_NULL, null=True, blank=True)
 
 	def __str__(self):
 		return	'{}: {}'.format(self.course, self.name)
 
-class Module(models.Model):
-
-	lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
-	body = models.TextField()
-	custom_code = models.TextField()
-
-	def __str__(self):
-		return	'{} - Modules'.format(self.lesson.name)
-
 
 class Question(models.Model):
 
 	lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
-	custom_code = models.TextField()
+	custom_code = JSONField()
 	qtype = models.CharField(max_length=50)
 
 	def __str__(self):
 		return	'{} - Questions'.format(self.lesson.name)
 
-class QuestionBankQ():
-
-	question_root = models.ForeignKey(Question, on_delete=models.CASCADE)
-	question_given = models.TextField()
-	answer = models.CharField(max_length=30)
-
-	def __str__(self):
-		return	'{}'.format(self.question_given)
 
 def partners_uploadto(instance, filename):
 	return 'partners/{0}/{1}'.format(instance.name, filename)
@@ -184,21 +154,13 @@ def partners_uploadto(instance, filename):
 class Partners():
 
 	name = models.CharField(max_length=30)
-	image = models.ImageField(verbose_name="Logo", null=True,  upload_to=partners_uploadto)
+	imageID = models.CharField("Logo Image ID", max_length=40, blank=True, null=True, default=None)
+	adImageID = models.CharField("Logo Image ID", max_length=40, blank=True, null=True, default=None)
 	sponsor = models.BooleanField("Sponsor?", default=False)
 
 	def __str__(self):
 		return	'{}'.format(self.name)
 
-
-class Reference(models.Model):
-
-	title = models.CharField(max_length=50)
-	course = models.ForeignKey(Course, on_delete=models.CASCADE)
-	link = models.CharField(max_length=100)
-
-	def __str__(self):
-		return	'{}: {}'.format(self.course, self.title)
 
 class LessonStats(models.Model):
 	
