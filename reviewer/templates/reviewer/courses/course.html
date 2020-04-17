@@ -132,7 +132,6 @@
 
 
 	<script async>
-
 		refRequest = $.ajax({
 			url: "{% url 'course_ref' course_filt.code|lower course_filt.number %}",
 			method: "get",
@@ -147,10 +146,10 @@
 				$('.course-ref').html(response.ref_result);
 			}
 		});			
-
 	</script>
 	<script src="{% static 'reviewer/js/circle-progress.min.js' %}"></script>
 	<script src="{% static 'reviewer/js/import_comments.js' %}"></script>
+	<script src="{% static 'reviewer/js/import_dragphoto.js' %}"></script>
 
 	<script>
 		
@@ -191,7 +190,7 @@
 				importApp.comments.count.byCourse({{course_comments.count | escapejs}});
 			}
 		});
-		initDragBoxData(true);
+		importApp.dragPhoto.load(true);
 		
 		$('.comment-text-area').keyup(function(event){importApp.comments.trackCount(this);});
 		$('.comment-text-area').keydown(function(event){importApp.comments.trackCount(this)});

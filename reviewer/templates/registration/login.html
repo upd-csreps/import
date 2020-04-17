@@ -32,8 +32,8 @@
 
 	{% else %}
 		<div class="container py-4">
-			<div class="d-flex site-content">
-				<div class="m-auto w-50">
+			<div class="row site-content">
+				<div class="m-auto ml-lg-0 col-lg-6 col-12 p-1 py-lg-3 pl-lg-2 pr-lg-3">
 					{% if form.errors %}
 					<div class="alert alert-danger d-flex" role="alert">
 						<div class="mx-auto my-auto d-flex">
@@ -48,7 +48,7 @@
 					<p>Unaccessible link.</p>
 					{% endif %}
 
-					<h1 class="mb-3"> Login </h1>
+					<h1 class="mb-3 font-weight-bold"> Login </h1>
 
 					<form method="post" action="{% url 'login' %}" class="form-group">
 						{% csrf_token %}
@@ -59,7 +59,7 @@
 			                {{ field.errors }}
 				        {% endfor %}
 
-				        <div class="d-flex justify-content-between">
+				        <div class="d-flex justify-content-between mt-4">
 					      
 							<a href="{% url 'register' %}" class="text-muted my-auto">
 								Register
