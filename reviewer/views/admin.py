@@ -473,8 +473,8 @@ def admin_announcement_update(request, purpose, id=""):
 
 				bodyjson = json.loads(data["content"])
 				notify_users = data.get('em_notif', False)
-				temptitle = data.get('title', None)
-				bodystring = data.get('bodystring', None)
+				temptitle = data.get('title', None).strip()
+				bodystring = data.get('bodystring', None).strip()
 				retjson = {}
 
 				if temptitle:

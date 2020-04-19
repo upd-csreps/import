@@ -194,23 +194,23 @@ def user_settings(request):
 
 				if len(emptyreqfields) == 0:
 
-					currentuname = request.user.username
+					currentuname = (request.user.username+' ')[:-1]
 					currentuser = request.user
 
 					username_valid = user_settings_uname_is_unique(request, data["username"])
 
 					if (username_valid):
 
-						currentuser.username = data["username"]
-						currentuser.first_name = data["first_name"]
-						currentuser.middle_name = None if not data["middle_name"] else data["middle_name"]
-						currentuser.last_name = data["last_name"]
-						currentuser.suffix = data["suffix"]
-						currentuser.studentnum = None if not data["studentnum"] else data["studentnum"]
+						currentuser.username = data["username"].strip()
+						currentuser.first_name = data["first_name"].strip()
+						currentuser.middle_name = None if not data["middle_name"] else data["middle_name"].strip()
+						currentuser.last_name = data["last_name"].strip()
+						currentuser.suffix = data["suffix"].strip()
+						currentuser.studentnum = None if not data["studentnum"] else data["studentnum"].strip()
 						currentuser.show_studentnum = (data.get("show_studentnum") == 'show')
-						currentuser.email = data["e-mail"]
+						currentuser.email = data["e-mail"].strip()
 						currentuser.show_email = (data.get("show_email") == 'show')
-						currentuser.course = data["course"]
+						currentuser.course = data["course"].strip()
 						currentuser.fave_lang = Language.objects.filter(name=data["fave_lang"]).first() if data.get("fave_lang", None) else None
 						currentuser.dark_mode = (data.get("dark_mode") == 'dark')
 						currentuser.notifications = (data.get("em_notif") == 'notif_on')
