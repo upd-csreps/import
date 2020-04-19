@@ -24,52 +24,62 @@
 				</a>
 			</div>
 		</div>
-		<div class="row d-flex">
-		{% for announcement in announcements %}
-			<div class="col-md-6 d-flex p-3">
-				<div class="m-auto layer-container w-100">
-					<div class="comment-username w-100 announcement-card">
-						<a href="{% url 'announcement_view' announcement.id %}" class="mx-0 layer-container d-flex announcement-image comment-username" {% if announcement.imageID %} style="background-image: url('https://drive.google.com/uc?export=view&id={{announcement.imageID | urlencode }}');" {% endif %} >
+		{% if announcements.count > 0%}
+			<div class="row d-flex">
+			{% for announcement in announcements %}
+				<div class="col-md-6 d-flex p-3">
+					<div class="m-auto layer-container w-100">
+						<div class="comment-username w-100 announcement-card">
+							<a href="{% url 'announcement_view' announcement.id %}" class="mx-0 layer-container d-flex announcement-image comment-username" {% if announcement.imageID %} style="background-image: url('https://drive.google.com/uc?export=view&id={{announcement.imageID | urlencode }}');" {% endif %} >
 
-							{% if not announcement.imageID %}
-								<div class="m-auto text-center">
-									<span class="font-weight-bold h1">import<sup class="import-font-primary">*</sup></span>
-									<span class="h6 text-right text-muted d-none d-md-block">ANNOUNCEMENTS</span>
+								{% if not announcement.imageID %}
+									<div class="m-auto text-center">
+										<span class="font-weight-bold h1">import<sup class="import-font-primary">*</sup></span>
+										<span class="h6 text-right text-muted d-none d-md-block">ANNOUNCEMENTS</span>
+									</div>
+								{% endif %}
+							</a>
+
+							<div class="d-flex">
+								<div class="p-4 my-auto">
+									<a href="{% url 'announcement_view' announcement.id %}" class="comment-username">
+										<h5 class="announcement-title font-weight-bold">
+											{{ announcement.title }}
+										</h5>
+										<small>{{announcement.datepost|date:"M d, Y, h:i A"}}</small>
+									</a>
 								</div>
-							{% endif %}
-						</a>
 
-						<div class="d-flex">
-							<div class="p-4 my-auto">
-								<a href="{% url 'announcement_view' announcement.id %}" class="comment-username">
-									<h5 class="announcement-title font-weight-bold">
-										{{ announcement.title }}
-									</h5>
-									<small>{{announcement.datepost|date:"M d, Y, h:i A"}}</small>
+								<a href="{% url 'admin_announcement_update' announcement.id 'edit' %}" class="ml-auto d-flex">
+									<button class="btn btn-light m-auto d-flex p-2">
+										<span class="material-icons m-auto">
+											edit
+										</span>
+									</button>
+								</a>
+								<a href="{% url 'admin_announcement_update' announcement.id 'delete' %}" class="ml-2 d-flex mr-4 delete-announcement">
+									<button class="btn btn-danger m-auto d-flex p-2">
+										<span class="material-icons m-auto">
+											delete
+										</span>
+									</button>
 								</a>
 							</div>
-
-							<a href="{% url 'admin_announcement_update' announcement.id 'edit' %}" class="ml-auto d-flex">
-								<button class="btn btn-light m-auto d-flex p-2">
-									<span class="material-icons m-auto">
-										edit
-									</span>
-								</button>
-							</a>
-							<a href="{% url 'admin_announcement_update' announcement.id 'delete' %}" class="ml-2 d-flex mr-4 delete-announcement">
-								<button class="btn btn-danger m-auto d-flex p-2">
-									<span class="material-icons m-auto">
-										delete
-									</span>
-								</button>
-							</a>
 						</div>
 					</div>
 				</div>
+			{% endfor %}
 			</div>
-		{% endfor %}
-		</div>
-
+		{% else %}
+			<div class="text-center mt-4 d-flex">
+				<div class="mx-auto d-flex text-muted"> 
+					<i class="material-icons my-auto ml-0 mr-2">
+						announcement
+					</i>
+					<span class="my-auto">No announcements available to show</span>
+				</div>
+			</div>
+		{% endif %}
 	</div>
 
 {% endblock %}

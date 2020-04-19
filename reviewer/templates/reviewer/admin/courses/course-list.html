@@ -52,7 +52,7 @@
 					</div>
 
 					<div class="col-lg-4 col-8 mt-4 mt-lg-0 d-flex flex-wrap">
-							<a class="my-auto mr-2 mx-lg-auto" href="#">
+							<a class="my-auto mr-2 mx-lg-auto" href="{% url 'admin_course_id' course.code|lower course.number  'lessons' %}">
 								<button  type="button" class="btn btn-sm btn-light px-2 d-flex">
 									<div class="m-auto d-flex">
 										<i class="material-icons material-icon-sm my-auto ml-lg-1">
@@ -62,7 +62,7 @@
 									</div>
 								</button>
 							</a>
-							<a class="mr-auto my-auto ml-lg-auto" href="#">
+							<a class="mr-auto my-auto ml-lg-auto" href="{% url 'admin_course_id' course.code|lower course.number  'refs' %}">
 								<button  type="button" class="btn btn-sm btn-light px-2 d-flex">
 									<div class="m-auto d-flex">
 										<i class="material-icons material-icon-sm my-auto ml-lg-1">

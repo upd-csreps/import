@@ -97,7 +97,6 @@ def comment_delete(request, course, startindex, pagect_limit):
 		page_ct = int(ceil(course_comment_count/pagect_limit))
 		comment_html = None
 
-
 		try:
 			if resolve(request.path)[0] != 'user':
 				last_comment = all_course_comments[startindex+pagect_limit-1]
@@ -171,10 +170,7 @@ def comment_add(request, pass_args):
 			if settings.DEBUG: print(e)
 			error = "Upload failed. Try uploading again in a few moments." if isinstance(e, TimeoutError) else "Upload a valid image file or try again."
 
-		
-		
 		resultid = new_comment.id
-
 		comment_finding = hlinkify(new_comment.body, 50)
 
 		new_comment = {
@@ -331,8 +327,6 @@ def coursecpage(request, csubj, cnum, catchar = 'l', cpage = 1):
 					return render(request, 'reviewer/courses/course.html', context)
 	else:
 		raise Http404("Course not found.")
-
-
 
 def course_ref(request, csubj, cnum):
 
