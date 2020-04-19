@@ -166,7 +166,7 @@
 				<div class="tab-content" id="myTabContent">
 					<div class="tab-pane fade show active" id="created" role="tabpanel" aria-labelledby="created-tab">
 						<div class="comments px-3 user-comments">
-							{% if comments_count == 0 %}
+							{% if user_comments.count == 0 %}
 
 								<div class="mt-3 d-inline-flex text-muted">
 									<i class="material-icons my-auto mr-2">
@@ -184,7 +184,7 @@
 					</div>
 					<div class="tab-pane fade" id="liked" role="tabpanel" aria-labelledby="liked-tab">
 						<div class="comments px-3 liked-comments">
-							{% if liked_comments_data_count == 0 %}
+							{% if liked_comments_data.count == 0 %}
 								<div class="mt-3 d-inline-flex text-muted">
 									<i class="material-icons my-auto mr-2">star</i>
 									<span class="my-auto">{{user_filt.username}} has not liked any comments.</span>
