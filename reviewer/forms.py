@@ -82,6 +82,6 @@ class LanguageForm(forms.Form):
 
 class ImportImageForm(forms.Form):
 
-	image = forms.ImageField(required=False)
+	imageID = forms.CharField(max_length=40)
 	imagehascleared = forms.BooleanField(widget=forms.CheckboxInput(attrs={ 'class': 'form-check-input' }), required=False,initial=False)
 

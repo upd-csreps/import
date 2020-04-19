@@ -42,9 +42,7 @@
 		{% endif %}
 		" enctype="multipart/form-data">
 
-
 		{% csrf_token %}
-
 
 		<div class="form-group row">
 			<div class="col-10 col-lg-8">
@@ -64,7 +62,7 @@
 					</span>
 					{% endif %}
 
-					<i class="material-icons my-auto {% if title == 'Create Announcement' %} togglable {% endif %} mr-2 ml-2 {% if title == 'Create Announcement' %}active-button{% endif %} text-muted" onclick="$('.notif-val input').click();">
+					<i class="material-icons my-auto mr-2 ml-2 {% if title == 'Create Announcement' %}togglable active-button{% else %}text-muted{% endif %}" onclick="$('.notif-val input').click();">
 						{% if title == 'Create Announcement' %}
 							notifications_active
 						{% else %}
@@ -72,7 +70,7 @@
 						{% endif %}
 					</i>
 
-					<span class="d-none d-md-block icaption my-auto {% if user.notifications %}active-button{% endif %} text-muted">
+					<span class="d-none d-md-block icaption my-auto {% if user.notifications %}active-button{% endif %} {% if title == 'Edit Announcement' %}text-muted{% endif %}">
 						{% if title == 'Create Announcement' %}
 							On
 						{% else %}
@@ -81,21 +79,21 @@
 					</span>
 				</div>
 			</div>
-			
-
 		</div>
 
 		<div id="quill-editor">
 		</div>
-
 		<div class="announcement-photo mt-4">
-		
 			<div class="form-control-group announcement-image-upload d-none position-absolute">
 				<div>
 					<input type="checkbox" name="imagehascleared" class="form-check-input" id="id_imagehascleared">
 				</div>
 				<div>
-					{{image_form.image}}
+					<input type="file" name="image" accept="image/*" id="id_image">
+					{% if image_form.imageID.value %}
+						<a href="{{image_form.imageID.value}}">
+						</a>
+					{% endif %}
 				</div>
 			</div>
 			<h6 class="font-weight-bold my-3">Featured Image</h6>
@@ -111,9 +109,5 @@
 				</i>
 			</button>
 		</div>
-
-			
-
-
 	</form>
 </div>

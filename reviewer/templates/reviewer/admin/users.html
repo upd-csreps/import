@@ -87,22 +87,15 @@
 
 
 {% block scripts %}
-
 	<script>
-
 		var uname2change;
-
 		$(".superbutton").click(function(){
 			uname2change = $(this).attr("data-username");
 			$(".username-submit").attr("value", uname2change);
 		});
-
 		{% if message %}
 			alert("{{message|safe}}");
 			importApp.urls.refresh();
 		{% endif %}
-
-
 	</script>
-
 {% endblock %}

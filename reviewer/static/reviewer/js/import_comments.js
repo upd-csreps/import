@@ -98,13 +98,10 @@
 									}
 								}
 								else if ($(".created-comments").length){
-
 									var commecount = parseInt($(".created-count").html());
 									$(".created-count").html(commecount-1);
 								}
-
 								renderMathInElement(document.body);
-								
 							});
 						}
 				    });

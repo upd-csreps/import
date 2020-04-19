@@ -18,15 +18,11 @@
 
 {% block scripts %}
 
-
 	<script src="{% static 'reviewer/js/import_dragphoto.js' %}"></script>
-	<!-- Include the Quill library -->
+
 	<script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
 	<script src="{% static 'reviewer/js/quill-blot-formatter.min.js' %}"></script>
-
-	<!-- Initialize Quill editor -->
 	<script>
-
 		Quill.register('modules/blotFormatter', QuillBlotFormatter.default);
 
 		var toolbarOptions = [
@@ -51,9 +47,7 @@
 	  	var quill = new Quill('#quill-editor', {
 		  	modules:{
 		  		toolbar: toolbarOptions,
-				blotFormatter: {
-			      // see config options below
-			    }
+				blotFormatter: {}
 		  	},
 		  	placeholder: 'Write the announcement details here.',
 		    theme: 'snow'
@@ -70,69 +64,42 @@
 
 	  		if (confirmation){
 	  			{% if user.is_superuser %}
-				    // Abort any pending request
-				    if (request) {
-				        request.abort();
-				    }
-				    // setup some local variables
+				    if (importApp.requests.ajax)
+				        importApp.requests.ajax.abort();
+
 				    var form = $(this);
-				    var formData = new FormData(this);
-				   
+				    var formData = new FormData(this);				   
 				    var inputs = form.find("input, select, button, textarea");
 				    inputs.prop("disabled", true);
-
 				    window.delta = quill.getText();
 				    formData.append('bodystring', window.delta);
 				    window.delta = quill.getContents();
 				    formData.append('content', JSON.stringify(window.delta));
 
-				    // Fire off the request to url
-				    request =  $.ajax({
-	                type: 'post',
-	                url: `{% if title == 'Create Announcement' %}
-								{% url 'admin_announcement_create' %}
-							{% else %}
-								{% url 'admin_announcement_update' edit_ann.id 'edit' %}
-							{% endif %}`,
-	                data: formData,
-	                cache: false,
-	                contentType: false,
-	                processData: false,
+				    importApp.requests.ajax =  $.ajax({
+		                method: 'post',
+		                url: `{% if title == 'Create Announcement' %}
+									{% url 'admin_announcement_create' %}
+								{% else %}
+									{% url 'admin_announcement_update' edit_ann.id 'edit' %}
+								{% endif %}`,
+		                data: formData,
+		                cache: false,
+		                contentType: false,
+		                processData: false,
+		                complete: function(){ inputs.prop("disabled", false); },
+		                success: function (response, status, xhr){
+							if(response.status = "success"){
+								$(".announcement-title").removeClass("is-invalid");
+								importApp.urls.redirect(response.redirect_url);
+							}
+							else{
+								$(".announcement-title").addClass("is-invalid");
+							}
+						}
 	                });
-
-				    // Callback handler that will be called on success
-				    request.done(function (response, textStatus, jqXHR){
-				    	
-				    	if(response.status = "success"){
-				    		$(".announcement-title").removeClass("is-invalid");
-				    		URL_Redirect(response.redirect_url); 
-				    	}
-				    	else{
-				    		$(".announcement-title").addClass("is-invalid");
-				    	}
-				        
-				    });
-				    
-
-				    // Callback handler that will be called on failure
-				    request.fail(function (jqXHR, textStatus, errorThrown){
-				        // Log the error to the console
-				        console.error(
-				            "The following error occurred: "+
-				            textStatus, errorThrown
-				        );
-				    });
-
-				    request.always(function () {
-				        // Reenable the inputs
-				        inputs.prop("disabled", false);
-				    });
-
 		    	{% endif %}
 	  		}
 	  	});
-
-
-
 	</script>
 {% endblock %}

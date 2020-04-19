@@ -126,7 +126,6 @@
 	<script>
 
 		var lang_stat = {{lang_stat|safe}};
-
 		var lang_data = {
 			datasets: [{
 				data: [],
@@ -136,9 +135,7 @@
 			labels: []
 		};
 
-
 		for (var lang in lang_stat){
-
 			lang_data.datasets[0].data.push(lang_stat[lang][3]);
 			lang_data.datasets[0].backgroundColor.push(lang_stat[lang][2])
 			lang_data.labels.push(lang_stat[lang][0])
@@ -151,9 +148,7 @@
 		};
 
 		console.log(lang_options.colors)
-
 		var langctx = document.getElementById('LangChart').getContext('2d');
-
 		Chart.defaults.global.defaultFontFamily = 'SpaceGrotesk';
 
 		{% if user.dark_mode %} 
