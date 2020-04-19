@@ -36,7 +36,6 @@
 				{% csrf_token %}
 
 				<div class="col-lg-6 px-3">
-					
 					<div class="form-group">
 						<label><strong>Username</strong> <span class="import-font-primary">*</span></label>
 						<div class="input-group">
@@ -49,10 +48,7 @@
 							</div>
 						</div>
 					</div>
-
-					
 					<hr>
-
 					<h5 class="mb-3">Personal Information</h5>
 					
 					<div class="row">
@@ -154,12 +150,12 @@
 						<div>
 							<small>
 								<div class="d-inline-flex flex-column">
-									<span class="mr-1"><strong>Algorithm:</strong> {{	userpassword_algo}}</span>
-									<span class="mr-1"><strong>Iterations:</strong> {{userpassword_iterations}}</span>
+									<span class="mr-1"><strong>Algorithm:</strong> {{	userpassword.algo}}</span>
+									<span class="mr-1"><strong>Iterations:</strong> {{userpassword.iterations}}</span>
 								</div>
 								<div class="d-inline-flex flex-column">
-									<span class="mr-1"><strong>Salt:</strong> {{userpassword_salt}}</span>
-									<span class="mr-1"><strong>Hash:</strong> {{userpassword_hash}}</span>
+									<span class="mr-1"><strong>Salt:</strong> {{userpassword.salt}}</span>
+									<span class="mr-1"><strong>Hash:</strong> {{userpassword.hash}}</span>
 								</div>
 							</small>
 						</div>
@@ -198,7 +194,7 @@
 								<input type="checkbox" name="dark_mode" value="dark" {% if user.dark_mode %}checked{% endif %}>
 							</span>
 
-							<i class="material-icons my-auto togglable mr-2 {% if user.dark_mode %}active-button{% endif %}" onclick="$('.dark-val input').click(); DarkModeSwitch();">
+							<i class="material-icons my-auto togglable mr-2 {% if user.dark_mode %}active-button{% endif %}" onclick="$('.dark-val input').click(); darkModeSwitch();">
 								{% if user.dark_mode %}
 									brightness_3
 								{% else %}
@@ -311,106 +307,60 @@
 
 	<script>
 
-
 	{% if error %}
 	var errors = {{error}}
 	{% endif %}
-	var darkelement;
-	var darkmatters;
-	var is_dark = {% if user.dark_mode %}true{% else %}false{%endif%};
-
-	$(document).ready(function(){
-		//Initialize
-		$("head").children("style").each(function(){
-			if ($(this).attr("id") == "less:static-reviewer-css-import_dark"){
-  				darkcontent = $(this);
-  				darkmatters = $(this).html();
-  			}
-  		});	
-
-	   if (is_dark == false){
-			darkcontent.html("");
-		}
-
-		$(".fave_lang").val("{{user.fave_lang.name}}");
-	   
-	});
+	var darkContent, darkMatters;
+	var isDark = {% if user.dark_mode %}true{% else %}false{%endif%};
+	var unameInput = $(".username-input");
 
 	var languagepic = {
 		'None' : '',
 		{% for language in langlist %}
-	  		{% if forloop.counter0 != 0 %},{% endif %} '{{language.name}}' : '{{language.image.url}}' 
+	  		{% if forloop.counter0 != 0 %},{% endif %} '{{language.name}}' : 'https://drive.google.com/uc?export=view&id={{language.imageID}}' 
 		{% endfor %}
 	};
 
-	function DarkModeSwitch(){
-  	
-    	if(is_dark){
-    		darkcontent.html("");
-    		is_dark = false;
-    	}	
-    	else{
-    		darkcontent.html(darkmatters);
-    		is_dark = true;
-    	}
+	function darkModeSwitch(){
+    	darkContent.html(isDark? "" : darkMatters);
+    	isDark = !isDark;
     }
 
-
-	$(".username-input").change(function(){
+	unameInput.change(function(){
 	  	{% if user.is_authenticated %}
 
-		    // Abort any pending request
-		    if (request) {
-		        request.abort();
+		    if (importApp.requests.ajax) {
+		        importApp.requests.ajax.abort();
 		    }
-		    // setup some local variables
-		    var unamecheck = $(this).val();
 
-
-		    // Fire off the request to url
-		    request =  $.ajax({
-	            type: 'post',
+		    importApp.requests.ajax =  $.ajax({
+	            method: 'post',
 	            url: "{% url 'user_settings' %}?unamecheck=y",
-	            data: {'uname': unamecheck},
+	            data: {'uname': $(this).val()},
 	            cache: false,
-	            headers: {'X-CSRFToken': '{{ csrf_token }}'}
+	            headers: {'X-CSRFToken': importApp.csrfToken }
             });
-
-		    
 		     
-		    // Callback handler that will be called on success
-		    request.done(function (response, textStatus, jqXHR){
-		    	
+		   	importApp.requests.ajax.done(function (response, status, xhr){
 		    	if (response.valid == 'y'){
-		    		$(".username-input").removeClass("is-invalid");
-		    		$(".username-input").addClass("is-valid");
+		    		unameInput.removeClass("is-invalid");
+		    		unameInput.addClass("is-valid");
 		    	}
 		    	else if (response.valid == 'n'){
-		    		$(".username-input").addClass("is-invalid");
-		    		$(".username-input").removeClass("is-valid");
-		    		$(".username-input").parent().find(".invalid-feedback").html("Username already taken.");
+		    		unameInput.addClass("is-invalid");
+		    		unameInput.removeClass("is-valid");
+		    		unameInput.parent().find(".invalid-feedback").html("Username already taken.");
 		    	}
 		    	else if (response.valid == 'e'){
-		    		$(".username-input").addClass("is-invalid");
-		    		$(".username-input").removeClass("is-valid");
-		    		$(".username-input").parent().find(".invalid-feedback").html("Please enter a username.");
+		    		unameInput.addClass("is-invalid");
+		    		unameInput.removeClass("is-valid");
+		    		unameInput.parent().find(".invalid-feedback").html("Please enter a username.");
 		    	}
 		    	else if (response.valid == 's'){
-		    		$(".username-input").removeClass("is-invalid");
-		    		$(".username-input").removeClass("is-valid");
+		    		unameInput.removeClass("is-invalid");
+		    		unameInput.removeClass("is-valid");
 		    	}
 		    });
-		    
-
-		    // Callback handler that will be called on failure
-		    request.fail(function (jqXHR, textStatus, errorThrown){
-		        // Log the error to the console
-		        console.error(
-		            "The following error occurred: "+
-		            textStatus, errorThrown
-		        );
-		    });
-
     	{% endif %}
 	});
 
@@ -420,34 +370,25 @@
     	{% endif %}
 	});
 
-	$(".info").submit(function(){
-	  	request.abort();
+	$(".info").submit(function(){ importApp.requests.ajax.abort(); });
+
+	importApp.load({
+		init: function(){
+			//Initialize
+			$("head").children("style").each(function(){
+				if ($(this).attr("id") == "less:static-reviewer-css-import_dark"){
+	  				darkContent = $(this);
+	  				darkMatters = $(this).html();
+	  			}
+	  		});	
+
+		   if (!isDark)
+				darkContent.html("");
+			$(".fave_lang").val("{{user.fave_lang.name}}");
+		}
 	});
 
 
-	$('.delete-account').on('click', function () {
-       
-	
-
-		//Password check as data then delete account
- 		if (request) {
-	        request.abort();
-	    }
-
-	    /*
- 		request = $.ajax({
-	        url: "{% url 'user_settings' %}",
-	        type: "delete",
-	        data: {},
-	        headers: {'X-CSRFToken': '{{ csrf_token }}'}
-	    });
-
-	    */
-
-	
-    });
-
-	
 	</script>
 
 {% endblock %}

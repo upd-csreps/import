@@ -49,14 +49,19 @@
 								{{ langform.imagehascleared }}
 							</div>
 							<div>
-								{{ langform.image }}
+								<input type="file" name="image" accept="image/*" id="id_image">
+								{% if langform.imageID.value %}
+									<a href="{{langform.imageID.value}}">
+									</a>
+								{% endif %}
 							</div>
 						</div>
 						<h6 class="font-weight-bold">Photo</h6>
-						<button class="mx-auto border-dashed import-image-drag {% if user.is_authenticated %}import-image-drag-enabled{%else%}-disabled{%endif%}" data-file-target="course-image-upload" style="border-width: 1px" type="button">
+						<button class="mx-auto border-dashed import-image-drag {% if user.is_authenticated %}import-image-drag-enabled{%else%}-disabled{%endif%}" data-file-target="course-image-upload" style="border-width: 1px" type="button" id="photo_upload" aria-describedby="addphoto-popper">
 							{% if user.is_authenticated %}
-								<div class="addphoto-popper ml-2 p-3">
+								<div id="addphoto-popper" class="addphoto-popper p-3 position-absolute" role="tooltip">
 									Add a photo
+									<div id="arrow" data-popper-arrow></div>
 								</div>
 							{% endif %}
 							<i class="material-icons p-4">
@@ -64,16 +69,6 @@
 							</i>
 						</button>
 
-
-
-						<script>
-							try{
-								PhotoUploadTooltip();
-							}
-							catch(error){
-
-							}
-						</script>
 					</div>
 					<div class="form-control-group mb-3">
 						<h6 class="font-weight-bold">Color</h6>

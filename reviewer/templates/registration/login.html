@@ -7,9 +7,7 @@
 
 {% load static %}
 {% block content %}
-
 	{% if user.is_authenticated %}
-
 		<div class="container py-5 d-flex site-container">
 			<div class="m-auto d-flex flex-column">
 				<a href="{% url 'user' user.username %}" class="m-auto"> <img src="

@@ -11,11 +11,9 @@
 	<div class="container py-5">
 		<div class="d-flex site-content">
 			<div class="mt-5 w-100">
-
 				<h1 class="font-weight-bold">Register</h1>
 				<form method="post" action="{% url 'register' %}">
 					{% csrf_token %}
-
 					{% if form.errors %}
 						{% for error in form.non_field_errors %}
 							<div class="alert alert-danger">
@@ -44,8 +42,7 @@
 									<div class="invalid-feedback">
 										Username is already taken.
 									</div>
-								</div>
-								
+								</div>	
 							</div>
 
 							<div class="row">
@@ -126,9 +123,7 @@
 										{{form.suffix | add_class:"form-control"}}
 									</div>
 								</div>
-
 							</div>
-
 
 							<div class="form-group">
 								<label for="{{ form.studentnum.id_for_label }}">
@@ -191,8 +186,7 @@
 								</label>
 
 								{% if form.show_email.errors %}
-									<div class="inline-flex">
-										
+									<div class="inline-flex">		
 										<small class="text-danger my-auto font-weight-bold">	{{form.show_email.errors}} </small>
 									</div>
 								{% endif %}
@@ -201,12 +195,9 @@
 									{{form.show_email | add_class:"form-check-input"}}
 								</div>
 							</div>
-
-						
 						</div>
 
 						<div class="col-lg-6">
-
 							<div class="form-group">
 								<label for="{{ form.course.id_for_label }}">
 									<strong>{{form.course.label_tag}}</strong> 
@@ -224,8 +215,6 @@
 									{{form.course | add_class:"form-control"}}
 								</div>
 							</div>	
-
-
 
 							<div class="form-group">
 								<label for="{{ form.fave_lang.id_for_label }}">
@@ -247,7 +236,6 @@
 								</div>
 							</div>	
 
-
 							<div class="form-group">
 								<label for="{{ form.password1.id_for_label }}"><strong>{{form.password1.label_tag}}</strong> <span class="import-font-primary">*</span></label>
 
@@ -266,10 +254,8 @@
 									<small>
 										{{ form.password1.help_text }}
 									</small>
-								</div>
-								
+								</div>								
 							</div>
-
 
 							<div class="form-group">
 								<label for="{{ form.password2.id_for_label }}"><strong>{{form.password2.label_tag}}</strong> <span class="import-font-primary">*</span></label>
@@ -284,22 +270,15 @@
 								<div class="input-group">
 									{{form.password2 | add_class:"form-control"}}
 								</div>
-
 								<div class="text-muted mt-3">
 									<small>
 										{{ form.password2.help_text }}
 									</small>
 								</div>	
-								
 							</div>
-
-
 						</div>
-
 					</div>
-
 					<hr>
-
 					<button type="submit" class="btn btn-primary float-right">
 						Register
 					</button>
@@ -313,7 +292,6 @@
 {% block scripts %}
 
 	<script>
-
 		{% if error %}
 		var errors = {{error}};
 		{% endif %}
@@ -321,65 +299,50 @@
 		var languagepic = {
 			'---------' : '',
 			{% for language in langlist %}
-		  		{% if forloop.counter0 != 0 %},{% endif %} '{{forloop.counter}}' : '{{language.image.url}}' 
+		  		{% if forloop.counter0 != 0 %},{% endif %} '{{forloop.counter}}' : 'https://drive.google.com/uc?export=view&id={{language.imageID}}' 
 			{% endfor %}
 		};
 
+		var unameInput = $(".username-input");
 
-		$(".username-input").change(function(){
+		unameInput.change(function(){
 
 			    // Abort any pending request
-			    if (request) {
-			        request.abort();
+			    if (importApp.requests.ajax) {
+			        importApp.requests.ajax.abort();
 			    }
 			    // setup some local variables
 			    var unamecheck = $(this).val();
 
-
-			    // Fire off the request to url
-			    request =  $.ajax({
+			    importApp.requests.ajax =  $.ajax({
 		            type: 'post',
 		            url: "{% url 'register' %}?unamecheck=y",
 		            data: {'uname': unamecheck},
 		            cache: false,
-		            headers: {'X-CSRFToken': '{{ csrf_token }}'}
+		            headers: {'X-CSRFToken': importApp.csrfToken }
 	            });
 
-			    
-			     
-			    // Callback handler that will be called on success
-			    request.done(function (response, textStatus, jqXHR){
-			    	response = JSON.parse(response);
+			    importApp.requests.ajax.done(function (response, status, xhr){
+
 			    	if (response.valid == 'y'){
-			    		$(".username-input").removeClass("is-invalid");
-			    		$(".username-input").addClass("is-valid");
+			    		unameInput.removeClass("is-invalid");
+			    		unameInput.addClass("is-valid");
 			    	}
 			    	else if (response.valid == 'n'){
-			    		$(".username-input").addClass("is-invalid");
-			    		$(".username-input").removeClass("is-valid");
-			    		$(".username-input").parent().find(".invalid-feedback").html("Username already taken.");
+			    		unameInput.addClass("is-invalid");
+			    		unameInput.removeClass("is-valid");
+			    		unameInput.parent().find(".invalid-feedback").html("Username already taken.");
 			    	}
 			    	else if (response.valid == 'e'){
-			    		$(".username-input").addClass("is-invalid");
-			    		$(".username-input").removeClass("is-valid");
-			    		$(".username-input").parent().find(".invalid-feedback").html("Please enter a username.");
+			    		unameInput.addClass("is-invalid");
+			    		unameInput.removeClass("is-valid");
+			    		unameInput.parent().find(".invalid-feedback").html("Please enter a username.");
 			    	}
 			    	else if (response.valid == 's'){
-			    		$(".username-input").removeClass("is-invalid");
-			    		$(".username-input").removeClass("is-valid");
+			    		unameInput.removeClass("is-invalid");
+			    		unameInput.removeClass("is-valid");
 			    	}
 			    });
-			    
-
-			    // Callback handler that will be called on failure
-			    request.fail(function (jqXHR, textStatus, errorThrown){
-			        // Log the error to the console
-			        console.error(
-			            "The following error occurred: "+
-			            textStatus, errorThrown
-			        );
-			    });
-
 		});
 
 		$(".fave_lang").change(function(){

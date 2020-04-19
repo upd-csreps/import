@@ -1,5 +1,7 @@
 {% extends 'reviewer/admin/admin.html' %}
 
+
+{% load static %}
 {% block title %}
 	{{title}}
 {% endblock %}
@@ -9,4 +11,9 @@
 		{% include 'reviewer/courses/course_add.html' %}
 	</div>
 </div>
+{% endblock %}
+
+
+{% block scripts %}
+<script src="{% static 'reviewer/js/import_dragphoto.js' %}"></script>
 {% endblock %}

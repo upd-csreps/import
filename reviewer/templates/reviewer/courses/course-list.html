@@ -1,6 +1,7 @@
 {% extends 'reviewer/base.html' %}
 
 
+{% load static %}
 {% block title %}
 	Course List
 {% endblock %}
@@ -109,6 +110,7 @@
 
 {% block scripts %}
 
+	<script src="{% static 'reviewer/js/import_dragphoto.js' %}"></script>
 	<script>
 		{% if user.is_superuser %}
 			$(".ajax-button").attr("href", "#");
@@ -119,7 +121,7 @@
 				  $(".modal-body").html(data);
 				   $(".modal-title").html( $(".admin-title").html() );
 				   $(".admin-title").remove();
-				   initPhotoLoad();
+				   importApp.dragPhoto.init();
 				});
 
 			});

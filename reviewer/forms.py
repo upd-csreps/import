@@ -76,7 +76,7 @@ class ImportUserChangeForm(UserChangeForm):
 class LanguageForm(forms.Form):
 
 	name = forms.CharField(max_length=20, widget=forms.TextInput(attrs={'class': 'form-control', 'autocomplete': 'off'}))
-	image = forms.ImageField(required=False)
+	imageID = forms.CharField(max_length=40)
 	imagehascleared = forms.BooleanField(widget=forms.CheckboxInput(attrs={ 'class': 'form-check-input' }), required=False,initial=False)
 	color = forms.CharField(max_length=7, widget=forms.TextInput(attrs={'class': 'color-picker', 'autocomplete': 'off'}))
 

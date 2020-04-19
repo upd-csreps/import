@@ -110,7 +110,7 @@ def user(request, username):
 					except Exception as e:
 						if settings.DEBUG: print(e)
 
-				if oldprofpicID != None: gdrive_delete_file(service, oldprofpicID)
+				if oldprofpicID: gdrive_delete_file(service, oldprofpicID)
 				utest.save(update_fields=['prof_picID'])	
 			except Exception as e:
 				if settings.DEBUG: print(e)
@@ -136,7 +136,6 @@ def user_settings(request):
 
 	if request.user.is_authenticated:
 		if request.method == 'POST':
-
 			queries, data = request.GET, request.POST
 			
 			if (queries.get("unamecheck") == 'y'):
@@ -216,7 +215,7 @@ def user_settings(request):
 						currentuser.dark_mode = (data.get("dark_mode") == 'dark')
 						currentuser.notifications = (data.get("em_notif") == 'notif_on')
 
-						if currentuname != data["username"] and currentuser.prof_picID:
+						if (currentuname != data["username"]) and currentuser.prof_picID:
 							for i in range(1, settings.GOOGLE_API_RECONNECT_TRIES):
 								try:
 									service = gdrive_connect()
@@ -224,7 +223,7 @@ def user_settings(request):
 									userfolder = gdrive_traverse_path(service, path=userfolder, create=True)
 									newfolder = gdrive_update_file(service, userfolder['id'], file_metadata={"name": data["username"]})
 
-									if newfolder != False:
+									if not newfolder:
 										if newfolder.get("name", None) == data["username"]:
 											break
 								except Exception as e:
@@ -247,20 +246,26 @@ def user_settings(request):
 			userpassword[2] = userpassword[2][0:6] + ('*' * (len(userpassword[2])-6) )
 			userpassword[3] = userpassword[3][0:6] + ('*' * (len(userpassword[3])-6) )
 
+			userpassword = {
+				'algo': userpassword[0],
+				'iterations': userpassword[1],
+				'salt' : userpassword[2],
+				'hash' : userpassword[3]
+			}
+
 			hasEmptyFields = False
 
 			if not (request.user.username and request.user.first_name and request.user.last_name and request.user.email):
 				hasEmptyFields = True
 
-			context = {'userpassword_algo' : userpassword[0], 
-						'userpassword_iterations': userpassword[1],
-						'userpassword_salt' : userpassword[2], 
-						'userpassword_hash' : userpassword[3],
-						'langlist' : langlist,
-						'force_dark_mode' : True,
-						'error' : error,
-						'emptyfields': hasEmptyFields
-						}
+			context = {
+				'userpassword' : userpassword,
+				'langlist' : langlist,
+				'force_dark_mode' : True,
+				'error' : error,
+				'emptyfields': hasEmptyFields
+			}
+
 			return render(request, 'reviewer/user/user-settings.html', context)
 	else:
 		return redirect('index')
@@ -294,12 +299,8 @@ def register(request):
 		queries, data = request.GET, request.POST
 		
 		if (queries.get("unamecheck") == 'y'):
-
-			unamecheck_callback = {
-				'valid': 'n'
-			}
-
-			if (data["uname"] == ""):
+			unamecheck_callback = { 'valid': 'n' }
+			if not data["uname"]:
 				unamecheck_callback['valid'] = 'e'
 			elif (data["uname"] == request.user.username):
 					unamecheck_callback['valid'] = 's'
@@ -307,7 +308,6 @@ def register(request):
 				unamecheck_callback['valid'] = 'y'
 
 			return JsonResponse(unamecheck_callback)
-
 		else:
 
 			form = ImportUserCreationForm(request.POST)

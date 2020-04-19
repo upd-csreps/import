@@ -99,25 +99,17 @@
 				</div>
 			</div>
 			<h6 class="font-weight-bold my-3">Featured Image</h6>
-			<button class="mx-auto border-dashed import-image-drag import-image-drag-large {% if user.is_authenticated %}import-image-drag-enabled{%else%}-disabled{%endif%}" data-file-target="announcement-image-upload" style="border-width: 2px;" type="button">
+			<button class="mx-auto border-dashed import-image-drag import-image-drag-large {% if user.is_authenticated %}import-image-drag-enabled{%else%}-disabled{%endif%}" data-file-target="announcement-image-upload" style="border-width: 2px;" type="button" id="photo_upload" aria-describedby="addphoto-popper">
 				{% if user.is_authenticated %}
-					<div class="addphoto-popper ml-2 p-3">
+					<div id="addphoto-popper" class="addphoto-popper p-3 position-absolute" role="tooltip">
 						Add a photo
+						<div id="arrow" data-popper-arrow></div>
 					</div>
 				{% endif %}
 				<i class="material-icons p-4">
 					add_a_photo
 				</i>
 			</button>
-
-			<script>
-				try{
-					PhotoUploadTooltip();
-				}
-				catch(error){
-
-				}
-			</script>
 		</div>
 
 			

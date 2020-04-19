@@ -41,9 +41,8 @@ def admin_dashboard(request):
 			languages = Language.objects.order_by('name')
 
 			for language in languages:
-				lang_stat[language.name]= [language.name, language.image.url, '#'+str(language.color), language.importuser_set.all().count()]
+				lang_stat[language.name]= [language.name,gdrive_import_exportURL()+language.imageID, '#'+str(language.color), language.importuser_set.all().count()]
 				
-
 			# 30 Days Engagement
 
 			dateoftoday = timezone.now()
@@ -125,7 +124,6 @@ def admin_users(request):
 		return redirect('login')
 	else:
 		if request.user.is_superuser:
-
 			users = ImportUser.objects.order_by('username')[0:5]
 
 			if (request.method == "POST"):
@@ -135,7 +133,6 @@ def admin_users(request):
 				message = ""
 
 				if confirm == request.user:
-
 					find_uname = ImportUser.objects.filter(username=data["username"]).first()
 					find_uname.is_superuser = not find_uname.is_superuser
 					find_uname.save()
@@ -150,10 +147,7 @@ def admin_users(request):
 					'currpage' : current_page,
 					'message' : message
 				}
-
-
 			else:
-
 				context = {
 					'users' : users,
 					'currpage' : current_page
@@ -185,7 +179,6 @@ def admin_get_course(request, purpose, course_subj="", course_num=""):
 	referer = request.META.get('HTTP_REFERER', "")
 
 	if request.user.is_superuser:
-		
 		if purpose == "delete":
 
 			del_course = Course.objects.filter(code__iexact=course_subj, number__iexact=course_num).first()
@@ -212,18 +205,18 @@ def admin_get_course(request, purpose, course_subj="", course_num=""):
 
 				tempname = data['name'].strip()
 				coursefulln = tempname.split(" ")
-				tempnum = coursefulln[len(coursefulln)-1]
-				tempcode = ' '.join(coursefulln[:-(len(coursefulln)-1)])
+				tempnum = coursefulln[-1]
+				tempcode = ' '.join(coursefulln[:-1])
 				
 				if tempnum.isnumeric():
 					temp_oldcurr, temp_visible = (data.get('old_curr', False) == 'on'), (data.get('visible', False) == 'on')		
 					prereq_list, coreq_list = data.getlist('prereq'), data.getlist('coreq')
 
-
 					image_uploaded = request.FILES.get('image', None)
-					image_uploadedID, service = None
+					image_uploadedID = None
+					service = None
 
-					try:	
+					try:
 						image_test =  Image.open(image_uploaded)
 						image_test.verify()
 
@@ -274,9 +267,9 @@ def admin_get_course(request, purpose, course_subj="", course_num=""):
 
 						oldphotoID = course.imageID
 						
-						if ((image_uploaded != None) or (data.get('imagehascleared', False) != False )):
+						if image_uploaded or data.get('imagehascleared', False):
 							course.imageID = image_uploadedID
-							if oldphotoID != None: gdrive_delete_file(service, oldphotoID)
+							if oldphotoID: gdrive_delete_file(service, oldphotoID)
 
 					course.save()
 					course.prereqs.set(Course.objects.filter(id__in=prereq_list))
@@ -354,74 +347,88 @@ def admin_lang(request, purpose, id=""):
 	if request.user.is_superuser:
 		
 		if purpose == "delete":
-
 			del_lang = Language.objects.filter(id=id).first()
+			for i in range(1, settings.GOOGLE_API_RECONNECT_TRIES):
+				try:
+					service = gdrive_connect()
+					langfolder = 'media/lang/{}'.format(del_course.name)
+					langfolder = gdrive_traverse_path(service, path=langfolder, create=True)
+					gdrive_delete_file(service, langfolder['id'])
+					break
+				except Exception as e:
+					if settings.DEBUG: print(e)
+
 			del_lang.delete()
 
 			return redirect('admin_langlist')
 		else:
-
 			if request.method == "POST" and request.user.check_password(request.POST['password']):
 				data = request.POST
-
 				tempname = data['name']
 			
 				if len(tempname) > 0:
-
 					image_uploaded = request.FILES.get('image', None)
+					image_uploadedID = None
 
-					try:
+					try:	
 						image_test =  Image.open(image_uploaded)
 						image_test.verify()
-						
+
+						image_test =  Image.open(image_uploaded)
+						image_mime = mimetypes.guess_type(str(image_uploaded))[0]
+
+						image_test.thumbnail((400,400))
+						image_bytes = BytesIO()
+						image_test.save(image_bytes, format=image_test.format)
+
+						for i in range(1, settings.GOOGLE_API_RECONNECT_TRIES):
+							try:
+								service = gdrive_connect()
+								langfolder = 'media/lang/{}'.format(data['name'].strip())
+								langfolder = gdrive_traverse_path(service, path=langfolder, create=True)
+
+								metadata = {'name': '{}.{}'.format(data['name'].strip(), image_test.format), 'parents': [langfolder['id']] }
+								image_uploadedID = gdrive_upload_bytes_tofile(service, image_bytes, metadata, image_mime)
+								break
+							except Exception as e:
+								if settings.DEBUG: print(e)
 					except:
-						image_uploaded = None
+						pass
 
 					# Add input validation
 					if purpose == "add":
-						new_lang = Language(name=data['name'].strip(), color=data['color'][1:], image=image_uploaded)
-						new_lang.save()
-
+						Language.objects.create(name=data['name'].strip(), color=data['color'][1:], imageID=image_uploadedID)
 					elif purpose == "edit":
 						
 						edit_lang = Language.objects.filter(id=id).first()
-
 						edit_lang.name = data["name"].strip()
 						edit_lang.color = data["color"][1:]
+						oldphotoID = edit_lang.imageID
 						
-						if ((image_uploaded != None) or (data.get('imagehascleared', False) != False )):
-							edit_lang.image = image_uploaded
-
+						if image_uploaded or data.get('imagehascleared', False):
+							edit_lang.imageID = image_uploadedID
+							if oldphotoID: gdrive_delete_file(service, oldphotoID)
 						edit_lang.save()
 
-
 					return redirect('admin_langlist')
-
 				else:
 					return redirect(request.META['HTTP_REFERER'])
-
 			else:
-				pass
-
 				context = {}
 				if purpose == "add":
-
 					langform = LanguageForm(initial= {'color' : '868686'})
-
 
 					context['langform'] = langform
 					context['title'] = "Add Language"
 				elif purpose == "edit":
 					edit_lang = Language.objects.filter(id=id).first()
-
 					initialvalue = {				
 						'name' : edit_lang.name,
 						'color' : '#'+edit_lang.color
 					}
 
-					if edit_lang.image:
-						initialvalue['image'] = edit_lang.image
-
+					if edit_lang.imageID:
+						initialvalue['imageID'] = gdrive_import_exportURL()+edit_lang.imageID
 
 					langform = LanguageForm(initial=initialvalue)
 
@@ -472,24 +479,36 @@ def admin_announcement_update(request, purpose, id=""):
 
 				if temptitle:
 					image_uploaded = request.FILES.get('image', None)
+					image_uploadedID = None
 
-					try:
+					try:	
 						image_test =  Image.open(image_uploaded)
 						image_test.verify()
-						
+
+						image_test =  Image.open(image_uploaded)
+						image_mime = mimetypes.guess_type(str(image_uploaded))[0]
+
+						image_test.thumbnail((1000,1000))
+						image_bytes = BytesIO()
+						image_test.save(image_bytes, format=image_test.format)
+
+						for i in range(1, settings.GOOGLE_API_RECONNECT_TRIES):
+							try:
+								service = gdrive_connect()
+								langfolder = 'media/announcements'
+								langfolder = gdrive_traverse_path(service, path=langfolder, create=True)
+
+								metadata = {'name': str(image_uploaded), 'parents': [langfolder['id']] }
+								image_uploadedID = gdrive_upload_bytes_tofile(service, image_bytes, metadata, image_mime)
+								break
+							except Exception as e:
+								if settings.DEBUG: print(e)
 					except:
-						image_uploaded = None
+						pass
 
 					if purpose == "add":
-						new_ann = Announcement(
-							title=temptitle, 
-							body=bodyjson,
-							image=image_uploaded,
-							poster=request.user
-						)
-						
-						new_ann.save()
-
+						new_ann = Announcement.objects.create(title=temptitle, body=bodyjson, imageID=image_uploadedID, poster=request.user)
+					
 						if notify_users:
 
 							all_users = list(ImportUser.objects.filter(notifications=True).values_list('email', flat=True))
@@ -501,27 +520,21 @@ def admin_announcement_update(request, purpose, id=""):
 								settings_url = 'http://'+ str(domain) + reverse('user_settings') 
 								announcement_url = 'http://'+ str(domain) + reverse('announcement_view', args=[str(new_ann.id)])
 
-								email_from = "Import * Announcement System <" + settings.EMAIL_HOST_USER + ">"
+								email_from = "Import * Announcement System <{}>".format(settings.EMAIL_HOST_USER)
 
 								html_design = render_to_string('reviewer/email/email.html', 
 									{
 										'settings_url': settings_url,
-										'title':	new_ann.title,
+										'title': new_ann.title,
 										'announcement_url': announcement_url,
 										'content': bodystring
 								})
 
 								for email in all_users:
-									message = (settings.EMAIL_SUBJECT_PREFIX + new_ann.title, 
-										bodystring, 
-										html_design,
-										email_from, 
-										[email] )
+									message = (settings.EMAIL_SUBJECT_PREFIX + new_ann.title, bodystring, html_design, email_from, [email] )
 									email_mass.append(message)
 
-								email_mass = tuple(email_mass)
-
-								send_mass_html_mail(email_mass, fail_silently=False)
+								send_mass_html_mail( tuple(email_mass), fail_silently=False)
 
 								if settings.DEBUG:
 									print("Emails sent!")
@@ -536,8 +549,11 @@ def admin_announcement_update(request, purpose, id=""):
 						edit_ann.title = temptitle
 						edit_ann.body = bodyjson
 						
-						if ((image_uploaded != None) or (data.get('imagehascleared', False) != False )):
-							edit_ann.image = image_uploaded
+						oldphotoID = edit_ann.imageID
+						
+						if image_uploaded or data.get('imagehascleared', False):
+							edit_ann.imageID = image_uploadedID
+							if oldphotoID: gdrive_delete_file(service, oldphotoID)
 
 						edit_ann.save()
 
@@ -547,10 +563,7 @@ def admin_announcement_update(request, purpose, id=""):
 		
 				else:
 					retjson["status"] = "fail"	
-
 				return JsonResponse(retjson)
-							
-
 			else:
 
 				context = {}
@@ -575,7 +588,6 @@ def admin_announcement_update(request, purpose, id=""):
 
 				context["currpage"] = "announcements"
 				return render(request, 'reviewer/admin/announcement/announcement.html', context)
-		
 	else:
 		raise PermissionDenied()
 

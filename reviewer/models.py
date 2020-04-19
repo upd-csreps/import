@@ -5,7 +5,6 @@ from django.utils import timezone
 
 # Create your models here.
 
-
 class Course(models.Model):
 	name = models.CharField("Course Name", max_length=20, unique=True)
 	code = models.CharField("Course Code", max_length=10)
@@ -33,18 +32,14 @@ class Course(models.Model):
 			models.UniqueConstraint(fields=['code', 'number'], name='unique codenums')
 		]
 
-def language_uploadto(instance, filename):
-	return 'language/{0}/{1}'.format(instance.name.lower(), filename)
-
 class Language(models.Model):
 
 	name = models.CharField(max_length=20, unique=True)
-	image = models.ImageField(verbose_name="Icon", upload_to=language_uploadto)
+	imageID = models.CharField("Icon ID", max_length=40, blank=True, null=True, default=None)
 	color = models.CharField(max_length=6, default="868686")
 
 	def __str__(self):
 		return	'{}'.format(self.name)
-
 
 class ImportUser(AbstractUser):
 
@@ -52,24 +47,19 @@ class ImportUser(AbstractUser):
 	username = models.CharField("Username", max_length=30, unique=True)
 	first_name = models.CharField("First Name", max_length=30)
 	middle_name = models.CharField("Middle Name", max_length=30, blank=True, null=True)
-
 	last_name = models.CharField("Last Name", max_length=30)
 	suffix = models.CharField("Suffix", max_length=10, blank=True, null=True)
-	#password = models.CharField("Password", max_length=160)
 
 	studentnum = models.PositiveIntegerField("Student Number", null=True)
 	show_studentnum = models.BooleanField("Show Student Number", default=True)
-
 	email = models.EmailField("E-mail", max_length=60)
 	show_email = models.BooleanField("Show E-mail", default=True)
-
 	course = models.CharField("Course/Degree Program", max_length=60)
 	
 	is_superuser = models.BooleanField("Is SuperUser?", default=False)
 	exp = models.PositiveIntegerField("Experience Points", default=0)
 	
 	prof_picID = models.CharField("Prof Pic ID", max_length=40, blank=True, null=True, default=None)
-
 	fave_lang = models.ForeignKey(Language, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Favorite Language")
 
 	dark_mode = models.BooleanField("Dark Mode", default=False);
@@ -107,14 +97,11 @@ class Likes(models.Model):
 			models.UniqueConstraint(fields=['comment', 'user_attr'], name='unique like_combo')
 		]
 
-def announcement_uploadto(instance, filename):
-	return 'announcement/{0}/{1}'.format(instance.id, filename)
-
 class Announcement(models.Model):
 
 	title = models.CharField(max_length=30)
 	body = JSONField()
-	image = models.ImageField(verbose_name="Image", null=True, blank=True, upload_to=announcement_uploadto)
+	imageID = models.CharField("Image ID", max_length=40, blank=True, null=True, default=None)
 	poster = models.ForeignKey(ImportUser, on_delete=models.SET_NULL, null=True)
 	datepost = models.DateTimeField("Date Posted", default=timezone.now)
 
@@ -147,9 +134,6 @@ class Question(models.Model):
 	def __str__(self):
 		return	'{} - Questions'.format(self.lesson.name)
 
-
-def partners_uploadto(instance, filename):
-	return 'partners/{0}/{1}'.format(instance.name, filename)
 
 class Partners():
 

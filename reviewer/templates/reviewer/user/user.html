@@ -33,7 +33,9 @@
 						{% endif %}
 
 						{% if user_filt.fave_lang %}
-							<div class="position-absolute lang-badge lang-badge-offset" style="background-image: url('{{user_filt.fave_lang.image.url}}');">
+							<div class="position-absolute" style="top:0">
+								<div class="position-relative lang-badge lang-badge-offset" style="background-image: url('https://drive.google.com/uc?export=view&id={{user_filt.fave_lang.imageID}}');">
+								</div>
 							</div>
 						{% endif %}
 					</div>
@@ -400,10 +402,6 @@
 			urls: {
 				courseURL : "{% url 'course' '$course_code' 123456789 %}",  
 				likeURL : "{% url 'comment_like' '$course_code' 123456789 %}"
-			},
-
-			init: function(){
-				importApp.comments.loadLikeIcon({{liked_comments}});
 			}
 		});
 
