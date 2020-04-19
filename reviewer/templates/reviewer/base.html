@@ -2,35 +2,27 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>{% block title %}{% endblock %} - Import *</title>
+		<title>{% block title %}-{% endblock %} | Import *</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 		<meta charset="utf-8">
 		<meta name="application-name" content="Import *">
 		<meta name="description" content="Your CS Life debugged.">
 		<meta name="keywords" content="cs, network, import, star, esc">
 		<meta name="color-scheme" content="{% if user.dark_mode %}dark light{% else %}light dark{% endif%}">
-
 		<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 		{% include 'reviewer/partials/favicon.html' %}
-
 		<link rel="stylesheet" href="{% static 'reviewer/css/bootstrap.min.css' %}">
 	 	<link rel="stylesheet" href="{% static 'reviewer/css/katex.min.css' %}">
-
-
 	  	<link href="{% static 'reviewer/css/import.css' %}" rel="stylesheet"/>
 	  	<link href="{% static 'reviewer/css/import.less' %}" type="text/css" rel="stylesheet/less" data-env="{% if debug %}development{% else %}production{% endif %}" />
 	  	{% if user.dark_mode or force_dark_mode %}
 	  		<link id="dark_mode_less" href="{% static 'reviewer/css/import_dark.less' %}" type="text/css" rel="stylesheet/less" data-env="{% if debug %}development{% else %}production{% endif %}" />
 	  	{% endif %}
-
 	  	<script id="lessjs" src="{% static 'reviewer/js/less.min.js'%}" type="text/javascript"></script>
-
-
 	  	{% block styles %}
 	  	{% endblock %}
 	</head>
 	<body>
-
 		{% block loader %}
 			<div class="position-fixed w-100 h-100 loader-screen" onabort="$('.loader-screen').fadeOut()">
 				<div class="loader-overlay position-absolute">
@@ -43,7 +35,6 @@
 						</div>
 					</div>
 				</div>
-				
 			</div>
 
 		{% endblock %}

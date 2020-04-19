@@ -306,7 +306,6 @@
 {% block scripts %}
 
 	<script>
-
 	{% if error %}
 	var errors = {{error}}
 	{% endif %}
@@ -328,10 +327,8 @@
 
 	unameInput.change(function(){
 	  	{% if user.is_authenticated %}
-
-		    if (importApp.requests.ajax) {
+		    if (importApp.requests.ajax)
 		        importApp.requests.ajax.abort();
-		    }
 
 		    importApp.requests.ajax =  $.ajax({
 	            method: 'post',
@@ -376,7 +373,7 @@
 		init: function(){
 			//Initialize
 			$("head").children("style").each(function(){
-				if ($(this).attr("id") == "less:static-reviewer-css-import_dark"){
+				if ($(this).attr("id").startsWith("less:static-reviewer-css-import_dark")){
 	  				darkContent = $(this);
 	  				darkMatters = $(this).html();
 	  			}
