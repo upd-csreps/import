@@ -56,7 +56,7 @@
 						<div class="col-lg-4 col-md-6 d-flex p-3">
 							<div class="m-auto layer-container w-100">
 								<a href="{% url 'announcement_view' announcement.id %}" class="comment-username w-100 announcement-card">
-									<div class="mx-0 layer-container d-flex announcement-image" {{% if announcement.imageID %} style="background-image: url('https://drive.google.com/uc?export=view&id={{announcement.imageID | urlencode }}');" {% endif %} >
+									<div class="mx-0 layer-container d-flex announcement-image" {% if announcement.imageID %} style="background-image: url('https://drive.google.com/uc?export=view&id={{announcement.imageID | urlencode }}');" {% endif %} >
 
 										{% if not announcement.imageID %}
 											<div class="m-auto text-center">
