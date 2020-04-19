@@ -16,7 +16,6 @@
 				<span class="font-weight-bold">Settings</span>
 			</h1>
 
-
 			{% if emptyfields %}
 			<div class="alert alert-warning alert-dismissible fade show layer-container my-3 d-flex" role="alert">
 				<div class="d-inline-flex my-auto">
@@ -378,13 +377,11 @@
 	  				darkMatters = $(this).html();
 	  			}
 	  		});	
-
 		   if (!isDark)
 				darkContent.html("");
 			$(".fave_lang").val("{{user.fave_lang.name}}");
 		}
 	});
-
 
 	</script>
 

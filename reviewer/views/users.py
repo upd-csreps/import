@@ -43,9 +43,8 @@ def user_get(request, user_filter, error=None):
 			}
 
 			liked_comments_data['content'].append(comment_index)
-	
-		liked_comments_data['count'] = len(liked_comments_data)
 
+		liked_comments_data['count'] = len(target_user_likes)
 		user_comments = { 'content' : [], 'count' : len(targetuser_comments) }
 
 		for index, item in enumerate(thousand_counter):
@@ -178,7 +177,6 @@ def user_settings(request):
 				else:
 					return redirect('user_settings')
 			else:
-
 				emptyreqfields = []
 
 				if not data["username"]:
@@ -230,7 +228,6 @@ def user_settings(request):
 									if settings.DEBUG: print(e)
 							
 						currentuser.save(force_update=True)
-
 						willRender = False
 
 						return redirect('user', request.user.username)
@@ -282,22 +279,17 @@ def user_redirect_info(request):
 
 		if (currURL != settings_url) and not (usr.username and usr.first_name and usr.last_name and usr.email):
 			willRedirect = True
-
 		data = {'field_redirect': willRedirect, 'url_redirect': settings_url }
-
 		return JsonResponse(data)
 	else:
 		raise Http404()
-
 
 def register(request):
 
 	langlist = Language.objects.all()
 
 	if request.method == 'POST':
-		
 		queries, data = request.GET, request.POST
-		
 		if (queries.get("unamecheck") == 'y'):
 			unamecheck_callback = { 'valid': 'n' }
 			if not data["uname"]:
@@ -306,21 +298,17 @@ def register(request):
 					unamecheck_callback['valid'] = 's'
 			elif (user_settings_uname_is_unique(request, data["uname"].strip())):
 				unamecheck_callback['valid'] = 'y'
-
 			return JsonResponse(unamecheck_callback)
 		else:
-
 			form = ImportUserCreationForm(request.POST)
 			username = form.cleaned_data['username'].strip()
 			if form.is_valid() and user_settings_uname_is_unique(request, username):
-				
 				password = form.cleaned_data['password1']
 				user = authenticate(username=username, password=password)
 				form.save()
 
 				login(request, user)
 				return redirect('user_settings')
-
 			else:
 				context = {'form': form, 'langlist' : langlist}
 				return render(request, 'registration/register.html', context)
