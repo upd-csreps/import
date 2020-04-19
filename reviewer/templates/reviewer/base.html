@@ -79,9 +79,7 @@
 			    </div>
 			  </div>
 			</div>
-
 		{% endblock %}
-
 		<div class="scripts">
 			<script src="{% static 'reviewer/js/jquery-3.4.1.min.js' %}"></script>
 			<script src="https://unpkg.com/@popperjs/core@2"></script>
@@ -93,7 +91,7 @@
 			<script id="debug-script">importApp.debug("{{debug}}")</script>
 			{% if user.is_authenticated %}
 			{% if not user.email or not user.first_name or not user.last_name %}
-			<script>importApp.users.Check("{% url 'user_redirect_info' %}");</script>
+			<script>importApp.users.check("{% url 'user_redirect_info' %}");</script>
 			{% endif %}
 			{% endif %}
 			{% block scripts %}

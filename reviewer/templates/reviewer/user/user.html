@@ -243,79 +243,57 @@
 			</div>
 	</div>
 
-
-
 {% endblock %}
 
 {% block styles %}
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.4/croppie.min.css">
-
 {% endblock %}
 
 {% block scripts %}
-
 	<script src="{% static 'reviewer/js/import_comments.js' %}"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.4/croppie.min.js"></script>
-	
 	<script>
-
 		var croppie_size = 200; 
 		var image_has_file = false;
 		var submitting = false;
-
 		var croppie = $('.croppie').croppie({
 		    viewport: { width: croppie_size, height: croppie_size,  type: 'circle'},
 		    boundary:{width: 300, height:300 }
 		});
-
 		$('.prof-pic').on('click', function(){
 			$("#user-pic-form input[type=file]").click();
 		});
-
 		function clearFile(){
 			$("#user-pic-form input[type=file]").val('');
 			image_has_file = false;
 			submitting = false;
 		}
-
 		function readFile(file) {                                                       
 		    var reader = new FileReader();
 		    reader.onload = readSuccess;                                            
 		    function readSuccess(evt) { 
-
 		    	var image = new Image();
 		    	var size = 0;
 	            image.src = evt.target.result;
-
 	            image.onload = function(){
-			  
 			        var imagesize = Math.min(this.width, this.height);
 					size = croppie_size/imagesize;
-
 				  	$('.cr-slider').attr({'min': size, 'max': size*2.25 });
 			    };
-
 		       croppie.croppie('bind', {
 				    url: evt.target.result,
 				    zoom: size
 				});                               
 		    };
-
-		    reader.readAsDataURL(file);
-		                                               
+		    reader.readAsDataURL(file);                                             
 		} 
-
 		function CropSubmit(form_name, crop){
-
 			if (importApp.requests.ajax)
 		        importApp.request.ajax.abort();
-
 			var CropForm = document.getElementById(form_name);
 			var fd = new FormData(CropForm);
 			var userURL = "{% url 'user' user_filt.username %}";
-
 			if (crop){
-
 				var image_name = fd.get('image').name
 				fd.delete('image');
 				
@@ -327,16 +305,12 @@
 					fd.append("image", response, image_name);
 					CropSubmitSend();
 				});
-
 			}
 	        else{
 	        	CropSubmitSend();
 	        }
-
 	        function CropSubmitSend(){
-
 	        	$(".loader-screen").fadeIn();
-
 		        importApp.requests.ajax = $.ajax({
 		            url: userURL,
 		            type: 'post',
@@ -359,13 +333,10 @@
 		        });
 	        }
 		}
-
-
 		$('#user-pic-upload').on("change", function(){ 
 			if (!image_has_file){
 				image_has_file = true;
 				try{
-
 					readFile(this.files[0])
 					$('#CropImageModal').modal('show');
 				}
@@ -374,29 +345,24 @@
 				}
 			}
 		});
-
 		$(".user-pic-form").on("submit", function(e){
 			e.preventDefault();
 			$('#CropImageModal').modal('hide');
 			CropSubmit('user-pic-form', false);
 		});
-
 		$(".save-skip-image").on("click", function(){
 			submitting = true;
 			$('#CropImageModal').modal('hide');
 			CropSubmit('user-pic-form', false);
 		});
-
 		$(".save-crop-image").on("click", function(){
 			submitting = true;
 			$('#CropImageModal').modal('hide');
 			CropSubmit('user-pic-form', true);
 		});
-
 		{% if error %}
 			alert("{{error}}");
 		{% endif %}
-
 		
 		importApp.load({
 			urls: {
@@ -404,14 +370,10 @@
 				likeURL : "{% url 'comment_like' '$course_code' 123456789 %}"
 			}
 		});
-
 		$(".upage-comments").on("click", ".comment-delete" ,  function(e){ e.stopPropagation(); importApp.comments.delete(this); }); 
-
 		$('#CropImageModal').on('hidden.bs.modal', function (e) {
 			if (!submitting)
 				clearFile();
 		})
-
 	</script>
-
 {% endblock %}
