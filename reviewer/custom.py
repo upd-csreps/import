@@ -42,7 +42,7 @@ def send_mass_html_mail(datatuple, fail_silently=False, auth_user=None, auth_pas
 
 
 def gdrive_import_folderID():
-	return "1dc3LnAdcy0AU4i2K4hoVr9_Oaz64zWFh"
+	return settings.GDRIVE_ROOT_FOLDERID
 
 def gdrive_import_exportURL():
 	return "https://drive.google.com/uc?export=view&id="

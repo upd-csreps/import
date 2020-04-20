@@ -2,11 +2,39 @@
 
 {% load static %}
 {% block title %}
-	{{course.name}} References
+	References for {{course.name}}
 {% endblock %}
 
 {% block admin_side %}
-	{{result}}
+	<div class="tab-pane fade show active" id="v-pills-courses" role="tabpanel" aria-labelledby="v-pills-courses-tab">
+
+		<div class="d-flex justify-content-between">
+			<div class="mb-4 d-flex">
+				<h2 class="font-weight-bold my-auto">{{course.name}}</h2>
+				<span class="my-auto ml-3">References</span>
+			</div>
+			<div class="d-inline-block">
+					<a href="{% url 'admin_course_id' course.code|lower course.number  'ref-add' %}">
+						<button type="button" class="btn btn-light px-3 d-flex" >
+							<div class="my-auto d-flex">
+								<i class="material-icons">
+									add
+								</i>
+								<span class="my-auto ml-1 d-none d-md-block">
+								Add Reference</span>	
+							</div>
+						</button>
+					</a>
+				</div>
+		</div>
+
+		{% for ID, item in result.items %}
+			<div class="mb-3">
+			{{ID}} , {{item}}
+			</div>
+		{% endfor %}
+
+	</div>
 {% endblock %}
 
 {% block scripts %}

@@ -11,7 +11,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.exceptions import PermissionDenied
 
-from django.http import JsonResponse
+from django.http import Http404, JsonResponse
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -130,10 +130,14 @@ def admin_announcement_create(request):
 @login_required
 def admin_announcement_update(request, purpose, id=""):
 
+	allowed_purpose = ['add', 'edit','delete']
+	if purpose not in allowed_purpose:
+		raise Http404()
+
 	error = None
 
 	if request.user.is_superuser:
-		if purpose == "delete":
+		if purpose == allowed_purpose[2]:
 			del_ann = Announcement.objects.filter(id=id).first()
 			del_ann.delete()
 
@@ -176,7 +180,7 @@ def admin_announcement_update(request, purpose, id=""):
 				except:
 					pass
 
-				if purpose == "add":
+				if purpose == allowed_purpose[0]:
 					new_ann = Announcement.objects.create(title=temptitle, body=bodyjson, imageID=image_uploadedID, poster=request.user)
 				
 					if notify_users:
@@ -197,7 +201,8 @@ def admin_announcement_update(request, purpose, id=""):
 									'settings_url': settings_url,
 									'title': new_ann.title,
 									'announcement_url': announcement_url,
-									'content': bodystring
+									'content': bodystring,
+									'headerID': "1Rop1YKilizMmOSYt24D8M2LMwiM2oeb6"
 							})
 
 							for email in all_users:
@@ -212,7 +217,7 @@ def admin_announcement_update(request, purpose, id=""):
 
 					retjson["redirect_url"] = reverse('announcement_view', args=[str(new_ann.id)])
 					
-				elif purpose == "edit":
+				elif purpose == allowed_purpose[1]:
 					
 					edit_ann = Announcement.objects.filter(id=id).first()
 
@@ -236,9 +241,9 @@ def admin_announcement_update(request, purpose, id=""):
 	
 		else:
 			context = {}
-			if purpose == "add":
+			if purpose == allowed_purpose[0]:
 				context['title'] = "Create Announcement"
-			elif purpose == "edit":
+			elif purpose == allowed_purpose[1]:
 				edit_ann = Announcement.objects.filter(id=id).first()
 				edit_ann_json = json.dumps(edit_ann.body)
 
@@ -284,12 +289,16 @@ def admin_course_id(request, course_subj="", course_num ="", purpose="edit"):
 @login_required
 def admin_get_course(request, purpose, course_subj="", course_num=""):
 
+	allowed_purpose = ['add', 'edit','delete', 'lessons', 'refs', 'ref-add']
+	if purpose not in allowed_purpose:
+		raise Http404()
+
 	referer = request.META.get('HTTP_REFERER', "")
 
 	if request.user.is_superuser:
-		if purpose == 'refs':
+		if purpose == allowed_purpose[4] or allowed_purpose[5]:
 			return admin_course_ref(request, course_subj, course_num)
-		elif purpose == "delete":
+		elif purpose == allowed_purpose[2]:
 			del_course = Course.objects.filter(code__iexact=course_subj, number__iexact=course_num).first()
 
 			for i in range(1, settings.GOOGLE_API_RECONNECT_TRIES):
@@ -349,7 +358,7 @@ def admin_get_course(request, purpose, course_subj="", course_num=""):
 				except:
 					pass
 					
-				if purpose == "add":	
+				if purpose == allowed_purpose[0]:	
 					course = Course(
 						name=data['name'].strip(),
 						code=tempcode, 
@@ -360,7 +369,7 @@ def admin_get_course(request, purpose, course_subj="", course_num=""):
 						visible=temp_visible,
 						imageID=image_uploadedID
 					)
-				elif purpose == "edit":
+				elif purpose == allowed_purpose[1]:
 
 					course = Course.objects.filter(code__iexact=course_subj, number__iexact=course_num).first()
 
@@ -388,11 +397,11 @@ def admin_get_course(request, purpose, course_subj="", course_num=""):
 		else:
 			courselist = Course.objects.filter(visible=True).order_by('code', 'number_len', 'number')
 
-			if purpose == "add":
+			if purpose == allowed_purpose[0]:
 				courseform = CourseForm()
 				context = { 'courseform': courseform, 'courses': courselist, 'title': "Add Course" }
 
-			elif purpose == "edit":
+			elif purpose == allowed_purpose[1]:
 
 				edit_course = Course.objects.filter(code__iexact=course_subj, number__iexact=course_num).first()
 
@@ -420,7 +429,7 @@ def admin_get_course(request, purpose, course_subj="", course_num=""):
 							'title' : "Edit Course"
 						}
 
-			if (request.method == "POST") and (request.user.check_password(request.POST['password']) == False):
+			if request.method == "POST" and not request.user.check_password(request.POST['password']):
 				context['error'] = "You entered the wrong password."
 
 			if request.is_ajax():
@@ -452,7 +461,8 @@ def admin_course_ref(request, course_subj="", course_num=""):
 
 		context = {
 			'course' : coursefilter,
-			'result' : json.dumps(result) if result else error
+			'currpage' : 'courses',
+			'result' : result['obj'] if result['obj'] else error
 		}
 
 		return render(request, 'reviewer/admin/courses/course-reference.html', context)
@@ -478,9 +488,13 @@ def admin_lang_add(request):
 @login_required
 def admin_lang(request, purpose, id=""):
 
+	allowed_purpose = ['add', 'edit','delete']
+	if purpose not in allowed_purpose:
+		raise Http404()
+
 	error = None
 	if request.user.is_superuser:
-		if purpose == "delete":
+		if purpose == allowed_purpose[2]:
 			del_lang = Language.objects.filter(id=id).first()
 			for i in range(1, settings.GOOGLE_API_RECONNECT_TRIES):
 				try:
@@ -530,10 +544,9 @@ def admin_lang(request, purpose, id=""):
 						pass
 
 					# Add input validation
-					if purpose == "add":
+					if purpose == allowed_purpose[0]:
 						Language.objects.create(name=data['name'].strip(), color=data['color'][1:], imageID=image_uploadedID)
-					elif purpose == "edit":
-						
+					elif purpose == allowed_purpose[1]:
 						edit_lang = Language.objects.filter(id=id).first()
 						edit_lang.name = data["name"].strip()
 						edit_lang.color = data["color"][1:]
@@ -549,12 +562,12 @@ def admin_lang(request, purpose, id=""):
 					return redirect(request.META['HTTP_REFERER'])
 			else:
 				context = {}
-				if purpose == "add":
+				if purpose == allowed_purpose[0]:
 					langform = LanguageForm(initial= {'color' : '868686'})
 
 					context['langform'] = langform
 					context['title'] = "Add Language"
-				elif purpose == "edit":
+				elif purpose == allowed_purpose[1]:
 					edit_lang = Language.objects.filter(id=id).first()
 					initialvalue = {				
 						'name' : edit_lang.name,
@@ -569,7 +582,7 @@ def admin_lang(request, purpose, id=""):
 					context = {'langform': langform, 'edit_lang' : edit_lang }
 					context['title'] = "Edit Language"
 
-				if (request.method == "POST") and (request.user.check_password(request.POST['password']) == False):
+				if (request.method == "POST") and not request.user.check_password(request.POST['password']):
 					context['error'] = "You entered the wrong password."
 
 				context["currpage"] = "languages"
@@ -590,18 +603,15 @@ def admin_users(request):
 
 			data = request.POST
 			confirm = authenticate(username=request.user.username, password=data["password"])
-			message = ""
-
+	
 			if confirm == request.user:
 				find_uname = ImportUser.objects.filter(username=data["username"]).first()
 				find_uname.is_superuser = not find_uname.is_superuser
 				find_uname.save()
-				message = "You have changed " + data["username"] + "'s superuser status."
+				context ['message'] = "You have changed {}'s superuser status.".format(data["username"])
 			else:
-				message = "You entered the wrong password."
+				context ['message'] = "You entered the wrong password."
 
-			context ['message'] = message
-		
 		context.update({ 'users' : users, 'currpage' : current_page })
 
 		return render(request, 'reviewer/admin/users.html', context)

@@ -171,6 +171,7 @@ GOOGLE_API_SCOPES = [
 ]
 
 GOOGLE_API_RECONNECT_TRIES = 5
+GDRIVE_ROOT_FOLDERID = os.environ.get('GDRIVE_ROOT_FOLDERID', "1dc3LnAdcy0AU4i2K4hoVr9_Oaz64zWFh")
 
 
 # Production Settings
