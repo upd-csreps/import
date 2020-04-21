@@ -32,18 +32,19 @@
 		<div class="container py-4">
 			<div class="row site-content">
 				<div class="m-auto ml-lg-0 col-lg-6 col-12 p-1 py-lg-3 pl-lg-2 pr-lg-3">
-					{% if form.errors %}
+					{% if form.errors or next %}
 					<div class="alert alert-danger d-flex" role="alert">
 						<div class="mx-auto my-auto d-flex">
-						  <i class="material-icons my-auto mr-3">error</i>
-						  <span class="my-auto">You have entered wrong credentials.</span>
-						 </div>
+							<i class="material-icons my-auto mr-3">error</i>
+							<span class="my-auto">
+								{% if form.errors %}
+								You have entered wrong credentials.
+								{% elif next %}
+								Please log in to continue.
+								{% endif %}
+							</span>
+						</div>
 					</div>
-					{% endif %}
-
-
-					{% if next %}
-					<p>Unaccessible link.</p>
 					{% endif %}
 
 					<h1 class="mb-3 font-weight-bold"> Login </h1>

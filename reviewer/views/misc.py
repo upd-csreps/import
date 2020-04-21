@@ -1,8 +1,9 @@
 
 from ..models import BugReport
 from django.conf import settings
-from django.http import JsonResponse
+from django.http import JsonResponse, StreamingHttpResponse
 from django.shortcuts import render
+import time
 
 from ..custom import *
 
@@ -29,3 +30,15 @@ def google_test(request):
 	retjson = {'obj': gdrive_list_meta_children(service)}
 
 	return JsonResponse(retjson)
+
+
+def stream_chunks():
+	i = 0
+	while i < 30:
+		yield '{}\n'.format(i)
+		time.sleep(1)
+		i = i+1
+
+
+def stream_test(request):
+	return StreamingHttpResponse(stream_chunks())

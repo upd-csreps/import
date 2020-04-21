@@ -11,32 +11,112 @@
 		<div class="d-flex justify-content-between">
 			<div class="mb-4 d-flex">
 				<h2 class="font-weight-bold my-auto">{{course.name}}</h2>
-				<span class="my-auto ml-3">References</span>
+				<i class="material-icons h3 mx-2 my-auto">
+					arrow_forward
+				</i>
+				<h4 class="my-auto">References</h4>
 			</div>
 			<div class="d-inline-block">
-					<a href="{% url 'admin_course_id' course.code|lower course.number  'ref-add' %}">
-						<button type="button" class="btn btn-light px-3 d-flex" >
-							<div class="my-auto d-flex">
-								<i class="material-icons">
-									add
-								</i>
-								<span class="my-auto ml-1 d-none d-md-block">
-								Add Reference</span>	
-							</div>
-						</button>
-					</a>
+				<div class="position-absolute d-none">
+					<form method="POST" id="ref-form" action="{% url 'admin_course_id' course.code|lower course.number  'refs' %}" enctype="multipart/form-data">
+						{% csrf_token %}
+						<input type="file" name="file" id="id_file">
+					</form>
 				</div>
+				
+				<button type="button" class="btn btn-light px-3 d-flex" onclick="$('#id_file').click()" >
+					<div class="my-auto d-flex">
+						<i class="material-icons">
+							add
+						</i>
+						<span class="my-auto ml-1 d-none d-md-block">
+							Add Reference
+						</span>	
+					</div>
+				</button>
+				
+			</div>
 		</div>
 
-		{% for ID, item in result.items %}
-			<div class="mb-3">
-			{{ID}} , {{item}}
+		<div class="course-ref d-flex align-items-center flex-column">
+			<div class="mx-auto mt-5 mb-3">
+				<div class="loader-sm spin"></div>
 			</div>
-		{% endfor %}
+		</div>
 
 	</div>
 {% endblock %}
 
 {% block scripts %}
-	
+
+	<script async>
+		$.ajax({
+			method: 'get',
+			url: window.location.href,
+			timeout: 30000,
+			success: function(response, status, xhr){
+				$('.course-ref').html(response.result);
+			},
+			error: function(xhr, status, error){
+				$('.course-ref').html(
+					`<div class="d-flex my-5"><i class="material-icons text-danger mr-2">error_outline</i>
+					Failed to connect. Please refresh the page or try again later.</div>`
+				)
+			},
+		});
+
+	</script>
+
+	<script>
+		$("#id_file").change(function(e){
+
+			e.preventDefault();
+			if (e.currentTarget.value != ""){
+				var form = e.currentTarget.parentNode;
+				var formData = new FormData(form);	
+
+				if (importApp.requests.ajax)
+					importApp.requests.ajax.abort()
+
+				importApp.requests.ajax = $.ajax({
+					method: 'post',
+					url: window.location.href,
+					data: formData,
+					cache: false,
+					contentType: false,
+					processData: false,
+					success: function(response, status, xhr){
+						console.log(response);
+					}
+				});
+			}
+			
+			e.currentTarget.value = "";
+		});	
+
+
+		$(".course-ref").on("click", ".ref-delete" , function(e){ 
+			e.preventDefault();
+
+			var del = confirm(`Are you sure you want to delete "${$(this).parents('.reference').attr("data-filename")}"?`);
+
+			if(del){
+				if (importApp.requests.ajax)
+					importApp.requests.ajax.abort()
+
+				importApp.requests.ajax = $.ajax({
+					method: 'delete',
+					url: window.location.href,
+					data: $(this).parents('.reference').attr("data-refID"),
+					cache: false,
+					contentType: false,
+					processData: false,
+					headers: {'X-CSRFToken': importApp.csrfToken },
+					success: function(response, status, xhr){
+						console.log(response);
+					}
+				});
+			}
+		}); 
+	</script>
 {% endblock %}

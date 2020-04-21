@@ -289,14 +289,14 @@ def admin_course_id(request, course_subj="", course_num ="", purpose="edit"):
 @login_required
 def admin_get_course(request, purpose, course_subj="", course_num=""):
 
-	allowed_purpose = ['add', 'edit','delete', 'lessons', 'refs', 'ref-add']
+	allowed_purpose = ['add', 'edit','delete', 'lessons', 'refs']
 	if purpose not in allowed_purpose:
 		raise Http404()
 
 	referer = request.META.get('HTTP_REFERER', "")
 
 	if request.user.is_superuser:
-		if purpose == allowed_purpose[4] or allowed_purpose[5]:
+		if purpose == allowed_purpose[4]:
 			return admin_course_ref(request, course_subj, course_num)
 		elif purpose == allowed_purpose[2]:
 			del_course = Course.objects.filter(code__iexact=course_subj, number__iexact=course_num).first()
@@ -445,27 +445,43 @@ def admin_get_course(request, purpose, course_subj="", course_num=""):
 def admin_course_ref(request, course_subj="", course_num=""):
 	if request.user.is_superuser:
 		coursefilter = Course.objects.filter(code__iexact=course_subj).filter(number__iexact=str(course_num)).first()
-		error = "Failed to connect. Please refresh the page or try again later."
-		result = None
 
-		for i in range(1, settings.GOOGLE_API_RECONNECT_TRIES):
-			try:
-				service = gdrive_connect()
-				reffolder = 'references/{}'.format(coursefilter.name)
-				reffolder = gdrive_traverse_path(service, path=reffolder, create=True)
+		if request.is_ajax():
+			error = "Failed to connect. Please refresh the page or try again later."
+			result = None
 
-				result = {'obj': gdrive_list_meta_children(service, folderID=reffolder['id'], order="name")}
-				break
-			except Exception as e:
-				if settings.DEBUG: print(e)
+			for i in range(1, settings.GOOGLE_API_RECONNECT_TRIES):
+				try:
+					service = gdrive_connect()
+					reffolder = 'references/{}'.format(coursefilter.name)
+					reffolder = gdrive_traverse_path(service, path=reffolder, create=True)
 
-		context = {
-			'course' : coursefilter,
-			'currpage' : 'courses',
-			'result' : result['obj'] if result['obj'] else error
-		}
+					if request.method == "GET":
+						result = {'obj': gdrive_list_meta_children(service, folderID=reffolder['id'], order="name")}
+						result = render_to_string('reviewer/partials/course/course-refs-admin.html', { 'result': result['obj'] , 'course' : coursefilter }).strip()
+					elif request.method == "POST":
+						file_uploaded = request.FILES.get('file', None)
 
-		return render(request, 'reviewer/admin/courses/course-reference.html', context)
+						if file_uploaded:
+							file_uploaded = file_uploaded.open()
+							file_bytes = BytesIO(file_uploaded.read())
+
+							metadata = {'name': str(file_uploaded), 'parents': [reffolder['id']] }
+							result = gdrive_upload_bytes_tofile(service, file_bytes, metadata, file_mime)
+					elif request.method == "DELETE":
+						gdrive_delete_file(service, request.body.decode('utf-8'))
+					break
+				except Exception as e:
+					if settings.DEBUG: print(e)
+			
+			return JsonResponse({ 'result' : result })
+		else:
+			context = {
+				'course' : coursefilter,
+				'currpage' : 'courses'
+			}
+
+			return render(request, 'reviewer/admin/courses/course-reference.html', context)
 	else:
 		raise PermissionDenied()
 

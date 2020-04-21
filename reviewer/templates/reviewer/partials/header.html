@@ -11,7 +11,7 @@
 			{% if user.is_authenticated %}
 				<div class="mx-3 my-auto d-none d-lg-block dropdown header-toggle" >
 					<a class="d-flex my-auto dropdown-toggle"  role="button" id="HeaderProfileDrop" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-						<img class="user-pic mr-2 my-auto" src="
+						<img class="user-pic mr-2 my-auto" style="overflow:hidden" src="
 						{% if user.prof_picID %}
 						https://drive.google.com/uc?export=view&id={{user.prof_picID | urlencode }}
 						{% else %}

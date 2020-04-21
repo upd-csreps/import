@@ -36,8 +36,9 @@ urlpatterns = [
     path('announcements/', views.announcements, name="announcements"),
     path('announcements/<str:id>/', views.announcement_view, name="announcement_view"),
 
-    # Announcements
+    # Test
     path('api/', views.google_test, name="google_test"),
+    path('stream/', views.stream_test, name="stream_test"),
 
     # Robots.txt
     path('robots.txt', views.robots_txt ),

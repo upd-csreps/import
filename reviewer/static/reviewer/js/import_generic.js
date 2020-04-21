@@ -10,6 +10,32 @@
 			ajax : undefined,
 			ajaxFail: function (event, xhr, settings, error){
 				console.error(`The following error occurred:\n ${settings.method.toUpperCase()} ${settings.url} ${xhr.status} (${error})`);
+			},
+			xhr : function(){
+				let xhr = $.ajaxSettings.xhr();
+				let last_response_length = false;
+
+				xhr.onabort = function(e){}
+
+				xhr.onprogress = function(e) {
+
+					var this_response, response = e.currentTarget.response;
+
+					if(last_response_len == false){
+						this_response = response;
+						last_response_len = response.length;
+					}
+					else{
+						this_response = response.substring(last_response_len);
+						last_response_len = response.length;
+					}
+
+					console.log(this_response);
+			    }
+
+			    xhr.upload.onprogress = function(e){}
+
+				return xhr;
 			}
 		},
 

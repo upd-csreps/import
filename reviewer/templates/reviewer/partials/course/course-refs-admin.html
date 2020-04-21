@@ -1,0 +1,51 @@
+<div class="row w-100">
+	{% for ID, item in result.items %}
+		<div class="col-4 p-3">
+			<div class="layer-container d-flex flex-column reference" style="height: 250px" data-refID="{{ID}}" data-filename="{{item.name}}">
+				<div style="background-image: url('{{item.thumbnailLink}}=s250'); background-size: cover; background-position: center; border-bottom: 1px solid #eeeeee; height: 60%">
+				</div>
+				<div class="p-3">
+					<small>{{item.name| truncatechars:25}}</small>
+
+					<div class="d-flex justify-content-around mt-2">
+						
+						{% if item.webViewLink %}
+						<a href="{{item.webViewLink}}" target="_blank">
+							<button  type="button" class="btn btn-light px-2 d-flex">
+								<div class="m-auto d-flex">
+									<i class="material-icons material-icon-sm">
+										visibility
+									</i>
+								</div>
+							</button>
+						</a>
+						{% endif %}
+
+						{% if item.webContentLink %}
+						<a href="{{item.webContentLink}}" target="_blank">
+							<button  type="button" class="btn btn-light px-2 d-flex">
+								<div class="m-auto d-flex">
+									<i class="material-icons material-icon-sm"  style="transform: rotate(180deg);">
+										publish
+									</i>
+								</div>
+							</button>
+						</a>
+						{% endif %}
+
+						<a href="{% url 'admin_course_id' course.code|lower course.number  'refs' %}" class="ref-delete">
+							<button type="button" class="btn btn-danger px-2 d-flex">
+								<div class="m-auto d-flex">
+									<i class="material-icons material-icon-sm">
+										delete
+									</i>
+								</div>
+							</button>
+						</a>
+					</div>
+
+				</div>
+			</div>
+		</div>
+	{% endfor %}
+</div>
