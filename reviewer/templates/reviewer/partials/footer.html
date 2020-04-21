@@ -1,7 +1,22 @@
 {% load static %}
-<footer class="d-flex w-100 py-4 import-footer">
-	<div class="container d-flex justify-content-end align-items-center">
-		<span class="my-auto mx-3 font-weight-bold">POWERED BY</span>
-		<img src="{% static 'reviewer/images/dcss-colored.png' %}" style="max-height: 50px" alt="DCS Servers">
+<footer class=" import-footer">
+	<div class="d-flex w-100 px-4 py-4">
+		<div class="container">
+			<div class="d-flex justify-content-between">
+				<div class="my-auto">
+					<small>
+						<a href="{% url 'disclaimer' %}" class="import-ex-link">Disclaimer</a>
+						<span class="mx-2">•</span>
+						<a href="{% url 'terms' %}" class="import-ex-link">Terms & Conditions</a>
+						<span class="mx-2">•</span>
+						<a href="{% url 'privacy_policy' %}" class="import-ex-link">Privacy & Cookie Policy</a>
+					</small>
+				</div>
+				<div class="d-flex ml-auto my-auto">
+					<img src="{% static 'reviewer/images/esc-sm.png' %}" style="max-height: 40px" alt="Engineering Student Council" class="my-auto">
+					<img src="{% static 'reviewer/images/csnet-sm.png' %}" style="max-height: 55px" alt="CS Network" class="my-auto ml-3">
+				</div>
+			</div>
+		</div>
 	</div>
 </footer>

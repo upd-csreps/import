@@ -47,7 +47,7 @@ body{
 
 
 .site-content{
-	min-height: 93vh;
+	min-height: 85vh;
 }
 
 .device-full-height{
@@ -360,10 +360,6 @@ body{
 .link-ico{
 	opacity: 0.35;
 	font-size: 0.85rem;
-}
-
-.import-ex-link:hover{
-	opacity: 0.75;
 }
 
 .home-header .import-logo{

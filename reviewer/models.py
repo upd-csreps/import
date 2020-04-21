@@ -116,28 +116,38 @@ class Lesson(models.Model):
 	verified = models.BooleanField("Verified?", default=False)
 	verifier = models.CharField(max_length=50)
 
+	order = models.PositiveIntegerField(default=1)
 	module_content = models.TextField(null=True, blank=True, default=None)
 	module_code = JSONField(null=True, default=None)
 
-	ex_lang = models.ForeignKey(Language, on_delete=models.SET_NULL, null=True, blank=True)
 
 	def __str__(self):
 		return	'{}: {}'.format(self.course, self.name)
+
+	class Meta:
+		constraints = [
+			models.UniqueConstraint(fields=['course', 'order'], name='unique course-order')
+		]
 
 
 class Question(models.Model):
 
 	lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
+	lang = models.ForeignKey(Language, on_delete=models.CASCADE, null=True, blank=True)
 	custom_code = JSONField()
 	qtype = models.CharField(max_length=50)
 
 	def __str__(self):
 		return	'{} - Questions'.format(self.lesson.name)
 
+	class Meta:
+		constraints = [
+			models.UniqueConstraint(fields=['lesson', 'lang'], name='unique lesson-lang')
+		]
 
 class Partners():
 
-	name = models.CharField(max_length=30)
+	name = models.CharField(max_length=30, unique=True)
 	imageID = models.CharField("Logo Image ID", max_length=40, blank=True, null=True, default=None)
 	adImageID = models.CharField("Logo Image ID", max_length=40, blank=True, null=True, default=None)
 	sponsor = models.BooleanField("Sponsor?", default=False)
@@ -172,7 +182,7 @@ class BugReport(models.Model):
 
 class SiteSettings(models.Model):
 
-	name = models.CharField(max_length=50)
+	name = models.CharField(max_length=50, unique=True)
 	body = models.CharField(max_length=300)
 
 	def __str__(self):

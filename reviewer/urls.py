@@ -4,6 +4,11 @@ from . import views
 urlpatterns = [
     path('', views.index, name="index"),
 
+    # Legal URLs
+    path('terms/', views.terms, name="terms"),
+    path('privacy-policy/', views.privacy, name="privacy_policy"),
+    path('disclaimer/', views.disclaimer, name="disclaimer"),
+
     # Course URLs
     path('course/', views.courselist, name="courselist"),
     path('course/<str:csubj>/<int:cnum>/', views.course, name="course"),

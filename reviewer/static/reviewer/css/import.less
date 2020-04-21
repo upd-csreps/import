@@ -20,6 +20,10 @@ a, .active-button{
 	transition: @TransTime;
 }
 
+a:hover{
+	color: #606060;
+}
+
 .togglable{
 	transition: @TransTime;
 }
@@ -92,7 +96,7 @@ body{
 }
 
 
-.import-header a{
+.import-header a, .import-footer a{
 	color: @TextColor;
 }
 
@@ -109,7 +113,7 @@ body{
 	border-color: @ImportPrimary;
 }
 
-.import-header a:not(.import-logo):hover{
+.import-header a:not(.import-logo):hover, .import-footer a:hover{
 	color: @ImportPrimary;
 }
 

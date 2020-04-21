@@ -11,8 +11,8 @@
 		<div class="container py-5 d-flex site-container">
 			<div class="m-auto d-flex flex-column">
 				<a href="{% url 'user' user.username %}" class="m-auto"> <img src="
-					{% if user.prof_pic %}
-						{{user.prof_pic.url}}
+					{% if user.prof_picID %}
+						https://drive.google.com/uc?export=view&id={{user.prof_picID | urlencode }}
 					{% else %}
 						{% static 'reviewer/images/default_profile.png' %}
 					{% endif %}

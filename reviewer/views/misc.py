@@ -9,6 +9,18 @@ from ..custom import *
 
 # Create your views here.
 
+def terms(request):
+	context = {}
+	return render(request, 'reviewer/legal/terms.html', context)
+
+def privacy(request):
+	context = {}
+	return render(request, 'reviewer/legal/privacy.html', context)
+
+def disclaimer(request):
+	context = {}
+	return render(request, 'reviewer/legal/disclaimer.html', context)
+
 def bug_report_list(request):
 
 	mybugreports = BugReport.objects.filter(user=request.user).order_by('-lastupdated')
