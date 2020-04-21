@@ -112,14 +112,11 @@ class Lesson(models.Model):
 
 	name = models.CharField(max_length=50)
 	course = models.ForeignKey(Course, on_delete=models.CASCADE)
-	prereq_lesson = models.ManyToManyField('self', blank=True, default=None)
+	rel_lesson = models.ManyToManyField('self', blank=True, default=None)
 	verified = models.BooleanField("Verified?", default=False)
 	verifier = models.CharField(max_length=50)
 
 	order = models.PositiveIntegerField(default=1)
-	module_content = models.TextField(null=True, blank=True, default=None)
-	module_code = JSONField(null=True, default=None)
-
 
 	def __str__(self):
 		return	'{}: {}'.format(self.course, self.name)
@@ -134,6 +131,9 @@ class Question(models.Model):
 
 	lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
 	lang = models.ForeignKey(Language, on_delete=models.CASCADE, null=True, blank=True)
+
+	module_content = models.TextField(null=True, blank=True, default=None)
+	module_code = JSONField(null=True, default=None)
 	custom_code = JSONField()
 	qtype = models.CharField(max_length=50)
 

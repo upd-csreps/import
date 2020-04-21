@@ -1,7 +1,8 @@
 import json
 
 from ..custom import *
-from ..models import ImportUser, Course, Language, Announcement, LessonStats
+from ..models import (ImportUser, Course, 
+	Language, Announcement, Lesson, LessonStats)
 from ..forms import CourseForm, LanguageForm, ImportImageForm
 
 from datetime import timedelta
@@ -296,7 +297,9 @@ def admin_get_course(request, purpose, course_subj="", course_num=""):
 	referer = request.META.get('HTTP_REFERER', "")
 
 	if request.user.is_superuser:
-		if purpose == allowed_purpose[4]:
+		if purpose == allowed_purpose[3]:
+			return admin_course_lessons(request, course_subj, course_num)
+		elif purpose == allowed_purpose[4]:
 			return admin_course_ref(request, course_subj, course_num)
 		elif purpose == allowed_purpose[2]:
 			del_course = Course.objects.filter(code__iexact=course_subj, number__iexact=course_num).first()
@@ -438,6 +441,20 @@ def admin_get_course(request, purpose, course_subj="", course_num=""):
 				context["currpage"] = "courses"
 				return render(request, 'reviewer/admin/courses/course_admin.html', context)
 	
+	else:
+		raise PermissionDenied()
+
+@login_required
+def admin_course_lessons(request, course_subj="", course_num=""):
+
+	if request.user.is_superuser:
+		course = Course.objects.filter(code__iexact=course_subj).filter(number__iexact=str(course_num)).first()
+		lessons = course.lesson_set.order_by('order')
+
+		currpage = "courses"
+		context = {'course': course, 'lessons': lessons, 'currpage': currpage}
+
+		return render(request, 'reviewer/admin/courses/course-lessons.html', context)
 	else:
 		raise PermissionDenied()
 
@@ -606,6 +623,62 @@ def admin_lang(request, purpose, id=""):
 	else:
 		raise PermissionDenied()
 
+
+@login_required
+def admin_lessons_add(request):
+	return admin_lessons_crud(request, 'add')
+
+@login_required
+def admin_lessons_crud(request, purpose, id=""):
+
+	if request.user.is_superuser:
+		
+		if request.method == 'POST':
+			data = (request.POST)
+
+			lessonname = data.get('name', False).strip()
+			course = data.get('course', False).strip()
+
+			if not (lessonname and course):
+				pass
+			else:
+
+				if purpose == 'add':
+
+					course = Course.objects.filter(pk=course).first()
+					order = course.lesson_set.count() + 1
+					new_lesson = Lesson.objects.create(
+						name = lessonname,
+						course = course,
+						verified = data.get('lesson_verified', False),
+						verifier = data.get('verifiedby', '').strip(),
+						order = order
+					)
+
+					new_lesson.rel_lesson.set(Lesson.objects.filter(id__in=data.getlist('related')))
+
+			return redirect('admin_lessons_add')
+		else:
+			courses = Course.objects.all()
+			lessons = Lesson.objects.all()
+			edit_lesson = None
+
+			if purpose == 'edit':
+				edit_lesson = lessons.filter(id=id).first()
+
+			currpage = "courses"
+			context = {
+				'courses': courses,
+				'rel_lessons' : lessons,
+				'edit_lesson' : edit_lesson,
+				'currpage': currpage, 
+				'title' : "Add Lesson"
+			}
+
+			return render(request, 'reviewer/admin/courses/lessons/lessons.html', context)
+	else:
+		raise PermissionDenied()
+
 @login_required
 def admin_users(request):
 
@@ -634,3 +707,5 @@ def admin_users(request):
 
 	else:
 		raise PermissionDenied()
+
+

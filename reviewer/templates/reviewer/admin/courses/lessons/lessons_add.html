@@ -1,0 +1,108 @@
+
+<h2 class="admin-title mb-3 h2 d-inline-block">
+	<span class="d-inline-flex">
+		<i class="material-icons my-auto mx-3 import-font-primary" style="font-size: inherit;">
+			{% if title == 'Add Lesson'%}
+				add
+			{% elif title == 'Edit Lesson' %}
+				edit
+			{% endif %}
+		</i>
+		<span class="my-auto">
+			<span class="font-weight-bold">{{title}}</span>
+			{% if title == 'Edit Lesson' %}
+				<p class="h6 text-muted">{{edit_less.title}}</p>
+			{% endif %}
+		</span>
+	</span>
+</h2>
+
+{% if error %}
+	<div class="w-100 alert-danger p-3 d-flex">
+		<i class="material-icons mr-3 my-auto ml-0">
+		error_outline
+		</i>
+		<span class="my-auto">{{error}}</span>
+	</div>
+{% endif %}
+<div class="d-flex flex-column p-3 pb-0">
+	<form class="form-group mb-0" id="lessons-form" method="POST" action="{% url 'admin_lessons_add' %}" enctype="multipart/form-data">
+
+		{% csrf_token %}
+
+		<div class="row">
+			<div class="form-group col-lg-6">
+				<label>
+					<strong>Name</strong>
+					<span class="import-font-primary">*</span> 
+				</label>
+				<input class="form-control pr-5 mx-0" type="text" name="name" value="" autocomplete="off" required>
+				<div class="invalid-feedback">
+					This field is required.
+				</div>
+			
+			</div>
+
+			<div class="form-group col-lg-6">
+				<label>
+					<strong>Course</strong>
+					<span class="import-font-primary">*</span> 
+				</label>
+				<select class="form-control" name="course" id="select_course">
+					{% for course in courses %}
+					  <option value="{{course.pk}}" {% if forloop.counter0 == 0 %}selected{%endif%}>{{course.name}}</option>
+					{% endfor %}
+				</select>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label>
+				<strong>Related Lessons</strong> 
+			</label>
+			<select class="form-control" name="related" id="select_related">
+				{% if rel_lessons.count == 0 %}
+				<option value="" selected>None</option>
+				{% else %}
+					{% for less in rel_lessons %}
+					  <option value="{{less.pk}}" {% if forloop.counter0 == 0 %}selected{%endif%}>{{less.name}}</option>
+					{% endfor %}
+				{% endif %}
+			</select>
+		</div>
+
+		<div class="form-group">
+			<div class="d-flex">
+				<label class="my-auto ml-auto mr-0 font-weight-bold">Verified Status</label>
+
+				<span class="my-auto d-none position-absolute verified-val">
+					<input type="checkbox" name="lesson_verified" value="verified">
+				</span>
+
+				<i class="material-icons my-auto mr-2 ml-2 togglable {% comment %}active-button{% endcomment %}" onclick="$('.verified-val input').click();">
+					check_box_outline_blank
+				</i>
+
+				<span class="d-none d-md-block icaption my-auto {% comment %}active-button{% endcomment %}">
+					Off
+				</span>
+			</div>
+
+			<label>
+				<strong>Verified By:</strong> 
+			</label>
+			<input class="form-control pr-5 mx-0" type="text" name="verifiedby" value="" autocomplete="off">
+		</div>
+
+
+		<p> You can create questions for the lessons after submitting the form. </p>
+
+	</form>
+</div>
+
+<button class="btn btn-primary d-inline-flex float-right" type="submit" form="lessons-form">
+	<i class="material-icons my-auto material-icon-sm mr-lg-2">
+		save
+	</i>
+	<span class="my-auto d-none d-lg-block">Save</span>
+</button>

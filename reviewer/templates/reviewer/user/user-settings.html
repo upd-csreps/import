@@ -173,7 +173,7 @@
 						<label><strong>Favorite Language</strong></label>
 						
 						<div class="d-flex">
-							<div class="lang-badge my-auto" {% if user.fave_lang %} style="background-image: url('{{user.fave_lang.image.url }}')" {% endif %}>
+							<div class="lang-badge my-auto" {% if user.fave_lang %} style="background-image: url('https://drive.google.com/uc?export=view&id={{user.fave_lang.imageID }}=s220')" {% endif %}>
 							</div>
 							<select class="form-control ml-2 my-auto fave_lang" name="fave_lang">
 								<option>None</option>

@@ -1,6 +1,5 @@
 {% extends 'reviewer/admin/admin.html' %}
 
-
 {% load static %}
 {% block title %}
 	{{title}}
@@ -8,11 +7,12 @@
 
 {% block admin_side %}
 	<div class="tab-pane fade show active" id="v-pills-courses" role="tabpanel" aria-labelledby="v-pills-courses-tab">
-		{% include 'reviewer/courses/course_add.html' %}
+		{% include 'reviewer/admin/courses/lessons/lessons_add.html' %}
 	</div>
+
 {% endblock %}
 
-
 {% block scripts %}
-<script src="{% static 'reviewer/js/import_dragphoto.js' %}"></script>
+
+	
 {% endblock %}
