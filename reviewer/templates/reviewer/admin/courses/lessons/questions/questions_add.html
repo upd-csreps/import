@@ -1,0 +1,79 @@
+
+<h2 class="admin-title mb-3 h2 d-inline-block">
+	<span class="d-inline-flex">
+		<i class="material-icons my-auto mx-3 import-font-primary" style="font-size: inherit;">
+			{% if title == 'Add Question'%}
+				add
+			{% elif title == 'Edit Question' %}
+				edit
+			{% endif %}
+		</i>
+		<span class="my-auto">
+			<span class="font-weight-bold">{{title}}</span>
+				<p class="h6 text-muted d-flex">
+					<span class="my-auto">{{edit_lesson.course.name}}</span>
+					<i class="material-icons material-icon-sm mx-1 my-auto">
+						arrow_forward
+					</i>
+					<span class="my-auto">{{edit_lesson.name}}</span>
+				</p>
+		</span>
+	</span>
+</h2>
+
+{% if error %}
+	<div class="w-100 alert-danger p-3 d-flex">
+		<i class="material-icons mr-3 my-auto ml-0">
+		error_outline
+		</i>
+		<span class="my-auto">{{error}}</span>
+	</div>
+{% endif %}
+<div class="d-flex flex-column px-3">
+
+
+	<form class="form-group m-auto w-75 d-flex" id="lessons-q-form" method="POST" action="
+	{% url 'admin_lesson' edit_lesson.id 'question' %}">
+		{% csrf_token %}
+		<div class="row w-100">
+
+			<div class="d-flex w-100">
+				<div class="form-group m-auto d-flex w-100">
+					<div class="m-auto d-flex w-100 px-3 flex-column flex-lg-row">
+						<label class="my-auto">
+							<strong>Question Type</strong> 
+						</label>
+						<select class="form-control w-75 mb-auto mt-lg-auto mt-2 ml-auto mr-lg-0 mr-auto" name="qtype" id="select_qtype">
+							{% }
+							<option value="mulc" selected>Multiple Choice</option>
+							<option value="iden">Identification</option>
+							<option value="math">Math</option>
+							<option value="code">Coding</option>
+							<option value="cust">Custom</option>
+						</select>
+					</div>
+				</div>
+			</div>
+			
+			<small class="mt-3 w-100 d-flex">
+				<div class="m-auto d-flex">
+					<span class="material-icons material-icon-sm my-auto ml-0 mr-2 import-font-primary">
+						warning
+					</span>
+					<span class="my-auto">You may only add multiple coding questions or one non-coding question.</span>
+				</div>
+			</small>
+		</div>
+	</form>
+</div>
+
+<hr>
+
+<div class="float-right">
+	<button class="btn btn-primary d-inline-flex" type="submit" form="lessons-q-form">
+		<i class="material-icons my-auto material-icon-sm mr-lg-2">
+			save
+		</i>
+		<span class="my-auto d-none d-lg-block">Save</span>
+	</button>
+</div>

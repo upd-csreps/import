@@ -1,0 +1,51 @@
+{% extends 'reviewer/base.html' %}
+
+{% block title %}
+	Announcements
+{% endblock %}
+
+{% load static %}
+{% block content %}
+	<div class="container py-5">
+		<div class="pt-5">
+			<h1 class="d-inline-flex font-weight-bold align-items-start">
+				<i class="material-icons my-auto mr-3 font-weight-bold import-font-primary">
+					build
+				</i>
+				<span class="my-auto">
+					Building {{question.lesson.name}}
+				</span>
+			</h1>
+
+			<div class="row">
+				<div class="col-lg-6 d-flex">
+					<div id="import-code-editor" class="mt-4" style="height: 15rem; width: 25rem;">
+						function question(){
+
+						}
+
+						function answer(){
+
+						}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block scripts %}
+	<script>
+		$('#import-code-editor').html(function() {
+		    return this.innerHTML.replace(/\t/g, '');
+		});
+	</script>
+
+	<script src="{% static 'reviewer/js/ace/ace.js' %}" type="text/javascript" charset="utf-8"></script>
+	<script>
+		 var editor = ace.edit("import-code-editor");
+	    editor.setTheme("ace/theme/monokai");
+	    editor.session.setMode("ace/mode/javascript");
+	    editor.session.setTabSize(2);
+	</script>
+{% endblock %}

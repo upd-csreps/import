@@ -2,7 +2,7 @@ import json
 
 from ..custom import *
 from ..models import (ImportUser, Course, 
-	Language, Announcement, Lesson, LessonStats)
+	Language, Announcement, Lesson, Question, LessonStats)
 from ..forms import CourseForm, LanguageForm, ImportImageForm
 
 from datetime import timedelta
@@ -13,6 +13,7 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.core.exceptions import PermissionDenied
 
 from django.http import Http404, JsonResponse
+from django.db.models import F
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -131,6 +132,8 @@ def admin_announcement_create(request):
 @login_required
 def admin_announcement_update(request, purpose, id=""):
 
+	purpose = purpose.lower()
+
 	allowed_purpose = ['add', 'edit','delete']
 	if purpose not in allowed_purpose:
 		raise Http404()
@@ -148,8 +151,16 @@ def admin_announcement_update(request, purpose, id=""):
 
 			bodyjson = json.loads(data["content"])
 			notify_users = data.get('em_notif', False)
-			temptitle = data.get('title', None).strip()
-			bodystring = data.get('bodystring', None).strip()
+			temptitle = data.get('title', None)
+
+			if temptitle:
+				temptitle = temptitle.strip()
+
+			bodystring = data.get('bodystring', None)
+
+			if bodystring:
+				temptitle = temptitle.strip()
+
 			retjson = {}
 
 			if temptitle:
@@ -289,6 +300,8 @@ def admin_course_id(request, course_subj="", course_num ="", purpose="edit"):
 
 @login_required
 def admin_get_course(request, purpose, course_subj="", course_num=""):
+
+	purpose = purpose.lower()
 
 	allowed_purpose = ['add', 'edit','delete', 'lessons', 'refs']
 	if purpose not in allowed_purpose:
@@ -448,13 +461,39 @@ def admin_get_course(request, purpose, course_subj="", course_num=""):
 def admin_course_lessons(request, course_subj="", course_num=""):
 
 	if request.user.is_superuser:
-		course = Course.objects.filter(code__iexact=course_subj).filter(number__iexact=str(course_num)).first()
-		lessons = course.lesson_set.order_by('order')
 
-		currpage = "courses"
-		context = {'course': course, 'lessons': lessons, 'currpage': currpage}
+		
+		if request.method == 'GET':
+			course = Course.objects.filter(code__iexact=course_subj).filter(number__iexact=str(course_num)).first()
 
-		return render(request, 'reviewer/admin/courses/course-lessons.html', context)
+			if course:
+				lessons = Lesson.objects.filter(course=course).order_by('order')
+				currpage = "courses"
+				context = {'course': course, 'lessons': lessons, 'currpage': currpage}
+
+				return render(request, 'reviewer/admin/courses/course-lessons.html', context)
+			else:
+				raise Http404()
+
+		elif request.method == 'POST':
+
+			data = request.POST
+			order = data.getlist('order[]')
+			lesson_bulk = Lesson.objects.filter(course__code__iexact=course_subj).filter(course__number__iexact=str(course_num)).order_by('order').in_bulk()
+			error = None
+
+			if len(order) == len(set(order)):
+				if len(lesson_bulk) == len(order):
+					for index, lsn in enumerate(lesson_bulk):
+						lesson_bulk[lsn].order = order[index]
+					Lesson.objects.bulk_update(lesson_bulk.values(), ['order'])
+				else:
+					error = "An operation has occured during this process. Please refresh the page."
+			else:
+				error = "Non-unique order values found. Exception handled."
+
+			return JsonResponse({'error': error})
+
 	else:
 		raise PermissionDenied()
 
@@ -463,42 +502,45 @@ def admin_course_ref(request, course_subj="", course_num=""):
 	if request.user.is_superuser:
 		coursefilter = Course.objects.filter(code__iexact=course_subj).filter(number__iexact=str(course_num)).first()
 
-		if request.is_ajax():
-			error = "Failed to connect. Please refresh the page or try again later."
-			result = None
+		if coursefilter:
+			if request.is_ajax():
+				error = "Failed to connect. Please refresh the page or try again later."
+				result = None
 
-			for i in range(1, settings.GOOGLE_API_RECONNECT_TRIES):
-				try:
-					service = gdrive_connect()
-					reffolder = 'references/{}'.format(coursefilter.name)
-					reffolder = gdrive_traverse_path(service, path=reffolder, create=True)
+				for i in range(1, settings.GOOGLE_API_RECONNECT_TRIES):
+					try:
+						service = gdrive_connect()
+						reffolder = 'references/{}'.format(coursefilter.name)
+						reffolder = gdrive_traverse_path(service, path=reffolder, create=True)
 
-					if request.method == "GET":
-						result = {'obj': gdrive_list_meta_children(service, folderID=reffolder['id'], order="name")}
-						result = render_to_string('reviewer/partials/course/course-refs-admin.html', { 'result': result['obj'] , 'course' : coursefilter }).strip()
-					elif request.method == "POST":
-						file_uploaded = request.FILES.get('file', None)
+						if request.method == "GET":
+							result = {'obj': gdrive_list_meta_children(service, folderID=reffolder['id'], order="name")}
+							result = render_to_string('reviewer/partials/course/course-refs-admin.html', { 'result': result['obj'] , 'course' : coursefilter }).strip()
+						elif request.method == "POST":
+							file_uploaded = request.FILES.get('file', None)
 
-						if file_uploaded:
-							file_uploaded = file_uploaded.open()
-							file_bytes = BytesIO(file_uploaded.read())
+							if file_uploaded:
+								file_uploaded = file_uploaded.open()
+								file_bytes = BytesIO(file_uploaded.read())
 
-							metadata = {'name': str(file_uploaded), 'parents': [reffolder['id']] }
-							result = gdrive_upload_bytes_tofile(service, file_bytes, metadata, file_mime)
-					elif request.method == "DELETE":
-						gdrive_delete_file(service, request.body.decode('utf-8'))
-					break
-				except Exception as e:
-					if settings.DEBUG: print(e)
-			
-			return JsonResponse({ 'result' : result })
+								metadata = {'name': str(file_uploaded), 'parents': [reffolder['id']] }
+								result = gdrive_upload_bytes_tofile(service, file_bytes, metadata, file_mime)
+						elif request.method == "DELETE":
+							gdrive_delete_file(service, request.body.decode('utf-8'))
+						break
+					except Exception as e:
+						if settings.DEBUG: print(e)
+				
+				return JsonResponse({ 'result' : result })
+			else:
+				context = {
+					'course' : coursefilter,
+					'currpage' : 'courses'
+				}
+
+				return render(request, 'reviewer/admin/courses/course-reference.html', context)
 		else:
-			context = {
-				'course' : coursefilter,
-				'currpage' : 'courses'
-			}
-
-			return render(request, 'reviewer/admin/courses/course-reference.html', context)
+			raise Http404()
 	else:
 		raise PermissionDenied()
 
@@ -521,6 +563,7 @@ def admin_lang_add(request):
 @login_required
 def admin_lang(request, purpose, id=""):
 
+	purpose = purpose.lower()
 	allowed_purpose = ['add', 'edit','delete']
 	if purpose not in allowed_purpose:
 		raise Http404()
@@ -631,51 +674,192 @@ def admin_lessons_add(request):
 @login_required
 def admin_lessons_crud(request, purpose, id=""):
 
+	purpose = purpose.lower()
+	allowed_purpose = ['add', 'edit','delete', 'question']
+	if purpose not in allowed_purpose:
+		raise Http404()
+
 	if request.user.is_superuser:
 		
-		if request.method == 'POST':
-			data = (request.POST)
+		if purpose == allowed_purpose[3]:
+			return admin_lessons_question_cud(request, id)
+		elif request.method == 'POST':
 
-			lessonname = data.get('name', False).strip()
-			course = data.get('course', False).strip()
+			edit_lesson = Lesson.objects.filter(id=id).first() if (purpose == allowed_purpose[1]) or (purpose == allowed_purpose[2]) else None
 
-			if not (lessonname and course):
-				pass
+			if purpose == allowed_purpose[2]:
+				if edit_lesson:
+					course = edit_lesson.course
+					current_order = edit_lesson.order
+					edit_lesson.delete()
+					Lesson.objects.filter(order__gt=current_order).update(order=F('order')-1)
+
+					return redirect('admin_course_id', course.code.lower(), course.number, 'lessons')
+				else:
+					raise Http404()
 			else:
+				data = request.POST
 
-				if purpose == 'add':
+				lessonname = data.get('name', False).strip()
+				course = data.get('course', False).strip()
+				course = Course.objects.filter(pk=course).first()
 
-					course = Course.objects.filter(pk=course).first()
-					order = course.lesson_set.count() + 1
-					new_lesson = Lesson.objects.create(
-						name = lessonname,
-						course = course,
-						verified = data.get('lesson_verified', False),
-						verifier = data.get('verifiedby', '').strip(),
-						order = order
-					)
+				if (lessonname and course):
+					
+					verified = data.getlist('lesson_verified', False)
+					verifier = data.get('verifiedby', '').strip() if verified else ''
 
-					new_lesson.rel_lesson.set(Lesson.objects.filter(id__in=data.getlist('related')))
+					if purpose == allowed_purpose[0]:
 
-			return redirect('admin_lessons_add')
+						current_lessons = course.lesson_set.all()
+
+						new_lesson = Lesson.objects.create(
+							name = lessonname,
+							course = course,
+							extra = data.get('lesson_extra', False),
+							lab_lesson = data.get('lesson_lab', False),
+							verified = bool(verified),
+							verifier = verifier,
+							order = course.lesson_set.count() + 1
+						)
+
+						related_lessons = data.getlist('related')
+
+						try:
+							if len(related_lessons) > 0 and related_lessons[0] != '':
+								new_lesson.rel_lesson.set(Lesson.objects.filter(id__in=related_lessons))
+						except:
+							pass
+
+					elif edit_lesson:
+
+						edit_lesson.name = lessonname
+						edit_lesson.course = course
+						edit_lesson.extra = data.get('lesson_extra', False)
+						edit_lesson.lab_lesson = data.get('lesson_lab', False)
+						edit_lesson.verified = bool(verified)
+						edit_lesson.verifier = verifier
+
+						edit_lesson.save()
+					else:
+						raise Http404()
+
+					return redirect('admin_course_id', course.code.lower(), course.number, 'lessons')
+
+				else:
+					if purpose == allowed_purpose[0]:
+						return redirect('admin_lessons_add')
+					elif purpose == allowed_purpose[1]:
+						return redirect('admin_lesson', edit_lesson.id)
 		else:
+
+			query = request.GET
 			courses = Course.objects.all()
 			lessons = Lesson.objects.all()
 			edit_lesson = None
-
-			if purpose == 'edit':
-				edit_lesson = lessons.filter(id=id).first()
+			select_course = query.get('course', False)
+			select_course = courses.filter(id=select_course).first() if select_course else None
 
 			currpage = "courses"
 			context = {
 				'courses': courses,
 				'rel_lessons' : lessons,
-				'edit_lesson' : edit_lesson,
-				'currpage': currpage, 
-				'title' : "Add Lesson"
+				'currpage': currpage,
+				'select_course' : select_course
 			}
 
+			if purpose == allowed_purpose[0]:
+				context['title'] = "Add Lesson"
+			elif purpose == allowed_purpose[1]:
+				context['edit_lesson'] = lessons.filter(id=id).first()
+				context['rel_lessons'] = lessons.exclude(id=id)
+				context['title'] = "Edit Lesson"
+
 			return render(request, 'reviewer/admin/courses/lessons/lessons.html', context)
+	else:
+		raise PermissionDenied()
+
+@login_required
+def admin_lessons_question_cud(request, id=""):
+
+	if request.user.is_superuser:
+
+		lesson = Lesson.objects.filter(id=id).first()
+		
+		if lesson:
+			if request.method == 'POST':
+
+				data = 	request.POST
+				qtype = data.get('qtype', None)
+				error = None
+				question = None
+				language = None
+
+				existingq = lesson.question_set.first()
+
+				if existingq:
+					if existingq.qtype == "code" and qtype == "code":
+						otherq = lesson.question_set.filter(qtype='code').values_list('lang', flat=True)
+						language = Language.objects.exclude(id__in=otherq).first()
+
+						error = otherq
+					else:
+						error = "You may only add multiple coding questions or one non-coding question."
+
+				else:
+					question = Question.objects.create(
+						lesson = lesson,
+						lang =language,
+						qtype=qtype
+					)
+
+					question_html = render_to_string('reviewer/admin/courses/lessons/questions/questions_partial.html', {'question': question, 'user': request.user }).strip()
+
+				return JsonResponse({'question': question_html, 'error': error})
+
+				'''
+				if request.is_ajax():
+					return JsonResponse({'question': question, 'error': error})
+				else:
+					return redirect('admin_lesson', id, 'edit')
+				'''
+			else:
+				edit_lesson_codes = lesson.question_set.filter(qtype='code').values_list('lang', flat=True)
+
+				currpage = "courses"
+				context = {
+					'edit_lesson': lesson,
+					'codeq' : edit_lesson_codes,
+					'currpage': currpage,
+					'title': "Add Question"
+				}
+
+				return render(request, 'reviewer/admin/courses/lessons/questions/questions{}.html'.format('_add' if request.is_ajax() else ''), context)
+		else:
+			raise Http404('Lesson not found.')
+	else:
+		raise PermissionDenied()
+
+@login_required
+def admin_lessons_question(request, purpose, id="", qid=""):
+
+	if request.user.is_superuser:
+
+		purpose = purpose.lower()
+		question = Question.objects.filter(lesson__id=id, id=qid).first()
+		allowed_purpose = ['module', 'build']
+
+		if question and purpose in allowed_purpose:
+			if request.method == 'POST':
+				return None
+			elif request.method == 'GET':
+				context = {'question': question}
+				if purpose == allowed_purpose[0]:
+					pass
+				elif purpose == allowed_purpose[1]:
+					return render(request, 'reviewer/admin/courses/lessons/questions/questions_build.html', context)
+		else:
+			raise Http404()
 	else:
 		raise PermissionDenied()
 

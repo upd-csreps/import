@@ -27,7 +27,7 @@
 
 			submit: function(that){
 				if (importApp.requests.ajax)
-				        importApp.requests.ajax.abort();
+					importApp.requests.ajax.abort();
 				  
 				var form = $(that);
 				var formData = new FormData(that);
@@ -35,16 +35,16 @@
 				inputs.prop("disabled", true);
 
 				importApp.requests.ajax =  $.ajax({
-				    type: 'post',
-				    url: window.location.href,
-				    data: formData,
-				    cache: false,
-				    contentType: false,
-				    processData: false,
-				    complete: function(){ inputs.prop("disabled", false); },
-				    success: function (response, status, xhr){
+					type: 'post',
+					url: window.location.href,
+					data: formData,
+					cache: false,
+					contentType: false,
+					processData: false,
+					complete: function(){ inputs.prop("disabled", false); },
+					success: function (response, status, xhr){
 
-				    	let newcomment = response.comment_html;
+						let newcomment = response.comment_html;
 						importApp.comments.count.byCourse() != 0? $(".course-comments").prepend(newcomment) : $(".course-comments").html(newcomment);
 						newcomment = $(`.course-comments [data-comment-id='comment-${response.commentid}']`);
 						newcomment.addClass("the-new-comment");
@@ -54,9 +54,9 @@
 						$('.page-count-parent').html(response.page_create);
 						importApp.comments.count.byCourse( importApp.comments.count.byCourse()+1);
 						$(".comme-count").html(importApp.comments.count.byCourse());
-				    	$(".comment-text-area").val("");
-				    	clearImage("comment-image-upload", document.querySelector(".import-image-drag"));
-				    	$(`.course-comments .comment:nth-of-type(${(importApp.comments.pageLimit+1)})`).remove();
+						$(".comment-text-area").val("");
+						clearImage("comment-image-upload", document.querySelector(".import-image-drag"));
+						$(`.course-comments .comment:nth-of-type(${(importApp.comments.pageLimit+1)})`).remove();
 				    }
 				});
 			},
@@ -69,8 +69,8 @@
 					commentpass = $(that).parents(".comment");
 			 		commentpassid = commentpass.attr("data-comment-id");
 			 		if (importApp.requests.ajax) {
-				        importApp.requests.ajax.abort();
-				    }
+						importApp.requests.ajax.abort();
+					}
 
 			 		importApp.requests.ajax = $.ajax({
 						url: encodeURI(importApp.urls.courseURL.replace('$course_code', commentpass.attr("data-code")).replace('123456789', commentpass.attr("data-number"))),
@@ -104,7 +104,7 @@
 								renderMathInElement(document.body);
 							});
 						}
-				    });
+					});
 			 	}
 			},
 

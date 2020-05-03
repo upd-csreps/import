@@ -7,6 +7,7 @@ from .course import hlinkify
 
 from django.conf import settings
 from django.contrib.auth import authenticate, login,logout
+from django.contrib.auth.decorators import login_required
 
 from django.http import Http404, JsonResponse
 from django.shortcuts import redirect, render
@@ -128,144 +129,135 @@ def user(request, username):
 def user_settings_uname_is_unique(request, uname):
 	return True if ( (not ImportUser.objects.filter(username=uname).exists()) or uname == request.user.username) else False
 
+@login_required
 def user_settings(request):
 
 	willRender = True
 	error = []
+	
+	if request.method == 'POST':
+		queries, data = request.GET, request.POST
+		
+		if (queries.get("unamecheck") == 'y'):
 
-	if request.user.is_authenticated:
-		if request.method == 'POST':
-			queries, data = request.GET, request.POST
-			
-			if (queries.get("unamecheck") == 'y'):
+			unamecheck_callback = { 'valid': 'n' }
 
-				unamecheck_callback = { 'valid': 'n' }
+			if not data["uname"]:
+				unamecheck_callback['valid'] = 'e'
+			elif (data["uname"] == request.user.username):
+				unamecheck_callback['valid'] = 's'
+			elif (user_settings_uname_is_unique(request, data["uname"])):
+				unamecheck_callback['valid'] = 'y'
+				
+			return JsonResponse(unamecheck_callback)
 
-				if not data["uname"]:
-					unamecheck_callback['valid'] = 'e'
-				elif (data["uname"] == request.user.username):
-					unamecheck_callback['valid'] = 's'
-				elif (user_settings_uname_is_unique(request, data["uname"])):
-					unamecheck_callback['valid'] = 'y'
-					
-				return JsonResponse(unamecheck_callback)
+		elif (queries.get("delete") == 'true'):
 
-			elif (queries.get("delete") == 'true'):
+			userauth = authenticate(username=request.user.username, password=data.get("password"))
+			willRender = False
 
-				userauth = authenticate(username=request.user.username, password=data.get("password"))
-				willRender = False
+			if userauth == request.user:
 
-				if userauth == request.user:
+				logout(request)
+				userauth.delete()
 
-					logout(request)
-					userauth.delete()
+				## Delete GDrive Data ##
 
-					## Delete GDrive Data ##
+				for i in range(1, settings.GOOGLE_API_RECONNECT_TRIES):
+					try:
+						service = gdrive_connect()
+						userfolder = 'media/users/{}'.format(request.user.username)
+						userfolder = gdrive_traverse_path(service, path=userfolder, create=True)
+						gdrive_delete_file(service, userfolder['id'])
+						break
+					except Exception as e:
+						if settings.DEBUG:
+							print(e)
 
-					for i in range(1, settings.GOOGLE_API_RECONNECT_TRIES):
-						try:
-							service = gdrive_connect()
-							userfolder = 'media/users/{}'.format(request.user.username)
-							userfolder = gdrive_traverse_path(service, path=userfolder, create=True)
-							gdrive_delete_file(service, userfolder['id'])
-							break
-						except Exception as e:
-							if settings.DEBUG:
-								print(e)
-
-					return redirect('index')
-				else:
-					return redirect('user_settings')
+				return redirect('index')
 			else:
-				emptyreqfields = []
+				return redirect('user_settings')
+		else:
+			emptyreqfields = []
+			imptfields = ['username', 'first_name', 'last_name', 'e-mail', 'course']
 
-				if not data["username"]:
-					emptyreqfields.append("username")
-				if not data["first_name"]:
-					emptyreqfields.append("first_name")
-				if not data["last_name"]:
-					emptyreqfields.append("last_name")
-				if not data["e-mail"]:
-					emptyreqfields.append("e-mail")
-				if not data["course"]:
-					emptyreqfields.append("course")
+			for i in imptfields:
+				if not data[i]: emptyreqfields.append(i)
 
-				if len(emptyreqfields) == 0:
+			if len(emptyreqfields) == 0:
 
-					currentuname = (request.user.username+' ')[:-1]
-					currentuser = request.user
+				currentuname = (request.user.username+' ')[:-1]
+				currentuser = request.user
 
-					username_valid = user_settings_uname_is_unique(request, data["username"])
+				username_valid = user_settings_uname_is_unique(request, data["username"])
 
-					if (username_valid):
+				if (username_valid):
 
-						currentuser.username = data["username"].strip()
-						currentuser.first_name = data["first_name"].strip()
-						currentuser.middle_name = None if not data["middle_name"] else data["middle_name"].strip()
-						currentuser.last_name = data["last_name"].strip()
-						currentuser.suffix = data["suffix"].strip()
-						currentuser.studentnum = None if not data["studentnum"] else data["studentnum"].strip()
-						currentuser.show_studentnum = (data.get("show_studentnum") == 'show')
-						currentuser.email = data["e-mail"].strip()
-						currentuser.show_email = (data.get("show_email") == 'show')
-						currentuser.course = data["course"].strip()
-						currentuser.fave_lang = Language.objects.filter(name=data["fave_lang"]).first() if data.get("fave_lang", None) else None
-						currentuser.dark_mode = (data.get("dark_mode") == 'dark')
-						currentuser.notifications = (data.get("em_notif") == 'notif_on')
+					currentuser.username = data["username"].strip()
+					currentuser.first_name = data["first_name"].strip()
+					currentuser.middle_name = None if not data["middle_name"] else data["middle_name"].strip()
+					currentuser.last_name = data["last_name"].strip()
+					currentuser.suffix = data["suffix"].strip()
+					currentuser.studentnum = None if not data["studentnum"] else data["studentnum"].strip()
+					currentuser.show_studentnum = (data.get("show_studentnum") == 'show')
+					currentuser.email = data["e-mail"].strip()
+					currentuser.show_email = (data.get("show_email") == 'show')
+					currentuser.course = data["course"].strip()
+					currentuser.fave_lang = Language.objects.filter(name=data["fave_lang"]).first() if data.get("fave_lang", None) else None
+					currentuser.dark_mode = (data.get("dark_mode") == 'dark')
+					currentuser.notifications = (data.get("em_notif") == 'notif_on')
 
-						if (currentuname != data["username"]) and currentuser.prof_picID:
-							for i in range(1, settings.GOOGLE_API_RECONNECT_TRIES):
-								try:
-									service = gdrive_connect()
-									userfolder = 'media/users/{}'.format(currentuname)
-									userfolder = gdrive_traverse_path(service, path=userfolder, create=True)
-									newfolder = gdrive_update_file(service, userfolder['id'], file_metadata={"name": data["username"]})
+					if (currentuname != data["username"]) and currentuser.prof_picID:
+						for i in range(1, settings.GOOGLE_API_RECONNECT_TRIES):
+							try:
+								service = gdrive_connect()
+								userfolder = 'media/users/{}'.format(currentuname)
+								userfolder = gdrive_traverse_path(service, path=userfolder, create=True)
+								newfolder = gdrive_update_file(service, userfolder['id'], file_metadata={"name": data["username"]})
 
-									if not newfolder:
-										if newfolder.get("name", None) == data["username"]:
-											break
-								except Exception as e:
-									if settings.DEBUG: print(e)
-							
-						currentuser.save(force_update=True)
-						willRender = False
+								if not newfolder:
+									if newfolder.get("name", None) == data["username"]:
+										break
+							except Exception as e:
+								if settings.DEBUG: print(e)
+						
+					currentuser.save(force_update=True)
+					willRender = False
 
-						return redirect('user', request.user.username)
-				else:
-					error = emptyreqfields
+					return redirect('user', request.user.username)
+			else:
+				error = emptyreqfields
 
-		if willRender:
+	if willRender:
 
-			langlist = Language.objects.all()
+		langlist = Language.objects.all()
 
-			userpassword = request.user.password.split("$")
+		userpassword = request.user.password.split("$")
 
-			userpassword[2] = userpassword[2][0:6] + ('*' * (len(userpassword[2])-6) )
-			userpassword[3] = userpassword[3][0:6] + ('*' * (len(userpassword[3])-6) )
+		userpassword[2] = userpassword[2][0:6] + ('*' * (len(userpassword[2])-6) )
+		userpassword[3] = userpassword[3][0:6] + ('*' * (len(userpassword[3])-6) )
 
-			userpassword = {
-				'algo': userpassword[0],
-				'iterations': userpassword[1],
-				'salt' : userpassword[2],
-				'hash' : userpassword[3]
-			}
+		userpassword = {
+			'algo': userpassword[0],
+			'iterations': userpassword[1],
+			'salt' : userpassword[2],
+			'hash' : userpassword[3]
+		}
 
-			hasEmptyFields = False
+		hasEmptyFields = False
 
-			if not (request.user.username and request.user.first_name and request.user.last_name and request.user.email):
-				hasEmptyFields = True
+		if not (request.user.username and request.user.first_name and request.user.last_name and request.user.email):
+			hasEmptyFields = True
 
-			context = {
-				'userpassword' : userpassword,
-				'langlist' : langlist,
-				'force_dark_mode' : True,
-				'error' : error,
-				'emptyfields': hasEmptyFields
-			}
+		context = {
+			'userpassword' : userpassword,
+			'langlist' : langlist,
+			'force_dark_mode' : True,
+			'error' : error,
+			'emptyfields': hasEmptyFields
+		}
 
-			return render(request, 'reviewer/user/user-settings.html', context)
-	else:
-		return redirect('index')
+		return render(request, 'reviewer/user/user-settings.html', context)
 
 
 def user_redirect_info(request):

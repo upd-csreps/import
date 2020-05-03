@@ -2,7 +2,7 @@
 
 {% load static %}
 {% block title %}
-	Course List
+	{{course.name}} Lessons
 {% endblock %}
 
 
@@ -21,7 +21,8 @@
 			</div>
 			<div class="d-flex align-items-center">
 
-				<button type="button" class="btn btn-light px-3 mr-2 d-flex">
+				{% if lessons.count > 0 %}
+				<button type="button" class="btn btn-light px-3 mr-2 d-flex lesson-reorder-button">
 					<div class="my-auto d-flex">
 						<i class="material-icons">
 							reorder
@@ -31,79 +32,96 @@
 						</span>	
 					</div>
 				</button>
+				{% endif %}
 				
-				<button type="button" class="btn btn-light px-3 d-flex">
-					<div class="my-auto d-flex">
-						<i class="material-icons">
-							add
-						</i>
-						<span class="my-auto ml-1 d-none d-md-block">
-							Add Lesson
-						</span>	
-					</div>
-				</button>
+
+				<a href="{% url 'admin_lessons_add' %}?course={{course.pk}}">
+					<button type="button" class="btn btn-light px-3 d-flex">
+						<div class="my-auto d-flex">
+							<i class="material-icons">
+								add
+							</i>
+							<span class="my-auto ml-1 d-none d-md-block">
+								Add Lesson
+							</span>	
+						</div>
+					</button>
+				</a>
 				
 			</div>
 		</div>
 
 
 		{% if lessons.count > 0 %}
-			{% for lesson in lessons %}
-				<div class="p-4 mb-3 row layer-container lesson" data-order="{{lesson.order}}">
-					<div class="col-8 my-auto">
-						<div class="d-flex flex-wrap">
-							<div class="my-auto d-flex flex-column">
-								<span class="font-weight-bold comment-username d-flex">
-									<span class="my-auto">{{lesson.name}}</span>
-									{% if lesson.verified %}
-										<i class="material-icons material-icon-sm import-font-primary p-0 my-auto mx-2 info-help" title="This lesson is verified.">check_circle</i>
-									{% endif %}
-								</span>
+			<div class="lesson-reorder-container">
+				<div class="alert alert-danger d-none">
+					<div class="d-flex justify-content-start">
+						<i class="material-icons my-auto ml-0 mr-2">error_outline</i>
+						<span class="my-auto alert-msg">Error Message</span>
+					</div>
+				</div>
+				<div class="lesson-reorder-border">
+					<div class="lesson-reorder">
+						{% for lesson in lessons %}
+							<div class="py-4 pr-4 mb-3 row mx-0 layer-container lesson" data-order="{{lesson.order}}">
+								<div class="col-8 my-auto">
+									<div class="d-flex flex-wrap">
+										<div class="my-auto mr-2 d-flex lesson-reorder-hover">
+											<i class="material-icons m-auto">
+												more_vert
+											</i>
+										</div>
+										<div class="my-auto d-flex flex-column">
+											<span class="font-weight-bold comment-username d-flex">
+												<span class="my-auto">{{lesson.name}}</span>
+												{% if lesson.verified %}
+													<i class="material-icons material-icon-sm import-font-primary p-0 my-auto mx-2 info-help" title="This lesson is verified.">check_circle</i>
+												{% endif %}
+											</span>
 
-								{% comment %}
-								<div class="d-flex mt-2">
-									<div class="my-auto mr-2" {% if user.fave_lang %} style="border-radius:100%; border: 1px solid #ababab; height: 35px; width: 35px; background-image: url('https://drive.google.com/uc?export=view&id={{user.fave_lang.imageID }}=s220')" {% endif %}>
+										</div>
 									</div>
-									<select class="form-control form-control-sm my-auto" style="width: initial;">
-									  <option selected>Select programming language</option>
-									  <option value="1">Python</option>
-									  <option value="2">C</option>
-									  <option value="3">Javascript</option>
-									</select>
 								</div>
 
-								{% endcomment %}
+								
+								<div class="col-4 d-flex my-auto">
+									<div class="ml-auto d-flex">
+										
+										<a class="ml-2 my-auto" href="{% url 'admin_lesson' lesson.id  'edit' %}">
+											<button  type="button" class="btn btn-light px-2 d-flex">
+												<div class="m-auto d-flex">
+													<i class="material-icons material-icon-sm">
+														edit
+													</i>
+												</div>
+											</button>
+										</a>
+
+										<button class="btn btn-danger d-flex delete-lesson px-2 my-auto ml-2" target-lessname="{{lesson.name}}" type="submit" form="lessons-delete-form" >
+											<i class="material-icons m-auto material-icon-sm">
+												delete
+											</i>
+										</button>
+										<form action="{% url 'admin_lesson' lesson.id 'delete' %}" id="lessons-delete-form" method="post" >
+											{% csrf_token %}
+										</form>
+
+									</div>
+								</div>		
 							</div>
-						</div>
+						{% endfor %}
 					</div>
-
-					
-					<div class="col-4 d-flex my-auto">
-						<div class="ml-auto d-flex">
-							
-							<a class="ml-2 my-auto" href="{% url 'admin_lesson' lesson.id  'edit' %}">
-								<button  type="button" class="btn btn-light px-2 d-flex">
-									<div class="m-auto d-flex">
-										<i class="material-icons material-icon-sm">
-											edit
-										</i>
-									</div>
-								</button>
-							</a>
-
-							<a class="ml-2 delete-course my-auto" href="{% url 'admin_course_id'  course.code|lower course.number 'delete' %} " data-name="{{course.code}} {{course.number}}">
-								<button  type="button" class="btn btn-danger px-2 d-flex">
-									<div class="m-auto d-flex">
-										<i class="material-icons material-icon-sm">
-											delete
-										</i>
-									</div>
-								</button>
-							</a>
-						</div>
-					</div>		
 				</div>
-			{% endfor %}
+				<div class="lesson-reorder-bg d-flex">
+					<div class="mt-auto mx-auto mb-4">
+						<button class="btn bg-light btn-light p-3 d-flex" type="button">
+							<i class="material-icons m-auto">
+							close
+							</i>
+						</button>
+					</div>
+				</div>
+			</div>
 		{% else %}
 			<div class="text-center mt-4 d-flex text-muted">
 				<div class="mx-auto d-flex"> 
@@ -118,9 +136,76 @@
 {% endblock %}
 
 {% block scripts %}
+
+	<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/jquery-sortablejs@latest/jquery-sortable.min.js"></script>
+
 	<script>
-		 $('.delete-course').on('click', function (e) { 
-		 	confirm('Are you sure you want to delete ' + $(this).attr("data-name") + '?')? null: e.preventDefault();
-		 });
+
+		var current_order = []
+		var new_order = []
+
+		$('.lesson-reorder').sortable({
+			animation: 200, 
+			easing: "cubic-bezier(1, 0, 0, 1)",
+			disabled: true,
+			chosenClass: "dragged"
+		});
+
+		$('.lesson-reorder-button').on('click', function (e) { 
+		 	e.preventDefault();
+		 	$('.lesson-reorder').sortable('disabled', false);
+
+		 	$(".lesson-reorder-container").addClass("lesson-reorder-move");
+		 	$(".lesson-reorder-border").addClass("px-3");
+		 	$(".lesson-reorder-border").addClass("pt-3");
+
+		 	current_order = [] 
+		 	$('.lesson-reorder').children().each(function(){
+		 		current_order.push($(this).attr('data-order'));
+			});
+
+		});
+
+		$('.lesson-reorder-bg').on('click', function (e) { 
+		 	e.preventDefault();
+		 	$('.lesson-reorder').sortable('disabled', true);
+
+		 	$(".lesson-reorder-container").removeClass("lesson-reorder-move");
+		 	$(".lesson-reorder-border").removeClass("px-3");
+		 	$(".lesson-reorder-border").removeClass("pt-3");
+
+		 	new_order = []
+		 	$('.lesson-reorder').children().each(function(){
+		 		new_order.push($(this).attr('data-order'));
+			});
+
+			if(JSON.stringify(current_order) != JSON.stringify(new_order)){
+
+				if (importApp.requests.ajax)
+					importApp.requests.ajax.abort();
+
+				importApp.requests.ajax =  $.ajax({
+					method: 'post',
+					url: "{% url 'admin_course_id' course.code|lower course.number 'lessons' %}",
+					data: {'order': new_order},
+					cache: false,
+					headers: {'X-CSRFToken': importApp.csrfToken },
+					success: function (response, status, xhr){
+						if (response.error == null){
+							$(".alert").addClass('d-none');
+						}
+						else{
+							$(".alert").removeClass('d-none');
+							$(".alert-msg").html(response.error)
+						}
+					}
+				});
+			}
+		});
+
+		$('.delete-lesson').on('click', function (e) { 
+		 	confirm('Are you sure you want to delete ' + $(this).attr("target-lessname") + '?')? null: e.preventDefault();
+		});
 	</script>
 {% endblock %}

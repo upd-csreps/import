@@ -518,6 +518,63 @@ body{
   left: -4px;
 }
 
+.lesson-reorder-border{
+	border: 2px dashed transparent;
+	position: absolute;
+	width:96.25%;
+	overflow:hidden;
+	transition: 0.15s
+}
+
+.lesson-reorder-move .lesson-reorder-border{
+	border: 2px dashed #888888;
+	z-index: 100000;
+}
+
+.lesson-reorder-bg{
+	z-index: -1;
+	width: 100%;
+	height: 100%;
+	background: black;
+	position:fixed;
+	left: 0;
+	top: 0;
+	opacity: 0;
+}
+
+.lesson-reorder-move .lesson-reorder-bg{
+	z-index: 99999;
+	opacity: 0.25;
+	cursor: pointer;
+}
+
+.lesson-reorder-hover{
+	opacity: 0;
+	transition: 0.15s;
+	color: #888888;
+}
+
+.lesson-reorder-move .lesson:hover .lesson-reorder-hover, .lesson-reorder-move .lesson.dragged .lesson-reorder-hover{
+	opacity:1;
+}
+
+.lesson-reorder-move .lesson .btn{
+	pointer-events: none;
+	opacity: 0.5;
+}
+
+.lesson-reorder-move .lesson{
+	border: 1px solid transparent;
+}
+
+.lesson-reorder-move .lesson:hover{
+	cursor: move;
+}
+
+.lesson-reorder-move .lesson.dragged{
+	cursor: grabbing;
+	transition: 0.15s;
+}
 
 
 @keyframes spin {

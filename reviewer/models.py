@@ -113,6 +113,8 @@ class Lesson(models.Model):
 	name = models.CharField(max_length=50)
 	course = models.ForeignKey(Course, on_delete=models.CASCADE)
 	rel_lesson = models.ManyToManyField('self', blank=True, default=None)
+	lab_lesson = models.BooleanField("Lab Lesson?", default=False)
+	extra = models.BooleanField("Extra?", default=False)
 	verified = models.BooleanField("Verified?", default=False)
 	verifier = models.CharField(max_length=50)
 
@@ -121,12 +123,6 @@ class Lesson(models.Model):
 	def __str__(self):
 		return	'{}: {}'.format(self.course, self.name)
 
-	class Meta:
-		constraints = [
-			models.UniqueConstraint(fields=['course', 'order'], name='unique course-order')
-		]
-
-
 class Question(models.Model):
 
 	lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
@@ -134,11 +130,11 @@ class Question(models.Model):
 
 	module_content = models.TextField(null=True, blank=True, default=None)
 	module_code = JSONField(null=True, default=None)
-	custom_code = JSONField()
-	qtype = models.CharField(max_length=50)
+	custom_code = JSONField(null=True, default=None)
+	qtype = models.CharField(max_length=10)
 
 	def __str__(self):
-		return	'{} - Questions'.format(self.lesson.name)
+		return	'{} - Question | Type: {}'.format(self.lesson.name, self.qtype)
 
 	class Meta:
 		constraints = [

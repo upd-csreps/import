@@ -179,7 +179,7 @@
 				pageLimit : {{commentpage.limit| escapejs}}
 			},
 			course:{
-				code: "{{ course_filt.code | escapejs}}",
+				code: "{{ course_filt.code |lower|escapejs}}",
 				number: {{ course_filt.number }}
 			},
 			urls: {  

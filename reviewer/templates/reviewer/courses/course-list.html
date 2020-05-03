@@ -74,13 +74,9 @@
 				<div class="col-lg-4 d-flex">
 					<div class="mx-auto mr-lg-0">
 
-						{% comment %}
 						<div class="d-flex mb-3 ad-box">
 							<span class="m-auto text-light h1 font-weight-bold">ADS</span>
 						</div>
-
-						{% endcomment %}
-
 						<hr>
 						<div class="d-none d-lg-block">
 							<h4 class="d-inline-flex my-3">
@@ -116,18 +112,14 @@
 	<script src="{% static 'reviewer/js/import_dragphoto.js' %}"></script>
 	<script>
 		{% if user.is_superuser %}
-			$(".ajax-button").attr("href", "#");
-			$(".ajax-button").click(function(e){
-
-				e.preventDefault();
-				$.get( "{% url 'admin_get_course' 'add' %}", function( data ) {
-				  $(".modal-body").html(data);
-				   $(".modal-title").html( $(".admin-title").html() );
-				   $(".admin-title").remove();
-				   importApp.dragPhoto.init();
-				});
-
+			
+			$.get( "{% url 'admin_get_course' 'add' %}", function( data ) {
+				$(".modal-body").html(data);
+				$(".modal-title").html( $(".admin-title").html() );
+				$(".admin-title").remove();
+				importApp.dragPhoto.init();
 			});
+
 		{% endif %}
 	</script>
 	

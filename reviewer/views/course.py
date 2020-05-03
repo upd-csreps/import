@@ -333,15 +333,18 @@ def course_ref(request, csubj, cnum):
 	coursefilter = Course.objects.filter(code__iexact=csubj).filter(number__iexact=str(cnum)).first()
 	retjson = {'error': "Failed to connect. Please refresh the page or try again later."}
 
-	for i in range(1, settings.GOOGLE_API_RECONNECT_TRIES):
-		try:
-			service = gdrive_connect()
-			reffolder = 'references/{}'.format(coursefilter.name)
-			reffolder = gdrive_traverse_path(service, path=reffolder, create=True)
+	if coursefilter:
+		for i in range(1, settings.GOOGLE_API_RECONNECT_TRIES):
+			try:
+				service = gdrive_connect()
+				reffolder = 'references/{}'.format(coursefilter.name)
+				reffolder = gdrive_traverse_path(service, path=reffolder, create=True)
 
-			retjson = {'obj': gdrive_list_meta_children(service, folderID=reffolder['id'], order="name")}
-			break
-		except Exception as e:
-			if settings.DEBUG: print(e)
+				retjson = {'obj': gdrive_list_meta_children(service, folderID=reffolder['id'], order="name")}
+				break
+			except Exception as e:
+				if settings.DEBUG: print(e)
 
-	return JsonResponse({ 'ref_result' : render_to_string('reviewer/partials/course/course-refs.html', { 'references': retjson['obj'] , 'request': request, 'user' : request.user }).strip() })
+		return JsonResponse({ 'ref_result' : render_to_string('reviewer/partials/course/course-refs.html', { 'references': retjson['obj'] , 'request': request, 'user' : request.user }).strip() })
+	else:
+		raise Http404()
