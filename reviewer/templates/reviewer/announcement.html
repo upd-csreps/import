@@ -20,7 +20,9 @@
 							</span>
 
 							{% if announcement.poster %}
-								<a href="{% url 'user' announcement.poster.username%}" class="my-auto announcement-user mx-3">
+								<a href="{% url 'user' announcement.poster.username%}" class="my-auto announcement-user mx-3 d-flex">
+
+									heyy
 									<img class="user-pic my-auto" src="
 										{% if announcement.poster.prof_picID %}
 											https://drive.google.com/uc?export=view&id={{announcement.poster.prof_picID}}
@@ -29,12 +31,12 @@
 										{% endif %}
 
 										">
-									<span class="my-auto">{{announcement.poster.username}}</span>
+									<span class="my-auto ml-3">{{announcement.poster.username}}</span>
 								</a>
 							{% else %}
 								<div class="my-auto announcement-user mx-3">
 									<img class="user-pic my-auto" src="{% static 'reviewer/images/default_profile.png' %}">
-									<span class="my-auto comment-username">import <span class="import-font-primary">*</span> ADMIN</span>
+									<span class="my-auto comment-username ml-3">import <span class="import-font-primary">*</span> ADMIN</span>
 								</div>
 							{% endif %}
 

@@ -815,14 +815,10 @@ def admin_lessons_question_cud(request, id=""):
 
 					question_html = render_to_string('reviewer/admin/courses/lessons/questions/questions_partial.html', {'question': question, 'user': request.user }).strip()
 
-				return JsonResponse({'question': question_html, 'error': error})
-
-				'''
 				if request.is_ajax():
-					return JsonResponse({'question': question, 'error': error})
+					return JsonResponse({'question': question_html if question else question, 'error': error})
 				else:
 					return redirect('admin_lesson', id, 'edit')
-				'''
 			else:
 				edit_lesson_codes = lesson.question_set.filter(qtype='code').values_list('lang', flat=True)
 
@@ -847,17 +843,29 @@ def admin_lessons_question(request, purpose, id="", qid=""):
 
 		purpose = purpose.lower()
 		question = Question.objects.filter(lesson__id=id, id=qid).first()
-		allowed_purpose = ['module', 'build']
+		allowed_purpose = ['module', 'build', 'delete']
 
 		if question and purpose in allowed_purpose:
 			if request.method == 'POST':
-				return None
+				if purpose == allowed_purpose[0]:
+					return None
+				elif purpose == allowed_purpose[1]:
+					question.custom_code = request.POST.dict()
+					question.save(update_fields=['custom_code'])
+					return JsonResponse({'redirect_url': reverse('admin_lesson', args=[str(id), 'edit']) })
 			elif request.method == 'GET':
 				context = {'question': question}
 				if purpose == allowed_purpose[0]:
 					pass
 				elif purpose == allowed_purpose[1]:
+					if question.custom_code:
+						context['import_qcode'] = question.custom_code['code']
+					else: 
+						context['import_qcode'] = "function question(){\n\n}"
 					return render(request, 'reviewer/admin/courses/lessons/questions/questions_build.html', context)
+				elif purpose == allowed_purpose[2]:
+					question.delete()
+					return redirect('admin_lesson', id, 'edit')
 		else:
 			raise Http404()
 	else:

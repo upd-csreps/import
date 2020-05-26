@@ -1,33 +1,107 @@
 {% extends 'reviewer/base.html' %}
 
 {% block title %}
-	Announcements
+	Building {{question.lesson.name}}
 {% endblock %}
 
 {% load static %}
 {% block content %}
 	<div class="container py-5">
 		<div class="pt-5">
-			<h1 class="d-inline-flex font-weight-bold align-items-start">
-				<i class="material-icons my-auto mr-3 font-weight-bold import-font-primary">
-					build
-				</i>
-				<span class="my-auto">
-					Building {{question.lesson.name}}
-				</span>
-			</h1>
+			<div class="d-flex justify-content-between">
+				<div class="d-flex my-auto">
+					<h2 class="my-auto mr-3 font-weight-bold import-font-primary">
+						<i class="material-icons">
+							build
+						</i>
+					</h2>
+					<div class="d-flex flex-column my-auto">
+						<h3 class="my-auto font-weight-bold">
+							Building {{question.lesson.name}}
+						</h3>
+						<small>
+							{% if question.qtype == "mulc" %}
+								Multiple Choice
+							{% elif question.qtype == "iden" %}
+								Identification
+							{% elif question.qtype == "math" %}
+								Math
+							{% elif question.qtype == "code" %}
+								Code
+							{% elif question.qtype == "cust"}
+								Custom
+							{% endif %}
+						</small>
+					</div>
+				</div>
+				<div class="d-flex flex-wrap my-auto">
+					<div class="">
+						<button class="btn btn-light d-inline-flex import-code-preview" type="button">
+							<i class="material-icons my-auto ml-0 mr-1">
+								play_arrow
+							</i>
+							<span class="my-auto">Preview</span>
+						</button>
+						<button class="btn btn-primary ml-2 d-inline-flex import-code-preview-save" type="button">
+							<i class="material-icons my-auto material-icon-sm ml-0 mr-1">
+								save
+							</i>
+							<span class="my-auto">Save</span>
+						</button>
+					</div>
+				</div>
+			</div>
+			
 
 			<div class="row">
-				<div class="col-lg-6 d-flex">
-					<div id="import-code-editor" class="mt-4" style="height: 15rem; width: 25rem;">
-						function question(){
+				<div class="col-lg-6 d-flex mt-4 flex-column">
+					<div id="import-code-editor" class="layer-container mx-auto mx-lg-0 w-100">{{import_qcode}}</div>
+					<pre class="w-100 p-2 layer-container import-code-console m-0">
+					</pre>
+				</div>
+				<div class="col-lg-6 mt-4">
+					{% if question.qtype == "mulc" %}
+						<div class="d-flex">
+							<div class="mx-auto import-mulchoice w-75">
+								<h5 class="font-weight-bold mb-4 import-question"></h5>
+								<small>
+									<div class="import-choices">
+									</div>
+								</small>
+							</div>
+						</div>
+					{% elif question.qtype == "iden" %}
+						<div class="h-100 d-flex flex-column">
+							<div class="m-auto w-75 d-flex flex-column">
+								<h5 class="font-weight-bold text-center import-question"></h5>
+								<h6 class="text-center import-subquestion my-2"></h6>
+								<input class="form-control my-3 import-code-iden-input" type="text" placeholder="Enter answer here">
+								<button class="btn btn-primary mx-auto d-inline-flex import-code-iden-submit" type="button" disabled>
+									<span class="my-auto">Check</span>
+									<i class="material-icons material-icon-sm my-auto ml-1">
+										done
+									</i>
+								</button>
+							</div>
+							<div class="import-code-iden-answer">
+								<div class="d-flex w-100">
+									<div class="p-3 my-auto">
 
-						}
+									</div>
+									<div class="my-auto">
+										Your answer is <span class="import-code-iden-stat">STATUS</span>. The correct answer is <span class="import-code-iden-rectans">CORRECTANSWER</span>.
+									</div>
+								</div>
+							</div>
+						</div>
+					{% elif question.qtype == "math" %}
+						Math
+					{% elif question.qtype == "code" %}
+						Code
+					{% elif question.qtype == "cust"}
+						Custom
+					{% endif %}
 
-						function answer(){
-
-						}
-					</div>
 				</div>
 			</div>
 		</div>
@@ -35,17 +109,85 @@
 {% endblock %}
 
 {% block scripts %}
-	<script>
-		$('#import-code-editor').html(function() {
-		    return this.innerHTML.replace(/\t/g, '');
-		});
-	</script>
-
 	<script src="{% static 'reviewer/js/ace/ace.js' %}" type="text/javascript" charset="utf-8"></script>
+	<script src="{% static 'reviewer/js/import_lessons.js' %}"></script>
 	<script>
-		 var editor = ace.edit("import-code-editor");
-	    editor.setTheme("ace/theme/monokai");
-	    editor.session.setMode("ace/mode/javascript");
-	    editor.session.setTabSize(2);
+		importApp.builder.init("import-code-editor");
+		{% if user.dark_mode %}
+	    	importApp.builder.editor.setTheme("ace/theme/monokai");
+	    {% else %}
+	    	importApp.builder.editor.setTheme("ace/theme/eclipse");
+	    {% endif %}
+
+		$("body").on("click", ".import-code-preview" , function(e){ 
+			e.preventDefault(); 
+			importApp.builder.script.load();
+			{% if question.qtype == "mulc" %}
+				$("#import-script").remove()
+			{% endif %}
+		});
+
+		$("body").on("click", ".import-code-preview-save" , function(e){ 
+			e.preventDefault(); 
+			if(importApp.builder.script.load()){
+				if (importApp.requests.ajax)
+					importApp.requests.ajax.abort();
+
+				importApp.requests.ajax =  $.ajax({
+					type: 'post',
+					url: window.location.href,
+					data: {'code' : importApp.builder.editor.session.getValue() },
+					headers: {'X-CSRFToken': importApp.csrfToken },
+					success: function (response, status, xhr){
+						importApp.urls.redirect(response.redirect_url);
+					}
+				});
+			}
+		});
+
+		$("body").on("click", ".import-choice" , function(e){ 
+			e.preventDefault();
+			let currentq =  importApp.builder.script.qdata.currentq;
+			let selected = $(this).find(".import-choice-data").html().trim();
+			let answer = importApp.builder.script.qdata.remq[currentq].answer.trim();
+
+			$(".import-choice").each(function(){
+				$(this).removeClass("bg-success bg-danger text-light");
+				if ($(this).find(".import-choice-data").html().trim() == answer){
+					$(this).addClass("bg-success text-light");
+				}
+				else if ($(this).find(".import-choice-data").html().trim() == selected){
+					$(this).addClass("bg-danger text-light");
+				}
+			});
+			
+		});
+
+		$("body").on("keyup", ".import-code-iden-input", function(event){
+			importApp.questions.input.allow(this);
+		});
+		$("body").on("keydown", ".import-code-iden-input", function(event){
+			(event.which == 13 || event.keyCode == 13)? $(".import-code-iden-submit").click():importApp.questions.input.allow(this);
+		});
+
+		$("body").on("click", ".import-code-iden-submit", function(event){importApp.questions.input.check();});
+
+	    var Logger = console.log;
+		console.log = function(msg) {
+		    Logger.apply(this, arguments);
+		    if ($(".import-code-console").html() != ""){
+		    	$(".import-code-console").append("\n");
+		    }
+
+		    if (typeof msg == "string"){
+		    	$(".import-code-console").append(msg);
+		    }
+		    else{
+		    	$(".import-code-console").append(JSON.stringify(msg));
+		    }
+		    
+		}
+
+		
 	</script>
 {% endblock %}

@@ -14,6 +14,7 @@
 
 {% block scripts %}
 	{% if title == 'Edit Lesson' %}
+	<script src="{% static 'reviewer/js/import_lessons.js' %}"></script>
 	<script>
 		$('.modal-dialog').addClass('modal-dialog-centered')
 		$.get( "{% url 'admin_lesson' edit_lesson.pk 'question' %}", function( data ) {
@@ -22,9 +23,16 @@
 			$(".modal-body .admin-title").remove();
 		});
 
-		 $('.delete-lesson').on('click', function (e) {
-			confirm('Are you sure you want to delete\nLesson: ' + $(this).attr("target-lessname") +'?')? null: e.preventDefault();
+		$('.delete-question').on('click', function (e) {
+			confirm('Are you sure you want to delete this question?')? null: e.preventDefault();
 	    });
+
+	    $('body').on('click', ".import-question-create", function (e) {
+			e.preventDefault();
+			if (!$(this).prop("disabled"))
+				importApp.questions.create('lessons-q-form', "{% url 'admin_lesson' edit_lesson.id 'question' %}");
+	    });
+
 	</script>
 
 	{% endif %}

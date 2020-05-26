@@ -1,9 +1,9 @@
 
-<div class="my-3 w-100" data-ID="{{question.id}}">
+<div class="my-3 w-100 lesson-question" data-ID="{{question.id}}">
 	<div class="d-flex layer-container p-3">
 		<div class="row p-2 w-100">
-			<div class="col-9">
-				<span class="font-weight-bold">
+			<div class="col-9 my-auto">
+				<span class="font-weight-bold ml-2">
 					{% if question.qtype == "mulc" %}
 						Multiple Choice
 					{% elif question.qtype == "iden" %}
@@ -30,7 +30,7 @@
 					</div>
 				{% endif %}
 			</div>
-			<div class="col-3 d-flex px-0">
+			<div class="col-3 d-flex px-0 my-auto">
 				<div class="d-flex ml-auto my-auto">
 					<a class="ml-2 my-auto" href="{% url 'admin_lesson_q' question.lesson.id question.id 'module' %}">
 						<button  type="button" class="btn btn-light px-2 d-flex">
@@ -52,7 +52,7 @@
 						</button>
 					</a>
 
-					<a class="ml-2 delete-course my-auto" href="" data-name="{{course.code}} {{course.number}}">
+					<a class="ml-2 delete-question my-auto" href="{% url 'admin_lesson_q' question.lesson.id question.id 'delete' %}" data-name="{{course.code}} {{course.number}}">
 						<button  type="button" class="btn btn-danger px-2 d-flex">
 							<div class="m-auto d-flex">
 								<i class="material-icons material-icon-sm">

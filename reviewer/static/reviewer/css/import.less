@@ -88,6 +88,8 @@ body{
 
 .btn-primary:disabled, .btn-secondary:disabled{
 	background: @DisabledColor;
+	pointer-events: none;
+	border-color: @DisabledColor;
 }
 
 .btn-secondary{
@@ -260,6 +262,11 @@ svg:hover .ql-fill,
 
 .lesson-reorder-move .lesson.dragged{
 	border: 1px solid @ImportPrimary;
+}
+
+.import-choice:hover{
+	border-color: @ImportPrimary;
+	color: @ImportPrimary;
 }
 
 

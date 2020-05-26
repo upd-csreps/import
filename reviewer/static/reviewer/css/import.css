@@ -576,6 +576,23 @@ body{
 	transition: 0.15s;
 }
 
+#import-code-editor{
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+	font-size: 1rem; 
+	height: 14rem;"
+}
+
+.import-choice{
+	cursor:pointer;
+	transition: 0.15s ease-in-out;
+	border: 1px solid transparent;
+}
+
+.import-code-console{
+	height: 6rem;
+	border-top: 1px solid rgba(0,0,0,0.1);
+}
+
 
 @keyframes spin {
   0% { transform: rotate(0deg); }
