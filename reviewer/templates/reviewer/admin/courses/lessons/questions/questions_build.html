@@ -71,25 +71,29 @@
 							</div>
 						</div>
 					{% elif question.qtype == "iden" %}
-						<div class="h-100 d-flex flex-column">
-							<div class="m-auto w-75 d-flex flex-column">
-								<h5 class="font-weight-bold text-center import-question"></h5>
-								<h6 class="text-center import-subquestion my-2"></h6>
-								<input class="form-control my-3 import-code-iden-input" type="text" placeholder="Enter answer here">
-								<button class="btn btn-primary mx-auto d-inline-flex import-code-iden-submit" type="button" disabled>
-									<span class="my-auto">Check</span>
-									<i class="material-icons material-icon-sm my-auto ml-1">
-										done
-									</i>
-								</button>
-							</div>
-							<div class="import-code-iden-answer">
-								<div class="d-flex w-100">
-									<div class="p-3 my-auto">
-
-									</div>
-									<div class="my-auto">
-										Your answer is <span class="import-code-iden-stat">STATUS</span>. The correct answer is <span class="import-code-iden-rectans">CORRECTANSWER</span>.
+						<div class="import-code-iden h-100">
+							<div class="h-100 d-flex flex-column">
+								<div class="m-auto w-75 d-flex flex-column">
+									<h5 class="font-weight-bold text-center import-question"></h5>
+									<h6 class="text-center import-subquestion my-2"></h6>
+									<input class="form-control my-3 import-code-iden-input" type="text" placeholder="Enter answer here">
+									<button class="btn btn-primary mx-auto d-inline-flex import-code-iden-submit" type="button" disabled>
+										<span class="my-auto">Check</span>
+										<i class="material-icons material-icon-sm my-auto ml-1">
+											done
+										</i>
+									</button>
+								</div>
+								<div class="import-code-iden-answer">
+									<div class="d-flex w-100 import-code-iden-answer-container p-3">
+										<div class="p-2 my-auto d-flex import-quiz-statcon noselect">
+											<span class="material-icons m-auto material-icon-sm">
+												done
+											</span>
+										</div>
+										<div class="my-auto mx-3">
+											Your answer is <span class="import-code-iden-stat">STATUS</span>. The correct answer is <span class="import-code-iden-rectans">CORRECTANSWER</span>.
+										</div>
 									</div>
 								</div>
 							</div>

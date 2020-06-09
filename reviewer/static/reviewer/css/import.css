@@ -42,9 +42,7 @@ body{
 
 .site-container{
 	min-height: 100vh;
-	width: 100vw;
 }
-
 
 .site-content{
 	min-height: 85vh;
@@ -592,6 +590,36 @@ body{
 	height: 6rem;
 	border-top: 1px solid rgba(0,0,0,0.1);
 }
+
+.import-code-iden-answer-container{
+	transition: 0.15s ease-in-out;
+}
+
+.import-quiz-correct{
+	background: #bbeebb;
+}
+
+.import-quiz-statcon{
+	background-color: white;
+	border-radius: 100%;
+}
+
+.import-quiz-correct .import-quiz-statcon{
+	color: #00ee00;
+}
+
+.import-quiz-wrong{
+	background: #eebbbb;
+}
+
+.import-quiz-wrong .import-quiz-statcon{
+	color: #ee0000;
+}
+
+.import-code-iden, .import-code-iden-answer{
+	display: none;
+}
+
 
 
 @keyframes spin {

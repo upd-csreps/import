@@ -18,6 +18,8 @@
 				load: function(){
 
 					$(".import-code-console").html("");
+					$(".import-code-iden-answer").fadeOut(300);
+
 					let code = importApp.builder.editor.session.getValue();
 					let errors = importApp.builder.editor.session.getAnnotations();
 					let hasError = false;
@@ -80,6 +82,7 @@
 									}
 								}
 
+								$(".import-code-iden").fadeIn(50);
 								retval = true;
 							}
 							catch(err){
@@ -149,10 +152,24 @@
 						//Modify to work with actual lesson page
 						let currentq = importApp.builder.script.qdata.currentq;
 						let userInput = $(".import-code-iden-input").val().trim();
-						let result = importApp.builder.script.qdata.remq[currentq].answer(userInput);
+						let qQuestion = importApp.builder.script.qdata.remq[currentq].question;
+						let qSubQ = importApp.builder.script.qdata.remq[currentq].subquestion;
+						let qAnswer = importApp.builder.script.qdata.remq[currentq].answer;
+						let result = (typeof qAnswer == 'function')? qAnswer(userInput, qSubQ, qQuestion):qAnswer;
 
-						if (userInput == result){
-
+						$(".import-code-iden-answer .import-code-iden-rectans").html(result);
+						$(".import-code-iden-answer").fadeIn(300);
+						if (userInput == String(result)){
+							$(".import-code-iden-answer .import-code-iden-answer-container").removeClass("import-quiz-wrong");
+							$(".import-code-iden-answer .import-code-iden-answer-container").addClass("import-quiz-correct");
+							$(".import-code-iden-answer .import-code-iden-answer-container .material-icons").html("done");
+							$(".import-code-iden-answer .import-code-iden-stat").html("correct");
+						}
+						else{
+							$(".import-code-iden-answer .import-code-iden-answer-container").removeClass("import-quiz-correct");
+							$(".import-code-iden-answer .import-code-iden-answer-container").addClass("import-quiz-wrong");
+							$(".import-code-iden-answer .import-code-iden-answer-container .material-icons").html("close");
+							$(".import-code-iden-answer .import-code-iden-stat").html("wrong");
 						}
 					}
 				}
