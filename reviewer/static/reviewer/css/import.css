@@ -620,6 +620,33 @@ body{
 	display: none;
 }
 
+.GeoGebraFrame .TabbedKeyBoard.KeyBoard.detached{
+	z-index: 20000000 !important;
+}
+
+.import-math-subquestion{
+	pointer-events: none;
+	margin-left: auto;
+	margin-right: auto;
+	position: relative;
+}
+
+.import-math-subquestion .GeoGebraFrame.applet-focused, .import-math-subquestion .GeoGebraFrame.applet-unfocused{
+	border-color: transparent !important; 
+	border-width: 0 !important;
+}
+
+.import-math-subquestion .evaluatorEditor{
+	margin: auto !important;
+}
+
+.import-math-subquestion .GeoGebraFrame{
+	background: transparent;
+
+}
+
+
+
 
 
 @keyframes spin {

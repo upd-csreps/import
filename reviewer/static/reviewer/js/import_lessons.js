@@ -63,9 +63,8 @@
 								importApp.builder.script.qdata.currentq = Math.floor(Math.random() * importApp.builder.script.qdata.remq.length); 
 								let currentq = importApp.builder.script.qdata.currentq;
 								$(".import-question").html(importApp.builder.script.qdata.remq[currentq].question);
-								if ($(".import-subquestion").length && importApp.builder.script.qdata.remq[currentq].subquestion != undefined)
-									$(".import-subquestion").html(importApp.builder.script.qdata.remq[currentq].subquestion);
 
+								//Multiple Choice
 								if ($(".import-choices").length){
 									$(".import-choices").html("");
 									for (var choc = 0; choc < importApp.builder.script.qdata.remq[currentq].choices.length; choc++){
@@ -82,7 +81,20 @@
 									}
 								}
 
+								//Identification
+								if ($(".import-subquestion").length && importApp.builder.script.qdata.remq[currentq].subquestion != undefined)
+									$(".import-subquestion").html(importApp.builder.script.qdata.remq[currentq].subquestion);
+
 								$(".import-code-iden").fadeIn(50);
+
+								//Math
+								if ($(".import-math-subquestion").length && importApp.builder.script.qdata.remq[currentq].subquestion != undefined){
+									importApp.questions.given.setEditorState({"content": importApp.builder.script.qdata.remq[currentq].subquestion});
+									let latexInput = importApp.questions.given.getEditorState();
+									$(".import-math-subquestion-latex").html(`$$\\sf ${latexInput.latex} $$`);
+									renderMathInElement(document.getElementById("import-ggb-q-latex"));
+								}
+
 								retval = true;
 							}
 							catch(err){
@@ -173,6 +185,11 @@
 						}
 					}
 				}
+			},
+			math: {
+				given: undefined,
+				input: undefined,
+				graph: undefined
 			}
 		},
 		init: function(){

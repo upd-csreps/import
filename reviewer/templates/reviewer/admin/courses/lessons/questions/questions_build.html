@@ -28,7 +28,7 @@
 								Math
 							{% elif question.qtype == "code" %}
 								Code
-							{% elif question.qtype == "cust"}
+							{% elif question.qtype == "cust" %}
 								Custom
 							{% endif %}
 						</small>
@@ -99,10 +99,20 @@
 							</div>
 						</div>
 					{% elif question.qtype == "math" %}
-						Math
+						<div class="d-flex w-100">
+							<div class="m-auto d-flex flex-column w-100">
+								<h5 class="font-weight-bold mx-auto import-question"></h5>
+								<div id="import-ggb-q-latex" class="import-math-subquestion-latex my-2"></div>
+								<div id="import-ggb-q" class="import-math-subquestion my-2 d-none position-absolute"></div>
+								<div id="import-ggb-element" class="mx-auto"></div> 
+								<div class="w-100" style="overflow-x: auto">
+									<div id="import-ggb-input" class="w-100 my-3"></div> 
+								</div>
+							</div>
+						</div>
 					{% elif question.qtype == "code" %}
 						Code
-					{% elif question.qtype == "cust"}
+					{% elif question.qtype == "cust" %}
 						Custom
 					{% endif %}
 
@@ -114,6 +124,9 @@
 
 {% block scripts %}
 	<script src="{% static 'reviewer/js/ace/ace.js' %}" type="text/javascript" charset="utf-8"></script>
+	{% if question.qtype == "math" %}
+		<script src="https://www.geogebra.org/apps/deployggb.js"></script>
+	{% endif %}
 	<script src="{% static 'reviewer/js/import_lessons.js' %}"></script>
 	<script>
 		importApp.builder.init("import-code-editor");
@@ -149,31 +162,91 @@
 			}
 		});
 
-		$("body").on("click", ".import-choice" , function(e){ 
-			e.preventDefault();
-			let currentq =  importApp.builder.script.qdata.currentq;
-			let selected = $(this).find(".import-choice-data").html().trim();
-			let answer = importApp.builder.script.qdata.remq[currentq].answer.trim();
+		{% if question.qtype == "mulc" %}
+			$("body").on("click", ".import-choice" , function(e){ 
+				e.preventDefault();
+				let currentq =  importApp.builder.script.qdata.currentq;
+				let selected = $(this).find(".import-choice-data").html().trim();
+				let answer = importApp.builder.script.qdata.remq[currentq].answer.trim();
 
-			$(".import-choice").each(function(){
-				$(this).removeClass("bg-success bg-danger text-light");
-				if ($(this).find(".import-choice-data").html().trim() == answer){
-					$(this).addClass("bg-success text-light");
-				}
-				else if ($(this).find(".import-choice-data").html().trim() == selected){
-					$(this).addClass("bg-danger text-light");
-				}
+				$(".import-choice").each(function(){
+					$(this).removeClass("bg-success bg-danger text-light");
+					if ($(this).find(".import-choice-data").html().trim() == answer){
+						$(this).addClass("bg-success text-light");
+					}
+					else if ($(this).find(".import-choice-data").html().trim() == selected){
+						$(this).addClass("bg-danger text-light");
+					}
+				});
 			});
-			
-		});
+		{% elif question.qtype == "iden" %}
+			$("body").on("keyup", ".import-code-iden-input", function(event){
+				importApp.questions.input.allow(this);
+			});
+			$("body").on("keydown", ".import-code-iden-input", function(event){
+				(event.which == 13 || event.keyCode == 13)? $(".import-code-iden-submit").click():importApp.questions.input.allow(this);
+			});
+		{% elif question.qtype == "math" %}
 
-		$("body").on("keyup", ".import-code-iden-input", function(event){
-			importApp.questions.input.allow(this);
-		});
-		$("body").on("keydown", ".import-code-iden-input", function(event){
-			(event.which == 13 || event.keyCode == 13)? $(".import-code-iden-submit").click():importApp.questions.input.allow(this);
-		});
+			var importggb;
 
+			var mathQuestion = new GGBApplet({ 
+					"app" : false,
+					"appName" : "evaluator",
+					"fontSize": 20,
+					"width": 400,
+					"showLogging": false,
+					"errorDialogsActive":false,
+					"appletOnLoad":function(api){   
+						importApp.questions.given = api;
+						importggb = api;
+					},
+					"preventFocus": true,
+				});
+
+			var mathInput = new GGBApplet({ 
+					"app" : false,
+					"appName" : "evaluator",
+					"fontSize": 20,
+					"width" : "600",
+					"showLogging": false,
+					"errorDialogsActive":false,
+					"appletOnLoad":function(api){   
+						importApp.questions.input = api;
+					},
+					"preventFocus": true,
+				});
+
+			window.addEventListener("load", function() { 
+				mathQuestion.inject('import-ggb-q');
+				mathInput.inject('import-ggb-input');
+			});
+
+
+
+		/*
+			var ggbApp = new GGBApplet({ 
+					"width": 400,
+					"height": 300,
+					"perspective": "G",
+					"showToolBar": false,
+					"showAlgebraInput": false,
+					"showMenuBar": false,
+					"enableRightClick" : false,
+					"enableLabelDrags": false,
+					"borderColor": false,
+					"showLogging": false,
+					"appletOnLoad": function(api){
+						api.evalCommand('ShowGrid(true)');
+					},
+					"buttonShadows": false
+				}, true);
+			window.addEventListener("load", function() { 
+				ggbApp.inject('import-ggb-element');
+			});
+			*/
+
+		{% endif %}
 		$("body").on("click", ".import-code-iden-submit", function(event){importApp.questions.input.check();});
 
 	    var Logger = console.log;
