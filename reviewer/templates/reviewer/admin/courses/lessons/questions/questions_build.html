@@ -99,15 +99,13 @@
 							</div>
 						</div>
 					{% elif question.qtype == "math" %}
-						<div class="d-flex w-100">
+						<div class="d-flex w-100 h-100">
 							<div class="m-auto d-flex flex-column w-100">
 								<h5 class="font-weight-bold mx-auto import-question"></h5>
 								<div id="import-ggb-q-latex" class="import-math-subquestion-latex my-2"></div>
 								<div id="import-ggb-q" class="import-math-subquestion my-2 d-none position-absolute"></div>
 								<div id="import-ggb-element" class="mx-auto"></div> 
-								<div class="w-100" style="overflow-x: auto">
-									<div id="import-ggb-input" class="w-100 my-3"></div> 
-								</div>
+								<div id="import-ggb-input" class="import-math-input w-100 my-3"></div> 
 							</div>
 						</div>
 					{% elif question.qtype == "code" %}
@@ -188,18 +186,20 @@
 			});
 		{% elif question.qtype == "math" %}
 
-			var importggb;
+			var importggb = {
+				app: undefined,
+				latex: function(){}
+			};
 
 			var mathQuestion = new GGBApplet({ 
 					"app" : false,
 					"appName" : "evaluator",
 					"fontSize": 20,
-					"width": 400,
 					"showLogging": false,
 					"errorDialogsActive":false,
 					"appletOnLoad":function(api){   
 						importApp.questions.given = api;
-						importggb = api;
+						importggb.app = api;
 					},
 					"preventFocus": true,
 				});
@@ -208,7 +208,6 @@
 					"app" : false,
 					"appName" : "evaluator",
 					"fontSize": 20,
-					"width" : "600",
 					"showLogging": false,
 					"errorDialogsActive":false,
 					"appletOnLoad":function(api){   

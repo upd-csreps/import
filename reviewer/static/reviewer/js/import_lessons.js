@@ -62,18 +62,19 @@
 							try{
 								importApp.builder.script.qdata.currentq = Math.floor(Math.random() * importApp.builder.script.qdata.remq.length); 
 								let currentq = importApp.builder.script.qdata.currentq;
-								$(".import-question").html(importApp.builder.script.qdata.remq[currentq].question);
+								let currentq_data = importApp.builder.script.qdata.remq[currentq];
+								$(".import-question").html(currentq_data.question);
 
 								//Multiple Choice
 								if ($(".import-choices").length){
 									$(".import-choices").html("");
-									for (var choc = 0; choc < importApp.builder.script.qdata.remq[currentq].choices.length; choc++){
+									for (var choc = 0; choc < currentq_data.choices.length; choc++){
 										$(".import-choices").append(`<div class="d-flex layer-container p-2 mb-2 import-choice">
 											<div class="py-2 px-3 my-auto">
 												${String.fromCharCode(65+choc)}
 											</div>
 											<div class="mx-2 my-auto import-choice-data">
-												${importApp.builder.script.qdata.remq[currentq].choices[choc]}
+												${currentq_data.choices[choc]}
 											</div>
 										</div>`);
 										if (choc == 4)
@@ -82,16 +83,18 @@
 								}
 
 								//Identification
-								if ($(".import-subquestion").length && importApp.builder.script.qdata.remq[currentq].subquestion != undefined)
-									$(".import-subquestion").html(importApp.builder.script.qdata.remq[currentq].subquestion);
+								if ($(".import-subquestion").length && currentq_data.subquestion != undefined)
+									$(".import-subquestion").html(currentq_data.subquestion);
 
+								$(".import-code-iden-input").val("");
 								$(".import-code-iden").fadeIn(50);
 
 								//Math
-								if ($(".import-math-subquestion").length && importApp.builder.script.qdata.remq[currentq].subquestion != undefined){
-									importApp.questions.given.setEditorState({"content": importApp.builder.script.qdata.remq[currentq].subquestion});
+								if ($(".import-math-subquestion").length && currentq_data.subquestion != undefined){
+									importApp.questions.input.setEditorState({"content": ""});
+									importApp.questions.given.setEditorState({"content": currentq_data.subquestion});
 									let latexInput = importApp.questions.given.getEditorState();
-									$(".import-math-subquestion-latex").html(`$$\\sf ${latexInput.latex} $$`);
+									$(".import-math-subquestion-latex").html(`$$\\sf ${currentq_data.latex == undefined? latexInput.latex : currentq_data.latex.replace(/%importggb\.latex%/g, latexInput.latex)} $$`);
 									renderMathInElement(document.getElementById("import-ggb-q-latex"));
 								}
 
@@ -163,12 +166,11 @@
 					if ($(".import-code-iden-input").val().trim().length > 0){
 						//Modify to work with actual lesson page
 						let currentq = importApp.builder.script.qdata.currentq;
+						let currentq_data = importApp.builder.script.qdata.remq[currentq]
 						let userInput = $(".import-code-iden-input").val().trim();
-						let qQuestion = importApp.builder.script.qdata.remq[currentq].question;
-						let qSubQ = importApp.builder.script.qdata.remq[currentq].subquestion;
-						let qAnswer = importApp.builder.script.qdata.remq[currentq].answer;
-						let result = (typeof qAnswer == 'function')? qAnswer(userInput, qSubQ, qQuestion):qAnswer;
+						let result = (typeof currentq_data.answer == 'function')? currentq_data.answer(userInput, currentq_data.subquestion, currentq_data.question):currentq_data.answer;
 
+						// Identification
 						$(".import-code-iden-answer .import-code-iden-rectans").html(result);
 						$(".import-code-iden-answer").fadeIn(300);
 						if (userInput == String(result)){

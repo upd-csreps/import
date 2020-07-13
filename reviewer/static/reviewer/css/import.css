@@ -642,10 +642,21 @@ body{
 
 .import-math-subquestion .GeoGebraFrame{
 	background: transparent;
-
 }
 
+.import-math-input{
+	overflow: auto;
+	height: auto !important;
+}
 
+.import-math-input .applet_scaler{
+	display: flex !important;
+}
+
+.import-math-input .applet_scaler article{
+	width: 80%;
+	margin: auto;
+}
 
 
 
