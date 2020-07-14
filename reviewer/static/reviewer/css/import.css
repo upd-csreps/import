@@ -645,7 +645,7 @@ body{
 }
 
 .import-math-input{
-	overflow: auto;
+	overflow: visible;
 	height: auto !important;
 }
 
@@ -656,6 +656,14 @@ body{
 .import-math-input .applet_scaler article{
 	width: 80%;
 	margin: auto;
+}
+
+.import-math-graph{
+	overflow: hidden;
+}
+
+.h-0{
+	height: 0 !important;
 }
 
 

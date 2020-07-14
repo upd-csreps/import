@@ -51,13 +51,11 @@
 					</div>
 				</div>
 			</div>
-			
 
 			<div class="row">
 				<div class="col-lg-6 d-flex mt-4 flex-column">
 					<div id="import-code-editor" class="layer-container mx-auto mx-lg-0 w-100">{{import_qcode}}</div>
-					<pre class="w-100 p-2 layer-container import-code-console m-0">
-					</pre>
+					<pre class="w-100 p-2 layer-container import-code-console m-0"></pre>
 				</div>
 				<div class="col-lg-6 mt-4">
 					{% if question.qtype == "mulc" %}
@@ -102,10 +100,28 @@
 						<div class="d-flex w-100 h-100">
 							<div class="m-auto d-flex flex-column w-100">
 								<h5 class="font-weight-bold mx-auto import-question"></h5>
-								<div id="import-ggb-q-latex" class="import-math-subquestion-latex my-2"></div>
-								<div id="import-ggb-q" class="import-math-subquestion my-2 d-none position-absolute"></div>
-								<div id="import-ggb-element" class="mx-auto"></div> 
-								<div id="import-ggb-input" class="import-math-input w-100 my-3"></div> 
+								<div id="import-ggb-q-latex" class="import-math-subquestion-latex"></div>
+								<div id="import-ggb-q" class="import-math-subquestion d-none position-absolute"></div>
+								<div id="import-ggb-element" class="mx-auto import-math-graph h-0"></div> 
+								<div id="import-ggb-input" class="import-math-input w-100 d-none mt-2"></div> 
+								<button class="btn btn-primary mx-auto d-inline-flex import-math-submit my-3" type="button" disabled>
+									<span class="my-auto">Check</span>
+									<i class="material-icons material-icon-sm my-auto ml-1">
+										done
+									</i>
+								</button>
+								<div class="import-code-iden-answer">
+									<div class="d-flex w-100 import-code-iden-answer-container p-3">
+										<div class="p-2 my-auto d-flex import-quiz-statcon noselect">
+											<span class="material-icons m-auto material-icon-sm">
+												done
+											</span>
+										</div>
+										<div class="my-auto mx-3">
+											Your answer is <span class="import-code-iden-stat">STATUS</span>. The correct answer is <span class="import-code-iden-rectans">CORRECTANSWER</span>.
+										</div>
+									</div>
+								</div>
 							</div>
 						</div>
 					{% elif question.qtype == "code" %}
@@ -184,46 +200,29 @@
 			$("body").on("keydown", ".import-code-iden-input", function(event){
 				(event.which == 13 || event.keyCode == 13)? $(".import-code-iden-submit").click():importApp.questions.input.allow(this);
 			});
-		{% elif question.qtype == "math" %}
+		{% elif question.qtype == "math" %}			
 
-			var importggb = {
-				app: undefined,
-				latex: function(){}
-			};
-
-			var mathQuestion = new GGBApplet({ 
-					"app" : false,
-					"appName" : "evaluator",
-					"fontSize": 20,
-					"showLogging": false,
-					"errorDialogsActive":false,
-					"appletOnLoad":function(api){   
-						importApp.questions.given = api;
-						importggb.app = api;
-					},
-					"preventFocus": true,
+			var importggb;
+			var typeListener = function(state) {
+				if (state[0] == "editorKeyTyped") {
+					let edstate = importApp.questions.math.input.getEditorState();
+					edstate.content == ""? $(".import-math-submit").prop("disabled", true) : $(".import-math-submit").removeAttr("disabled");
+				}
+			}
+			var mathQuestion = new GGBApplet({"app" : false, "id" : "mathQuestion", "appName" : "evaluator", "fontSize": 20, "showLogging": false, "errorDialogsActive":false, "preventFocus": true, 
+				"appletOnLoad":function(api){   
+						importApp.questions.math.given = api;
+					}
 				});
 
-			var mathInput = new GGBApplet({ 
-					"app" : false,
-					"appName" : "evaluator",
-					"fontSize": 20,
-					"showLogging": false,
-					"errorDialogsActive":false,
+			var mathInput = new GGBApplet({"app" : false, "id" : "mathInput", "appName" : "evaluator", "fontSize": 20, "showLogging": false, "errorDialogsActive":false, "preventFocus": true,
 					"appletOnLoad":function(api){   
-						importApp.questions.input = api;
-					},
-					"preventFocus": true,
+						importApp.questions.math.input = api;
+						$(".import-math-input").removeClass("d-none");
+						api.registerClientListener(typeListener);
+					}
 				});
 
-			window.addEventListener("load", function() { 
-				mathQuestion.inject('import-ggb-q');
-				mathInput.inject('import-ggb-input');
-			});
-
-
-
-		/*
 			var ggbApp = new GGBApplet({ 
 					"width": 400,
 					"height": 300,
@@ -235,35 +234,44 @@
 					"enableLabelDrags": false,
 					"borderColor": false,
 					"showLogging": false,
+					"buttonShadows": false,
+					"showZoomButtons" : true,
+					"enableCAS": true,
+					"enable3D": true,
 					"appletOnLoad": function(api){
+						api.evalCommandCAS('true');
 						api.evalCommand('ShowGrid(true)');
-					},
-					"buttonShadows": false
+						importggb = api;
+						importApp.questions.math.graph = api;
+					}
 				}, true);
+
 			window.addEventListener("load", function() { 
+				mathQuestion.inject('import-ggb-q');
+				mathInput.inject('import-ggb-input');
 				ggbApp.inject('import-ggb-element');
 			});
-			*/
 
 		{% endif %}
 		$("body").on("click", ".import-code-iden-submit", function(event){importApp.questions.input.check();});
+		$("body").on("click", ".import-math-submit", function(event){importApp.questions.input.check();});
 
 	    var Logger = console.log;
 		console.log = function(msg) {
-		    Logger.apply(this, arguments);
-		    if ($(".import-code-console").html() != ""){
-		    	$(".import-code-console").append("\n");
-		    }
-
-		    if (typeof msg == "string"){
-		    	$(".import-code-console").append(msg);
-		    }
-		    else{
-		    	$(".import-code-console").append(JSON.stringify(msg));
-		    }
-		    
+			if(
+				{% if question.qtype != "math" %}
+				true
+				{%else%}
+				msg != "Visibility changed: true" && msg != "Visibility changed: false" && msg != "============== restarted ==============="
+				{% endif %}
+			){
+				Logger.apply(this, arguments);
+				if ($(".import-code-console").html().trim() != ""){
+					$(".import-code-console").append("\n");
+				}
+				$(".import-code-console").append((typeof msg == "string")? msg: JSON.stringify(msg));
+			}
 		}
 
-		
 	</script>
 {% endblock %}
