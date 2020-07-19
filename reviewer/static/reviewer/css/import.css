@@ -577,7 +577,8 @@ body{
 #import-code-editor{
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
 	font-size: 1rem; 
-	height: 14rem;"
+	height: 14rem;
+	overflow: auto;
 }
 
 .import-choice{

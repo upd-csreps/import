@@ -99,12 +99,16 @@
 					{% elif question.qtype == "math" %}
 						<div class="d-flex w-100 h-100">
 							<div class="m-auto d-flex flex-column w-100">
+								<div class="mx-auto d-flex import-math-loader">
+									<div class="loader-sm spin m-auto"></div>
+									<p class="my-auto ml-2">Loading Math</p>
+								</div>
 								<h5 class="font-weight-bold mx-auto import-question"></h5>
 								<div id="import-ggb-q-latex" class="import-math-subquestion-latex"></div>
 								<div id="import-ggb-q" class="import-math-subquestion d-none position-absolute"></div>
 								<div id="import-ggb-element" class="mx-auto import-math-graph h-0"></div> 
 								<div id="import-ggb-input" class="import-math-input w-100 d-none mt-2"></div> 
-								<button class="btn btn-primary mx-auto d-inline-flex import-math-submit my-3" type="button" disabled>
+								<button class="btn btn-primary mx-auto d-none import-math-submit my-3" type="button" disabled>
 									<span class="my-auto">Check</span>
 									<i class="material-icons material-icon-sm my-auto ml-1">
 										done
@@ -129,7 +133,15 @@
 					{% elif question.qtype == "cust" %}
 						Custom
 					{% endif %}
-
+					<div class="import-sounds d-none">
+						<audio id="import-sound-correct" controls="false">
+						  <source src="{% static 'reviewer/sounds/correct.mp3' %}" type="audio/mpeg">
+							Your browser does not support the audio element.
+						</audio>
+						<audio id="import-sound-wrong" controls="false">
+						  <source src="{% static 'reviewer/sounds/wrong.mp3' %}" type="audio/mpeg">
+						</audio>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -202,47 +214,34 @@
 			});
 		{% elif question.qtype == "math" %}			
 
-			var importggb;
-			var typeListener = function(state) {
+			let importggb;
+			const typeListener = function(state) {
 				if (state[0] == "editorKeyTyped") {
 					let edstate = importApp.questions.math.input.getEditorState();
 					edstate.content == ""? $(".import-math-submit").prop("disabled", true) : $(".import-math-submit").removeAttr("disabled");
 				}
 			}
-			var mathQuestion = new GGBApplet({"app" : false, "id" : "mathQuestion", "appName" : "evaluator", "fontSize": 20, "showLogging": false, "errorDialogsActive":false, "preventFocus": true, 
+			const mathQuestion = new GGBApplet({"app" : false, "id" : "mathQuestion", "appName" : "evaluator", "fontSize": 20, "showLogging": false, "errorDialogsActive":false, "preventFocus": true, 
 				"appletOnLoad":function(api){   
 						importApp.questions.math.given = api;
 					}
 				});
 
-			var mathInput = new GGBApplet({"app" : false, "id" : "mathInput", "appName" : "evaluator", "fontSize": 20, "showLogging": false, "errorDialogsActive":false, "preventFocus": true,
+			const mathInput = new GGBApplet({"app" : false, "id" : "mathInput", "appName" : "evaluator", "fontSize": 20, "showLogging": false, "errorDialogsActive":false, "preventFocus": true,
 					"appletOnLoad":function(api){   
 						importApp.questions.math.input = api;
-						$(".import-math-input").removeClass("d-none");
 						api.registerClientListener(typeListener);
 					}
 				});
 
-			var ggbApp = new GGBApplet({ 
-					"width": 400,
-					"height": 300,
-					"perspective": "G",
-					"showToolBar": false,
-					"showAlgebraInput": false,
-					"showMenuBar": false,
-					"enableRightClick" : false,
-					"enableLabelDrags": false,
-					"borderColor": false,
-					"showLogging": false,
-					"buttonShadows": false,
-					"showZoomButtons" : true,
-					"enableCAS": true,
-					"enable3D": true,
-					"appletOnLoad": function(api){
+			const ggbApp = new GGBApplet({ "width": 400, "height": 300, "perspective": "G","showToolBar": false, "showAlgebraInput": false, "showMenuBar": false, "enableRightClick" : false, "enableLabelDrags": false, "borderColor": false, "showLogging": false, "buttonShadows": false, "showZoomButtons" : true, "enableCAS": true, "enable3D": true, 
+				"appletOnLoad": function(api){
 						api.evalCommandCAS('true');
 						api.evalCommand('ShowGrid(true)');
 						importggb = api;
 						importApp.questions.math.graph = api;
+						importApp.questions.math.loaded = true;
+						$(".import-math-loader").remove();
 					}
 				}, true);
 

@@ -63,7 +63,9 @@
 								importApp.builder.script.qdata.currentq = Math.floor(Math.random() * importApp.builder.script.qdata.remq.length); 
 								let currentq = importApp.builder.script.qdata.currentq;
 								let currentq_data = importApp.builder.script.qdata.remq[currentq];
-								$(".import-question").html(currentq_data.question);
+
+								if (!$(".import-math-subquestion").length)
+									$(".import-question").html(currentq_data.question);
 
 								//Multiple Choice
 								if ($(".import-choices").length){
@@ -91,12 +93,24 @@
 								$(".import-code-iden").fadeIn(50);
 
 								//Math
-								if ($(".import-math-subquestion").length && currentq_data.subquestion != undefined){
+								if (importApp.questions.math.loaded && $(".import-math-subquestion").length && currentq_data.subquestion != undefined){
+									$(".import-question").html(currentq_data.question);
+									$(".import-math-input").removeClass("d-none");
+									$(".import-math-submit").removeClass("d-none");
+									$(".import-math-submit").addClass("d-inline-flex");
 									importApp.questions.math.input.setEditorState({"content": ""});
 									$(".import-math-submit").prop("disabled", true);
 									importApp.questions.math.graph.reset();
-									currentq_data.graph == true? $(".import-math-graph").removeClass("h-0"): $(".import-math-graph").addClass("h-0");
-									currentq_data.graph == true? importApp.questions.math.graph.evalCommand(currentq_data.subquestion): null;
+
+									if (currentq_data.graph == true){
+										$(".import-math-graph").removeClass("h-0");
+										importApp.questions.math.graph.evalCommand(currentq_data.subquestion);
+										//importApp.questions.math.graph.setColor("f", 255, 145, 114);
+									}
+									else{
+										$(".import-math-graph").addClass("h-0");
+									}
+
 									importApp.questions.math.given.setEditorState({"content": currentq_data.subquestion});
 									let latexInput = importApp.questions.math.given.getEditorState().latex.replace(/\\nbsp/g, "\\space");
 									$(".import-math-subquestion-latex").html(`$$\\sf ${currentq_data.latex == undefined? latexInput : currentq_data.latex.replace(/%importggb\.latex%/g, latexInput)} $$`);
@@ -124,6 +138,7 @@
 		},
 
 		questions:{
+
 			create: function(that, url=window.location.href){
 
 				if (importApp.requests.ajax)
@@ -170,18 +185,7 @@
 
 						$(".import-code-iden-answer .import-code-iden-rectans").html(result);
 						$(".import-code-iden-answer").fadeIn(300);
-						if (userInput == String(result)){
-							$(".import-code-iden-answer .import-code-iden-answer-container").removeClass("import-quiz-wrong");
-							$(".import-code-iden-answer .import-code-iden-answer-container").addClass("import-quiz-correct");
-							$(".import-code-iden-answer .import-code-iden-answer-container .material-icons").html("done");
-							$(".import-code-iden-answer .import-code-iden-stat").html("correct");
-						}
-						else{
-							$(".import-code-iden-answer .import-code-iden-answer-container").removeClass("import-quiz-correct");
-							$(".import-code-iden-answer .import-code-iden-answer-container").addClass("import-quiz-wrong");
-							$(".import-code-iden-answer .import-code-iden-answer-container .material-icons").html("close");
-							$(".import-code-iden-answer .import-code-iden-stat").html("wrong");
-						}
+						userInput == String(result)? importApp.questions.output.correct(): importApp.questions.output.wrong();
 					}
 					// Math
 					else if ($(".import-math-input").length){
@@ -197,25 +201,33 @@
 						$(".import-code-iden-answer .import-code-iden-rectans").html(`\\(\\sf ${resulttex}\\)`);
 						renderMathInElement(document.body);
 						$(".import-code-iden-answer").fadeIn(300);
-						if (mathInputVal == String(result)){
-							$(".import-code-iden-answer .import-code-iden-answer-container").removeClass("import-quiz-wrong");
-							$(".import-code-iden-answer .import-code-iden-answer-container").addClass("import-quiz-correct");
-							$(".import-code-iden-answer .import-code-iden-answer-container .material-icons").html("done");
-							$(".import-code-iden-answer .import-code-iden-stat").html("correct");
-						}
-						else{
-							$(".import-code-iden-answer .import-code-iden-answer-container").removeClass("import-quiz-correct");
-							$(".import-code-iden-answer .import-code-iden-answer-container").addClass("import-quiz-wrong");
-							$(".import-code-iden-answer .import-code-iden-answer-container .material-icons").html("close");
-							$(".import-code-iden-answer .import-code-iden-stat").html("wrong");
-						}
+						mathInputVal == String(result)? importApp.questions.output.correct(): importApp.questions.output.wrong();
 					}
 				}
 			},
 			math: {
 				given: undefined,
 				input: undefined,
-				graph: undefined
+				graph: undefined,
+				loaded: false
+			},
+			output: {
+				correct: function(){
+					$(".import-code-iden-answer .import-code-iden-answer-container").removeClass("import-quiz-wrong");
+					$(".import-code-iden-answer .import-code-iden-answer-container").addClass("import-quiz-correct");
+					$(".import-code-iden-answer .import-code-iden-answer-container .material-icons").html("done");
+					$(".import-code-iden-answer .import-code-iden-stat").html("correct");
+					document.getElementById("import-sound-correct").currentTime = 0;
+					document.getElementById("import-sound-correct").play();
+				},
+				wrong: function(){
+					$(".import-code-iden-answer .import-code-iden-answer-container").removeClass("import-quiz-correct");
+					$(".import-code-iden-answer .import-code-iden-answer-container").addClass("import-quiz-wrong");
+					$(".import-code-iden-answer .import-code-iden-answer-container .material-icons").html("close");
+					$(".import-code-iden-answer .import-code-iden-stat").html("wrong");
+					document.getElementById("import-sound-wrong").currentTime = 0;
+					document.getElementById("import-sound-wrong").play();
+				}
 			}
 		},
 		init: function(){
