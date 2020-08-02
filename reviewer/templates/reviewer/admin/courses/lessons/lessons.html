@@ -23,7 +23,7 @@
 			$(".modal-body .admin-title").remove();
 		});
 
-		$('.delete-question').on('click', function (e) {
+		$('body').on('click', '.delete-question', function (e) {
 			confirm('Are you sure you want to delete this question?')? null: e.preventDefault();
 	    });
 
@@ -32,6 +32,67 @@
 			if (!$(this).prop("disabled"))
 				importApp.questions.create('lessons-q-form', "{% url 'admin_lesson' edit_lesson.id 'question' %}");
 	    });
+
+	    $(document).on('change', ".import-codelang .codelang-select", function(){
+
+	    	var selection = $(this);
+	    	let currentLangID = selection.find("option[selected]").val();
+	    	var langChange = confirm(`Change the language setting to ${otherlang[selection.val()].lang}?`);
+
+	    	if (langChange){
+	    		selection.find("option[selected]").removeAttr("selected");
+		    	selection.find(`option[value=${selection.val()}]`).attr("selected", "selected");
+		    	selection.parent().find(".lang-badge").css("background-image", `url('https://drive.google.com/thumbnail?id=${otherlang[selection.val()].imageID}&sz=s100')`);
+
+		    	let selectedVals = [];
+		    	let remOpts = [];
+		    	let langOptions = "";
+
+		    	$(".import-codelang .codelang-select option[selected]").each(function(){
+		    		selectedVals.push($(this).val());
+		    	});
+
+		    	for (const [key, value] of Object.entries(otherlang)) {
+		    		selectedVals.includes(key)? null: remOpts.push(value);
+				}
+
+				remOpts = remOpts.sort(function (a, b) { return a.lang.localeCompare( b.lang ) });
+
+				for (var opts of remOpts){
+		    		langOptions += `<option value="${opts.id}">${opts.lang}</option>`;
+				}
+
+				$(".import-codelang .codelang-select option:not([selected])").remove();
+		    	$(".import-codelang .codelang-select").append(langOptions);
+
+		    	if (importApp.requests.ajax) {
+					importApp.requests.ajax.abort();
+				}
+
+				let qlesson = selection.parents(".lesson-question");
+				let classes = ['module', 'build', 'delete'];
+				for (var cla of classes){
+					qlesson.find(`.${cla}-question`).attr("href", '#');
+				}
+
+		 		importApp.requests.ajax = $.ajax({
+					url: encodeURI("{% url 'admin_lesson_q' edit_lesson.id 'lang-change' %}"),
+					method: "post",
+					data: {'before': currentLangID, 'after': selection.val() },
+					headers: {'X-CSRFToken': importApp.csrfToken },
+					success: function (response, status, xhr){
+						for (var cla of classes){
+							qlesson.find(`.${cla}-question`).attr("href", response.qlang_template.replace("%5C%25url%5C%25", cla) );
+						}
+					}
+				});
+	    	}
+	    	else{
+	    		selection.val(currentLangID);
+	    	}
+	    	
+
+		});
 
 	</script>
 

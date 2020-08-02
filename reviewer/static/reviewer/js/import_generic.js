@@ -14,13 +14,9 @@
 			xhr : function(){
 				let xhr = $.ajaxSettings.xhr();
 				let last_response_length = false;
-
 				xhr.onabort = function(e){}
-
 				xhr.onprogress = function(e) {
-
 					var this_response, response = e.currentTarget.response;
-
 					if(last_response_len == false){
 						this_response = response;
 						last_response_len = response.length;
@@ -32,7 +28,6 @@
 
 					console.log(this_response);
 			    }
-
 			    xhr.upload.onprogress = function(e){}
 
 				return xhr;
@@ -46,23 +41,19 @@
 			}
 
 		},
-
 		log : function(){
 			return this.name;
 		},
-		
 		load : function(module){
 			module.module_name? importApp.modules.push(module.module_name) : null;
 			module.init? importApp.initfunc.push(module.init) : null;
 			$.extend(true, importApp, module);
 			eval(module.module_name + " = undefined");
 		},
-		
 		setConfig: function(config, setting){
 			importApp[config] = setting;
 			return importApp[config];
 		},
-
 		debug : function(debug){
 			if (debug != "True"){
 				var console = {};
@@ -72,7 +63,6 @@
 			$('#debug-script').remove();
 			delete importApp.debug;
 		},
-
 		urls : {
 			redirect :  function(url, bool=true){
 				bool? (window.location.href = window.location.origin + url) : null;
@@ -80,7 +70,6 @@
 			refresh : function(){
 				window.location.href = window.location.href;
 			},
-
 			hyperlink: function (content){
 				//Hyperlink Support
 				let linksFound = [];
@@ -102,7 +91,6 @@
 				var hlinkRegEx = /(?:^|\b|\s)((?:([A-Za-z][A-Za-z0-9+.-]*):)?(?:\/\/)?(?:([-A-Za-z0-9_'](?:(?:\.?(?:[-A-Za-z0-9_'~]|%[A-Fa-f]{2}))*[-A-Za-z0-9_'])?)(?::((?:[-A-Za-z0-9_'~!$&()\*+,;=]|%[A-Fa-f]{2})*))@)?((?:localhost)|(?:(?:1?[0-9]{1,2}|2[0-5]{1,2})(?:\.(?:1?[0-9]{1,2}|2[0-5]{1,2})){3})|(?:\[(?:[0-9A-Fa-f:]+:[0-9A-Fa-f:]+)+\])|(?:(?:[Ww]{3}\.)?[A-Za-z0-9](?:(?:\.?[-A-Za-z0-9])*[A-Za-z0-9])?\.[A-Za-z0-9](?:[-A-Za-z0-9]*[A-Za-z0-9])?))(?::[0-9]+)?((?:\/(?:[-A-Za-z0-9._~:@!$&'()*+,;=]|%[A-Fa-f]{2})+)*\/?)(\?(?:[-A-Za-z0-9._~:@!$&'()*+,;=/?]|%[A-Fa-f]{2})*)?(#(?:[-A-Za-z0-9._~:@!$&'()*+,;=/?]|%[A-Fa-f]{2})*)?)(?:\b|\s|$)/ig;
 				
 				content.replace(hlinkRegEx, function(url){
-
 					var tempURL = url;
 					var linkMeta = {
 						'full_url' : url,
@@ -129,10 +117,7 @@
 							});
 					}
 
-					
-					
 					linksFound.push(linkMeta);
-
 					return '';	
 				});
 
@@ -157,7 +142,6 @@
 				});
 			}
 		}
-
 	}
 
 	$(document).ajaxError(importApp.requests.ajaxFail);
@@ -175,7 +159,6 @@
 		}
 		
 		var currenthtml = $(this).html().trim();
-
 		var activearray = ['visibility', 'check_box', 'brightness_3', 'notifications_active'];
 		var disabledarray = ['visibility_off', 'check_box_outline_blank', 'brightness_5', 'notifications_off'];
 		var activecaption = ["Shown", "On"];
@@ -206,10 +189,8 @@
 		$(".import-header").addClass("import-header-scrolled");
 	}	
 
-
 	// Final stuff after web Load
 	$(document).ready(function(){
-
 		//Initialize
 		headerEffect();
 		importApp.initialize();

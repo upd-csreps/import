@@ -280,7 +280,7 @@
 					</div>
 					<hr>	
 
-					<div class="d-flex justify-content-between mt-3">
+					<div class="d-flex justify-content-between mt-4">
 						<small class="my-auto">
 							By clicking Register, you are agreeing to our <a href="{% url 'disclaimer' %}">Disclaimer</a>, <a href="{% url 'terms' %}">Terms & Conditions</a>, and <a href="{% url 'privacy_policy' %}">Privacy & Cookie Policy</a>.
 						</small>
@@ -297,7 +297,6 @@
 {% endblock %}
 
 {% block scripts %}
-
 	<script>
 		{% if error %}
 		var errors = {{error}};
@@ -306,56 +305,52 @@
 		var languagepic = {
 			'---------' : '',
 			{% for language in langlist %}
-		  		{% if forloop.counter0 != 0 %},{% endif %} '{{forloop.counter}}' : 'https://drive.google.com/uc?export=view&id={{language.imageID}}' 
+		  		{% if forloop.counter0 != 0 %},{% endif %} '{{language.id}}' : 'https://drive.google.com/thumbnail?id={{language.imageID}}' 
 			{% endfor %}
 		};
 
 		var unameInput = $(".username-input");
-
 		unameInput.change(function(){
+			// Abort any pending request
+			if (importApp.requests.ajax) {
+			    importApp.requests.ajax.abort();
+			}
+			// setup some local variables
+			var unamecheck = $(this).val();
 
-			    // Abort any pending request
-			    if (importApp.requests.ajax) {
-			        importApp.requests.ajax.abort();
-			    }
-			    // setup some local variables
-			    var unamecheck = $(this).val();
+			importApp.requests.ajax =  $.ajax({
+			    type: 'post',
+			    url: "{% url 'register' %}?unamecheck=y",
+			    data: {'uname': unamecheck},
+			    cache: false,
+			    headers: {'X-CSRFToken': importApp.csrfToken }
+			});
 
-			    importApp.requests.ajax =  $.ajax({
-		            type: 'post',
-		            url: "{% url 'register' %}?unamecheck=y",
-		            data: {'uname': unamecheck},
-		            cache: false,
-		            headers: {'X-CSRFToken': importApp.csrfToken }
-	            });
+			importApp.requests.ajax.done(function (response, status, xhr){
 
-			    importApp.requests.ajax.done(function (response, status, xhr){
-
-			    	if (response.valid == 'y'){
-			    		unameInput.removeClass("is-invalid");
-			    		unameInput.addClass("is-valid");
-			    	}
-			    	else if (response.valid == 'n'){
-			    		unameInput.addClass("is-invalid");
-			    		unameInput.removeClass("is-valid");
-			    		unameInput.parent().find(".invalid-feedback").html("Username already taken.");
-			    	}
-			    	else if (response.valid == 'e'){
-			    		unameInput.addClass("is-invalid");
-			    		unameInput.removeClass("is-valid");
-			    		unameInput.parent().find(".invalid-feedback").html("Please enter a username.");
-			    	}
-			    	else if (response.valid == 's'){
-			    		unameInput.removeClass("is-invalid");
-			    		unameInput.removeClass("is-valid");
-			    	}
-			    });
+				if (response.valid == 'y'){
+					unameInput.removeClass("is-invalid");
+					unameInput.addClass("is-valid");
+				}
+				else if (response.valid == 'n'){
+					unameInput.addClass("is-invalid");
+					unameInput.removeClass("is-valid");
+					unameInput.parent().find(".invalid-feedback").html("Username already taken.");
+				}
+				else if (response.valid == 'e'){
+					unameInput.addClass("is-invalid");
+					unameInput.removeClass("is-valid");
+					unameInput.parent().find(".invalid-feedback").html("Please enter a username.");
+				}
+				else if (response.valid == 's'){
+					unameInput.removeClass("is-invalid");
+					unameInput.removeClass("is-valid");
+				}
+			});
 		});
 
 		$(".fave_lang").change(function(){
-		  	$(".lang-badge").css("background-image", "url('" + languagepic[$(this).val()] +"')");
+		  	$(".lang-badge").css("background-image", `url('${languagepic[$(this).val()]}')`);
 		});
-	
 	</script>
-
 {% endblock %}

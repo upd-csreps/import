@@ -230,7 +230,7 @@ def user_settings(request):
 
 	if willRender:
 
-		langlist = Language.objects.all()
+		langlist = Language.objects.order_by('name')
 
 		userpassword = request.user.password.split("$")
 
@@ -278,7 +278,7 @@ def user_redirect_info(request):
 
 def register(request):
 
-	langlist = Language.objects.all()
+	langlist = Language.objects.order_by('name')
 
 	if request.method == 'POST':
 		queries, data = request.GET, request.POST
@@ -293,14 +293,13 @@ def register(request):
 			return JsonResponse(unamecheck_callback)
 		else:
 			form = ImportUserCreationForm(request.POST)
-			username = form.cleaned_data['username'].strip()
-			if form.is_valid() and user_settings_uname_is_unique(request, username):
-				password = form.cleaned_data['password1']
-				user = authenticate(username=username, password=password)
-				form.save()
-
-				login(request, user)
-				return redirect('user_settings')
+			if form.is_valid():
+				username = form.cleaned_data['username'].strip()
+				if user_settings_uname_is_unique(request, username):
+					password = form.cleaned_data['password1']
+					user = form.save()
+					login(request, user)
+					return redirect('index')
 			else:
 				context = {'form': form, 'langlist' : langlist}
 				return render(request, 'registration/register.html', context)

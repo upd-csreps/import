@@ -31,15 +31,11 @@ def send_mass_html_mail(datatuple, fail_silently=False, auth_user=None, auth_pas
 	messages = []
 	for subject, message, html, sender, recipient in datatuple:
 		message = EmailMultiAlternatives(subject, message, sender, recipient, connection=connection)
-
 		if html:
 			message.attach_alternative(html, 'text/html')
-
 		messages.append(message)
 
 	return connection.send_messages(messages)
-
-
 
 def gdrive_import_folderID():
 	return settings.GDRIVE_ROOT_FOLDERID
@@ -48,35 +44,26 @@ def gdrive_import_exportURL():
 	return "https://drive.google.com/uc?export=view&id="
 
 def gdrive_connect(api_creds=settings.GOOGLE_API_CREDS, api_scopes=settings.GOOGLE_API_SCOPES ):
-
 	creds = service_account.Credentials.from_service_account_info(api_creds, scopes=api_scopes)
-
 	if settings.DEBUG == True:
 		print("Connecting to Google Drive...")
-
 	return build('drive', 'v3', credentials=creds)
 
-
 def gdrive_delete_file(service, fileID):
-
 	try:
 		file = service.files().delete(fileId=fileID).execute()
 	except Exception as e: 
 		print(e)
 		return False
-
 	return True
 
 def gdrive_create_file(service, file_metadata):
-
 	file = service.files().create(body=file_metadata, fields='id').execute()
 	return file.get('id')
 
 def gdrive_get_file(service, fileID, fields=None):
-
 	if fields == None:
 		fields = 'id, name, mimeType, thumbnailLink, webViewLink, webContentLink'
-
 	try:
 		file = service.files().get(fileId=fileID, fields=fields).execute()
 	except Exception as e: 
@@ -86,10 +73,8 @@ def gdrive_get_file(service, fileID, fields=None):
 	return file
 
 def gdrive_update_file(service, fileID, file_metadata, fields=None):
-
 	if fields == None:
 		fields = 'id, name, mimeType, thumbnailLink, webViewLink, webContentLink'
-
 	try:
 		file = service.files().update(fileId=fileID, body=file_metadata, fields=fields).execute()
 	except Exception as e: 
@@ -98,24 +83,17 @@ def gdrive_update_file(service, fileID, file_metadata, fields=None):
 
 	return file
 
-
-
 def gdrive_upload_bytes_tofile(service,the_bytes, file_metadata,  mimetype='application/octet-stream'):
-
 	media = MediaIoBaseUpload(the_bytes, mimetype=mimetype, resumable=True)
-
 	file = service.files().create(body=file_metadata, media_body=media, fields='id').execute()
 	return file.get('id')
 
 def gdrive_upload_file(service,image_dir, file_metadata,  mimetype=None):
-
 	media = MediaFileUpload(image_dir, mimetype=mimetype, resumable=True)
-
 	file = service.files().create(body=file_metadata, media_body=media, fields='id').execute()
 	return file.get('id')
 
 def gdrive_download_file(service, fileID):
-
 	req = service.files().get_media(fileId=file_id)
 	fh = io.BytesIO()
 	downloader = MediaIoBaseDownload(fh, req)
@@ -129,11 +107,9 @@ def gdrive_download_file(service, fileID):
 	return fh
 
 def gdrive_list_meta(service, query=None, pageSize=10, order=None):
-
 	returned_list = {}
 
 	# Call the Drive v3 API
-
 	page_ct = 1
 	page_token = None
 	while True:
@@ -171,9 +147,7 @@ def gdrive_list_meta(service, query=None, pageSize=10, order=None):
 
 	return returned_list
 
-
 def gdrive_list_meta_folders(service, query=None, pageSize=10):
-
 	if query != None:
 		query = query + "and mimeType = 'application/vnd.google-apps.folder'"
 	else:
@@ -191,7 +165,6 @@ def gdrive_list_meta_files(service, query=None, pageSize=10):
 
 
 def gdrive_list_meta_children(service, folderID=None, query="", pageSize=None, order=None):
-
 	if folderID == None:
 		folderID = gdrive_import_folderID()
 
@@ -203,7 +176,6 @@ def gdrive_list_meta_children(service, folderID=None, query="", pageSize=None, o
 
 
 def gdrive_traverse_path(service, path, create=False):
-
 	currentfile = gdrive_import_folderID()
 	currentchildren = None
 
@@ -211,12 +183,9 @@ def gdrive_traverse_path(service, path, create=False):
 		return None
 	else:
 		path = path.strip().split('/')
-
 		while (len(path) > 0) and path[0] != "":
 			currentchildren = gdrive_list_meta_children(service, folderID=currentfile, query="mimeType = 'application/vnd.google-apps.folder' and fullText contains '" + path[0] + "'" )
-
 			if currentchildren == None:
-
 				if create == False:
 					return None
 				else:
@@ -228,7 +197,6 @@ def gdrive_traverse_path(service, path, create=False):
 
 					currentfile = gdrive_create_file(service, folder_meta)
 					path = path[1:]
-
 			else:
 				path = path[1:]
 				for key in currentchildren:
@@ -236,5 +204,3 @@ def gdrive_traverse_path(service, path, create=False):
 					break
 
 		return gdrive_get_file(service, currentfile)
-
-

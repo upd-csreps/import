@@ -1,5 +1,5 @@
 
-<div class="my-3 w-100 lesson-question" data-ID="{{question.id}}">
+<div class="mt-3 w-100 lesson-question" data-ID="{{question.id}}">
 	<div class="d-flex layer-container p-3">
 		<div class="row p-2 w-100">
 			<div class="col-9 my-auto">
@@ -11,28 +11,36 @@
 					{% elif question.qtype == "math" %}
 						Math
 					{% elif question.qtype == "code" %}
-						Code
-					{% elif question.qtype == "cust"}
+						Coding
+					{% elif question.qtype == "cust" %}
 						Custom
 					{% endif %}
 				</span>
 
 				{% if question.qtype == "code" %}
-					<div class="d-flex mt-2">
-						<div class="my-auto mr-2" {% if user.fave_lang %} style="border-radius:100%; border: 1px solid #ababab; height: 35px; width: 35px; background-image: url('https://drive.google.com/uc?export=view&id={{user.fave_lang.imageID }}=s220')" {% endif %}>
+					<div class="d-flex mt-2 import-codelang bg-light">
+						<div class="my-auto mr-2" style="border: 1px solid #ccc;border-radius:100%; ">
+							<div class="lang-badge" style="border-width: 0.2em; height: 35px; width: 35px; background-size: 75%; background-image: url('https://drive.google.com/thumbnail?id={{ question.lang.imageID }}&sz=s100')">
+							</div>
 						</div>
-						<select class="form-control form-control-sm my-auto codelang-select" style="width: initial;">
-						  <option selected>Select programming language</option>
-						  <option value="1">Python</option>
-						  <option value="2">C</option>
-						  <option value="3">Javascript</option>
+						<select class="form-control form-control-sm my-auto codelang-select">
+							<option value="{{question.lang.id}}" selected>{{question.lang.name}}</option>
+							{% for othlang in otherlang.all %}
+								<option value="{{othlang.id}}">{{othlang.name}}</option>
+							{% endfor%}
 						</select>
 					</div>
 				{% endif %}
 			</div>
 			<div class="col-3 d-flex px-0 my-auto">
 				<div class="d-flex ml-auto my-auto">
-					<a class="ml-2 my-auto" href="{% url 'admin_lesson_q' question.lesson.id question.id 'module' %}">
+					<a class="ml-2 my-auto module-question" href="
+						{% if question.qtype == "code" %}
+							{% url 'admin_lesson_qcode' question.lesson.id question.lang.name.split|join:"-"|lower 'module' %}
+						{% else %}
+							{% url 'admin_lesson_q' question.lesson.id 'module' %}
+						{% endif %}
+					">
 						<button  type="button" class="btn btn-light px-2 d-flex">
 							<div class="m-auto d-flex">
 								<i class="material-icons material-icon-sm" style="transform:rotate(180deg);">
@@ -42,7 +50,11 @@
 						</button>
 					</a>
 
-					<a class="ml-2 my-auto" href="{% url 'admin_lesson_q' question.lesson.id question.id 'build' %}">
+					<a class="ml-2 my-auto build-question" href="{% if question.qtype == "code" %}
+						{% url 'admin_lesson_qcode' question.lesson.id question.lang.name.split|join:"-"|lower 'build' %}
+					{% else %}
+						{% url 'admin_lesson_q' question.lesson.id 'build' %}
+					{% endif %}">
 						<button  type="button" class="btn btn-light px-2 d-flex">
 							<div class="m-auto d-flex">
 								<i class="material-icons material-icon-sm">
@@ -52,7 +64,12 @@
 						</button>
 					</a>
 
-					<a class="ml-2 delete-question my-auto" href="{% url 'admin_lesson_q' question.lesson.id question.id 'delete' %}" data-name="{{course.code}} {{course.number}}">
+					<a class="ml-2 delete-question my-auto" href="
+					{% if question.qtype == "code" %}
+						{% url 'admin_lesson_qcode' question.lesson.id question.lang.name.split|join:"-"|lower 'delete' %}
+					{% else %}
+						{% url 'admin_lesson_q' question.lesson.id 'delete' %}
+					{% endif %}" data-name="{{course.code}} {{course.number}}">
 						<button  type="button" class="btn btn-danger px-2 d-flex">
 							<div class="m-auto d-flex">
 								<i class="material-icons material-icon-sm">

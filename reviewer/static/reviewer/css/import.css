@@ -667,6 +667,15 @@ body{
 	height: 0 !important;
 }
 
+.import-codelang{
+	padding: 0.35em;
+	border-radius: 2em;
+	width: 13rem;
+}
+
+.import-codelang .codelang-select{
+	width: 8.7rem;
+}
 
 
 @keyframes spin {

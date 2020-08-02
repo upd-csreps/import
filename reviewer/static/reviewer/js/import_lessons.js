@@ -163,6 +163,7 @@
 							$("#importModal").modal('hide');
 							if($(".lesson-question").length > 0){
 								$(".questions").append(response.question);
+								$(`.import-codelang .codelang-select option[value=${response.langID}]:not([selected])`).remove()
 							}
 							else{
 								$(".questions").html(response.question);

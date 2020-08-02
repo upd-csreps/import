@@ -28,11 +28,13 @@ urlpatterns = [
 
     path('su/language/', views.admin_langlist , name="admin_langlist"),
     path('su/language/add/', views.admin_lang_add , name="admin_lang_add"),
-    path('su/language/<str:id>/<str:purpose>', views.admin_lang , name="admin_lang"),
+    path('su/language/<str:id>/<str:purpose>/', views.admin_lang , name="admin_lang"),
 
     path('su/lessons/add/', views.admin_lessons_add , name="admin_lessons_add"),
-    path('su/lessons/<str:id>/question/<str:qid>/<str:purpose>', views.admin_lessons_question , name="admin_lesson_q"),
-    path('su/lessons/<str:id>/<str:purpose>', views.admin_lessons_crud , name="admin_lesson"),
+    path('su/lessons/<str:id>/q/<str:qlang>/<str:purpose>/', views.admin_lessons_question_coding , name="admin_lesson_qcode"),
+    path('su/lessons/<str:id>/q/<str:purpose>/', views.admin_lessons_question , name="admin_lesson_q"),
+    path('su/lessons/<str:id>/<str:purpose>/', views.admin_lessons_crud , name="admin_lesson"),
+    path('su/lessons/<str:id>/', views.admin_lessons_simple , name="admin_lesson_simple"),
     
     path('su/announcements/', views.admin_announcement , name="admin_announcement"),
     path('su/announcements/add/', views.admin_announcement_create , name="admin_announcement_create"),

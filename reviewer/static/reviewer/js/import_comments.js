@@ -79,9 +79,7 @@
 						headers: {'X-CSRFToken': importApp.csrfToken },
 						success: function (response, status, xhr){
 							commentpass.fadeOut(1000, function(){
-
 								commentpass.remove();
-
 								if ($(".course-comments").length){
 									if(importApp.comments.count.byCourse() > 0){
 										importApp.comments.count.byCourse(response.course_comment_count);

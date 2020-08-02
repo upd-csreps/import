@@ -147,6 +147,7 @@
 
 		var current_order = []
 		var new_order = []
+		var addr_order = []
 
 		$('.lesson-reorder').sortable({
 			animation: 200, 
@@ -178,15 +179,26 @@
 		 	$(".lesson-reorder-border").removeClass("px-3");
 		 	$(".lesson-reorder-border").removeClass("pt-3");
 
-		 	new_order = []
+		 	addr_order = []
+
 		 	$('.lesson-reorder').children().each(function(){
-		 		new_order.push($(this).attr('data-order'));
+		 		addr_order.push($(this).attr('data-order'));
 			});
+
+		 	new_order = new Array(temp_order.length);
+
+		 	for(i = 0; i < temp_order.length; i++){
+		 		new_order[temp_order[i]-1] = (i+1).toString();
+		 	}
 
 			if(JSON.stringify(current_order) != JSON.stringify(new_order)){
 
 				if (importApp.requests.ajax)
 					importApp.requests.ajax.abort();
+
+				$('.lesson-reorder').children().each(function(index){
+			 		$(this).attr('data-order', index+1);
+				});
 
 				importApp.requests.ajax =  $.ajax({
 					method: 'post',

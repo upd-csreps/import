@@ -42,7 +42,7 @@ def admin_dashboard(request):
 		languages = Language.objects.order_by('name')
 
 		for language in languages:
-			lang_stat[language.name]= [language.name,gdrive_import_exportURL()+language.imageID, '#'+str(language.color), language.importuser_set.all().count()]
+			lang_stat[language.name]= [language.name,gdrive_import_exportURL()+(language.imageID if language.imageID else ""), '#'+str(language.color), language.importuser_set.count()]
 			
 		# 30 Days Engagement
 
@@ -672,6 +672,10 @@ def admin_lessons_add(request):
 	return admin_lessons_crud(request, 'add')
 
 @login_required
+def admin_lessons_simple(request, purpose, id=""):
+	return admin_lessons_crud(request, 'edit', id)
+
+@login_required
 def admin_lessons_crud(request, purpose, id=""):
 
 	purpose = purpose.lower()
@@ -705,24 +709,20 @@ def admin_lessons_crud(request, purpose, id=""):
 				course = Course.objects.filter(pk=course).first()
 
 				if (lessonname and course):
-					
 					verified = data.getlist('lesson_verified', False)
 					verifier = data.get('verifiedby', '').strip() if verified else ''
 
 					if purpose == allowed_purpose[0]:
-
 						current_lessons = course.lesson_set.all()
-
 						new_lesson = Lesson.objects.create(
 							name = lessonname,
 							course = course,
-							extra = data.get('lesson_extra', False),
-							lab_lesson = data.get('lesson_lab', False),
+							extra = bool(data.get('lesson_extra', False)),
+							lab_lesson = bool(data.get('lesson_lab', False)),
 							verified = bool(verified),
 							verifier = verifier,
 							order = course.lesson_set.count() + 1
 						)
-
 						related_lessons = data.getlist('related')
 
 						try:
@@ -732,27 +732,23 @@ def admin_lessons_crud(request, purpose, id=""):
 							pass
 
 					elif edit_lesson:
-
 						edit_lesson.name = lessonname
 						edit_lesson.course = course
-						edit_lesson.extra = data.get('lesson_extra', False)
-						edit_lesson.lab_lesson = data.get('lesson_lab', False)
+						edit_lesson.extra = bool(data.get('lesson_extra', False))
+						edit_lesson.lab_lesson = bool(data.get('lesson_lab', False))
 						edit_lesson.verified = bool(verified)
 						edit_lesson.verifier = verifier
-
 						edit_lesson.save()
 					else:
 						raise Http404()
 
 					return redirect('admin_course_id', course.code.lower(), course.number, 'lessons')
-
 				else:
 					if purpose == allowed_purpose[0]:
 						return redirect('admin_lessons_add')
 					elif purpose == allowed_purpose[1]:
 						return redirect('admin_lesson', edit_lesson.id)
 		else:
-
 			query = request.GET
 			courses = Course.objects.all()
 			lessons = Lesson.objects.all()
@@ -771,7 +767,18 @@ def admin_lessons_crud(request, purpose, id=""):
 			if purpose == allowed_purpose[0]:
 				context['title'] = "Add Lesson"
 			elif purpose == allowed_purpose[1]:
-				context['edit_lesson'] = lessons.filter(id=id).first()
+				edit_lesson = lessons.filter(id=id).first()
+				first_q = edit_lesson.question_set
+				
+				if first_q.first() and first_q.first().qtype == "code":
+					all_lang = Language.objects.all()
+					existing_langs = edit_lesson.question_set.filter(qtype='code').values_list('lang', flat=True)
+					otherlang = all_lang.exclude(id__in=existing_langs).order_by('name')
+					context['all_lang'] = all_lang
+					context['otherlang'] = otherlang
+
+				context['edit_lesson'] = edit_lesson
+				context['edit_lesson_qset'] = first_q.order_by('id')
 				context['rel_lessons'] = lessons.exclude(id=id)
 				context['title'] = "Edit Lesson"
 
@@ -783,7 +790,6 @@ def admin_lessons_crud(request, purpose, id=""):
 def admin_lessons_question_cud(request, id=""):
 
 	if request.user.is_superuser:
-
 		lesson = Lesson.objects.filter(id=id).first()
 		
 		if lesson:
@@ -797,26 +803,25 @@ def admin_lessons_question_cud(request, id=""):
 
 				existingq = lesson.question_set.first()
 
-				if existingq:
-					if existingq.qtype == "code" and qtype == "code":
-						otherq = lesson.question_set.filter(qtype='code').values_list('lang', flat=True)
-						language = Language.objects.exclude(id__in=otherq).first()
+				if (qtype == "code"):
+					otherq = lesson.question_set.filter(qtype='code').values_list('lang', flat=True)
+					language = Language.objects.exclude(id__in=otherq).order_by('name')
 
-						error = otherq
-					else:
-						error = "You may only add multiple coding questions or one non-coding question."
+					if not language.first():
+						error = "There are no available languages for coding questions."
 
-				else:
-					question = Question.objects.create(
-						lesson = lesson,
-						lang =language,
-						qtype=qtype
-					)
-
-					question_html = render_to_string('reviewer/admin/courses/lessons/questions/questions_partial.html', {'question': question, 'user': request.user }).strip()
+				if existingq and not (existingq.qtype == "code" and qtype == "code"):
+					error = "You may only add multiple coding questions or one non-coding question."
+				elif not error:
+					question = Question.objects.create(lesson=lesson, lang=language.first() if language else language, qtype=qtype)
+					question_html = render_to_string('reviewer/admin/courses/lessons/questions/questions_partial.html', {'question': question, 'user': request.user, 'otherlang': language }).strip()
 
 				if request.is_ajax():
-					return JsonResponse({'question': question_html if question else question, 'error': error})
+					return JsonResponse({
+						'question': question_html if question else question, 
+						'error': error, 
+						'langID': language.first().id if language else language
+						})
 				else:
 					return redirect('admin_lesson', id, 'edit')
 			else:
@@ -837,13 +842,22 @@ def admin_lessons_question_cud(request, id=""):
 		raise PermissionDenied()
 
 @login_required
-def admin_lessons_question(request, purpose, id="", qid=""):
+def admin_lessons_question(request, purpose, id=""):
+	return admin_lessons_question_coding(request, purpose, id, qlang="")
 
+@login_required
+def admin_lessons_question_coding(request, purpose, id="", qlang=""):
 	if request.user.is_superuser:
 
 		purpose = purpose.lower()
-		question = Question.objects.filter(lesson__id=id, id=qid).first()
-		allowed_purpose = ['module', 'build', 'delete']
+		allowed_purpose = ['module', 'build', 'delete', 'lang-change']
+		question = Question.objects.filter(lesson__id=id)
+
+		if qlang == "":
+			question = question.first()
+		else:
+			qlang = qlang.replace("-", " ")
+			question = question.filter(lang__name__iexact=qlang).first()
 
 		if question and purpose in allowed_purpose:
 			if request.method == 'POST':
@@ -853,6 +867,12 @@ def admin_lessons_question(request, purpose, id="", qid=""):
 					question.custom_code = request.POST.dict()
 					question.save(update_fields=['custom_code'])
 					return JsonResponse({'redirect_url': reverse('admin_lesson', args=[str(id), 'edit']) })
+				elif purpose == allowed_purpose[3]:
+					le_lang = Question.objects.filter(lesson=question.lesson).filter(lang__id=request.POST['before']).first()
+					lang_set = Language.objects.filter(id=request.POST['after']).first()
+					le_lang.lang = lang_set
+					le_lang.save(update_fields=['lang'])
+					return JsonResponse({'result': le_lang.lang.id, 'qlang_template': reverse('admin_lesson_qcode', args=[question.lesson.id, lang_set.name.replace(' ', '-').lower(), '\%url\%']) })
 			elif request.method == 'GET':
 				context = {'question': question}
 				if purpose == allowed_purpose[0]:

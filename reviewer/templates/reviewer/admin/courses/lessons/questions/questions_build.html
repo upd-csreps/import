@@ -27,7 +27,14 @@
 							{% elif question.qtype == "math" %}
 								Math
 							{% elif question.qtype == "code" %}
-								Code
+								
+								<div class="d-inline-flex">
+									<span class="my-auto">Coding: {{question.lang.name}}</span> 
+									<div class="my-auto ml-1" style="border: 1px solid #ccc; border-radius: 100%">
+										<div class="lang-badge" style=" height: 22px; width: 22px; background-size: contain; border-width: 0.35em; background-image: url('https://drive.google.com/uc?export=view&id={{question.lang.imageID }}&sz=s220')">
+										</div>
+									</div>
+								</div>
 							{% elif question.qtype == "cust" %}
 								Custom
 							{% endif %}
@@ -54,8 +61,19 @@
 
 			<div class="row">
 				<div class="col-lg-6 d-flex mt-4 flex-column">
-					<div id="import-code-editor" class="layer-container mx-auto mx-lg-0 w-100">{{import_qcode}}</div>
-					<pre class="w-100 p-2 layer-container import-code-console m-0"></pre>
+					{% if question.qtype != "code" %}
+						<div id="import-code-editor" class="layer-container mx-auto mx-lg-0 w-100">{{import_qcode}}</div>
+						<pre class="w-100 p-2 layer-container import-code-console m-0"></pre>
+					{% else %}
+						<div class="mb-2">
+							<h6>Test Input</h6>
+							<textarea class="form-control"></textarea>
+						</div>
+						<div class="my-2">
+							<h6>Test Output</h6>
+							<textarea class="form-control"></textarea>
+						</div>
+					{% endif %}
 				</div>
 				<div class="col-lg-6 mt-4">
 					{% if question.qtype == "mulc" %}
@@ -129,7 +147,8 @@
 							</div>
 						</div>
 					{% elif question.qtype == "code" %}
-						Code
+						<div id="import-code-editor" class="layer-container mx-auto mx-lg-0 w-100"></div>
+						<pre class="w-100 p-2 layer-container import-code-console m-0"></pre>
 					{% elif question.qtype == "cust" %}
 						Custom
 					{% endif %}
