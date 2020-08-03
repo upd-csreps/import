@@ -25,7 +25,7 @@ def user_get(request, user_filter, error=None):
 	liked_comments = []
 	liked_comments_data = {'content': [], 'count': None}
 
-	if (len(user_filter) > 0):
+	if len(user_filter) > 0:
 
 		targetuser_comments = user_filter[0].comment_set.order_by('-date_posted')
 		if request.user.is_authenticated:
@@ -72,7 +72,6 @@ def user_get(request, user_filter, error=None):
 			'error': error,
 			'liked_comments_data' : liked_comments_data
 		}
-
 		return render(request, 'reviewer/user/user.html', context)
 	else:
 		raise Http404("User does not exist.")
@@ -85,7 +84,6 @@ def user(request, username):
 	if request.method == 'POST':
 		if user_filter[0].username == request.user.username:
 			utest = ImportUser.objects.filter(username=username).first()
-
 			image_uploaded = request.FILES.get('image', None)
 
 			try:
@@ -109,55 +107,43 @@ def user(request, username):
 						break
 					except Exception as e:
 						if settings.DEBUG: print(e)
-
 				if oldprofpicID: gdrive_delete_file(service, oldprofpicID)
 				utest.save(update_fields=['prof_picID'])	
 			except Exception as e:
 				if settings.DEBUG: print(e)
 				error = "Upload failed. Try uploading again in a few moments." if isinstance(e, TimeoutError) else "Upload a valid image file or try again."
 
-		if request.is_ajax():
-
-			response = {'error' : error}
-
-			return JsonResponse(response);
-		else:
-			return user_get(request, user_filter, error)
+		return JsonResponse({'error' : error}) if request.is_ajax() else user_get(request, user_filter, error)
 	else:
 		return user_get(request, user_filter)
 		
 def user_settings_uname_is_unique(request, uname):
-	return True if ( (not ImportUser.objects.filter(username=uname).exists()) or uname == request.user.username) else False
+	return uname == request.user.username or not ImportUser.objects.filter(username=uname).exists()
 
 @login_required
 def user_settings(request):
-
 	willRender = True
 	error = []
 	
 	if request.method == 'POST':
 		queries, data = request.GET, request.POST
 		
-		if (queries.get("unamecheck") == 'y'):
-
+		if queries.get("unamecheck") == 'y':
 			unamecheck_callback = { 'valid': 'n' }
-
 			if not data["uname"]:
 				unamecheck_callback['valid'] = 'e'
-			elif (data["uname"] == request.user.username):
+			elif data["uname"] == request.user.username:
 				unamecheck_callback['valid'] = 's'
-			elif (user_settings_uname_is_unique(request, data["uname"])):
+			elif user_settings_uname_is_unique(request, data["uname"]):
 				unamecheck_callback['valid'] = 'y'
 				
 			return JsonResponse(unamecheck_callback)
 
-		elif (queries.get("delete") == 'true'):
-
+		elif queries.get("delete") == 'true':
 			userauth = authenticate(username=request.user.username, password=data.get("password"))
 			willRender = False
 
 			if userauth == request.user:
-
 				logout(request)
 				userauth.delete()
 
@@ -185,14 +171,11 @@ def user_settings(request):
 				if not data[i]: emptyreqfields.append(i)
 
 			if len(emptyreqfields) == 0:
-
 				currentuname = (request.user.username+' ')[:-1]
 				currentuser = request.user
-
 				username_valid = user_settings_uname_is_unique(request, data["username"])
 
-				if (username_valid):
-
+				if username_valid:
 					currentuser.username = data["username"].strip()
 					currentuser.first_name = data["first_name"].strip()
 					currentuser.middle_name = None if not data["middle_name"] else data["middle_name"].strip()
@@ -207,7 +190,7 @@ def user_settings(request):
 					currentuser.dark_mode = (data.get("dark_mode") == 'dark')
 					currentuser.notifications = (data.get("em_notif") == 'notif_on')
 
-					if (currentuname != data["username"]) and currentuser.prof_picID:
+					if currentuname != data["username"] and currentuser.prof_picID:
 						for i in range(1, settings.GOOGLE_API_RECONNECT_TRIES):
 							try:
 								service = gdrive_connect()
@@ -229,14 +212,11 @@ def user_settings(request):
 				error = emptyreqfields
 
 	if willRender:
-
 		langlist = Language.objects.order_by('name')
 
 		userpassword = request.user.password.split("$")
-
 		userpassword[2] = userpassword[2][0:6] + ('*' * (len(userpassword[2])-6) )
 		userpassword[3] = userpassword[3][0:6] + ('*' * (len(userpassword[3])-6) )
-
 		userpassword = {
 			'algo': userpassword[0],
 			'iterations': userpassword[1],
@@ -261,7 +241,6 @@ def user_settings(request):
 
 
 def user_redirect_info(request):
-
 	usr = request.user
 
 	if usr.is_authenticated and request.method == "POST":
@@ -282,17 +261,17 @@ def register(request):
 
 	if request.method == 'POST':
 		queries, data = request.GET, request.POST
-		if (queries.get("unamecheck") == 'y'):
+		if queries.get("unamecheck") == 'y':
 			unamecheck_callback = { 'valid': 'n' }
 			if not data["uname"]:
 				unamecheck_callback['valid'] = 'e'
-			elif (data["uname"] == request.user.username):
+			elif data["uname"] == request.user.username:
 					unamecheck_callback['valid'] = 's'
-			elif (user_settings_uname_is_unique(request, data["uname"].strip())):
+			elif user_settings_uname_is_unique(request, data["uname"].strip()):
 				unamecheck_callback['valid'] = 'y'
 			return JsonResponse(unamecheck_callback)
 		else:
-			form = ImportUserCreationForm(request.POST)
+			form = ImportUserCreationForm(data)
 			if form.is_valid():
 				username = form.cleaned_data['username'].strip()
 				if user_settings_uname_is_unique(request, username):

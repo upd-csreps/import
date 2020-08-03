@@ -658,7 +658,7 @@ def admin_lang(request, purpose, id=""):
 					context = {'langform': langform, 'edit_lang' : edit_lang }
 					context['title'] = "Edit Language"
 
-				if (request.method == "POST") and not request.user.check_password(request.POST['password']):
+				if request.method == "POST" and not request.user.check_password(request.POST['password']):
 					context['error'] = "You entered the wrong password."
 
 				context["currpage"] = "languages"
@@ -708,7 +708,7 @@ def admin_lessons_crud(request, purpose, id=""):
 				course = data.get('course', False).strip()
 				course = Course.objects.filter(pk=course).first()
 
-				if (lessonname and course):
+				if lessonname and course:
 					verified = data.getlist('lesson_verified', False)
 					verifier = data.get('verifiedby', '').strip() if verified else ''
 
@@ -803,7 +803,7 @@ def admin_lessons_question_cud(request, id=""):
 
 				existingq = lesson.question_set.first()
 
-				if (qtype == "code"):
+				if qtype == "code":
 					otherq = lesson.question_set.filter(qtype='code').values_list('lang', flat=True)
 					language = Language.objects.exclude(id__in=otherq).order_by('name')
 
@@ -900,7 +900,7 @@ def admin_users(request):
 		users = ImportUser.objects.order_by('username')
 		context = {}
 
-		if (request.method == "POST"):
+		if request.method == "POST":
 
 			data = request.POST
 			confirm = authenticate(username=request.user.username, password=data["password"])

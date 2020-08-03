@@ -79,8 +79,7 @@ def comment_delete(request, course, startindex, pagect_limit):
 
 	delcom = Comment.objects.filter(pk=comment_findid).first()
 	result = {}
-	if (request.user == delcom.user_attr):
-
+	if request.user == delcom.user_attr:
 		if delcom.imageID:
 			for i in range(1, settings.GOOGLE_API_RECONNECT_TRIES):
 				try:
@@ -89,7 +88,6 @@ def comment_delete(request, course, startindex, pagect_limit):
 					break
 				except Exception as e:
 					if settings.DEBUG: print(e)
-
 		delcom.delete()
 
 		all_course_comments = Comment.objects.filter(course_attr=course).order_by('-date_posted')
@@ -270,12 +268,10 @@ def coursecpage(request, csubj, cnum, catchar = 'l', cpage = 1):
 		all_course_comments = coursefilter.comment_set.order_by('-date_posted')
 		course_commentstotal = len(all_course_comments)
 
-		if ( ((course_commentstotal-1) < startindex) and (course_commentstotal != 0)):
+		if ((course_commentstotal-1) < startindex) and (course_commentstotal != 0):
 			return redirect( 'coursecpage', csubj, cnum, 'c',  1 )
 		else:
-			
 			page_ct = int(ceil(course_commentstotal/pagect_limit))
-
 			commentpage = {
 					'current': cpage,
 					'prev' : cpage-1,

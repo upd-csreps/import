@@ -7,7 +7,7 @@
 	<a href="{% url 'user' comment.base.user_attr.username %}">{% endif %}
 		<div>
 			<img class="user-pic-thumb" src="{% if comment.base.user_attr.prof_picID %}
-			https://drive.google.com/uc?export=view&id={{comment.base.user_attr.prof_picID | urlencode }}
+			https://drive.google.com/thumbnail?id={{comment.base.user_attr.prof_picID | urlencode }}
 			{% else %}
 				{% static 'reviewer/images/default_profile.png' %}
 			{% endif %}

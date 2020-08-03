@@ -169,11 +169,9 @@
 					</div>					
 
 					<div class="form-group">
-
 						<label><strong>Favorite Language</strong></label>
-						
 						<div class="d-flex">
-							<div class="lang-badge my-auto" {% if user.fave_lang %} style="background-image: url('https://drive.google.com/uc?export=view&id={{user.fave_lang.imageID }}=s220')" {% endif %}>
+							<div class="lang-badge my-auto" {% if user.fave_lang %} style="background-image: url('https://drive.google.com/thumbnail?id={{user.fave_lang.imageID }}&sz=s220')" {% endif %}>
 							</div>
 							<select class="form-control ml-2 my-auto fave_lang" name="fave_lang">
 								<option>None</option>
@@ -182,9 +180,7 @@
 								{% endfor %}
 							</select>
 						</div>
-
 					</div>
-
 
 					<div class="form-group">
 						<div class="d-inline-flex">
@@ -250,7 +246,6 @@
 								</button>
 							</a>
 
-
 							<button class="btn btn-primary d-inline-flex" type="submit">
 								<i class="material-icons my-auto material-icon-sm mr-2">
 									save
@@ -303,8 +298,7 @@
 {% endblock %}
 
 {% block scripts %}
-
-	<script>
+<script>
 	{% if error %}
 	var errors = {{error}}
 	{% endif %}
@@ -315,7 +309,7 @@
 	var languagepic = {
 		'None' : '',
 		{% for language in langlist %}
-	  		{% if forloop.counter0 != 0 %},{% endif %} '{{language.name}}' : 'https://drive.google.com/uc?export=view&id={{language.imageID}}' 
+	  		{% if forloop.counter0 != 0 %},{% endif %} '{{language.name}}' : 'https://drive.google.com/thumbnail?id={{language.imageID}}' 
 		{% endfor %}
 	};
 
@@ -382,7 +376,5 @@
 			$(".fave_lang").val("{{user.fave_lang.name}}");
 		}
 	});
-
-	</script>
-
+</script>
 {% endblock %}

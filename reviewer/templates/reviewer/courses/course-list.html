@@ -47,7 +47,7 @@
 							<div class="py-3 mb-3 d-flex justify-content-between layer-container px-4" id="course-{{course.id}}">
 								<div class="my-auto">
 									<div class="d-inline-flex">
-										<div class="my-auto mr-3 course-thumb" style="{% if course.imageID %}background-image: url('https://drive.google.com/uc?export=view&id={{course.imageID | urlencode }}'); {%endif%}">
+										<div class="my-auto mr-3 course-thumb" style="{% if course.imageID %}background-image: url('https://drive.google.com/thumbnail?id={{course.imageID | urlencode }}'); {%endif%}">
 										</div>
 
 										<div class="my-auto mx-auto">
@@ -108,18 +108,15 @@
 {% endblock %}
 
 {% block scripts %}
-
 	<script src="{% static 'reviewer/js/import_dragphoto.js' %}"></script>
 	<script>
 		{% if user.is_superuser %}
-			
 			$.get( "{% url 'admin_get_course' 'add' %}", function( data ) {
 				$(".modal-body").html(data);
 				$(".modal-title").html( $(".admin-title").html() );
 				$(".admin-title").remove();
 				importApp.dragPhoto.init();
 			});
-
 		{% endif %}
 	</script>
 	

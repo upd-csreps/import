@@ -27,10 +27,10 @@
 
 		{% if courselist.count > 0 %}
 			{% for course in courselist %}
-				<div class="p-4 mb-3 row layer-container">
-					<div class="col-lg-6 col-12">
+				<div class="p-3 mx-0 mb-3 row layer-container">
+					<div class="col-lg-6 col-12 px-1">
 						<a href="{% url 'course' course.code|lower course.number %}" class="d-flex flex-wrap">
-							<div class="my-auto mr-3 course-thumb" style="{% if course.imageID %}background-image: url('https://drive.google.com/uc?export=view&id={{course.imageID}}'); {%endif%}">
+							<div class="my-auto mr-3 course-thumb" style="{% if course.imageID %}background-image: url('https://drive.google.com/thumbnail?id={{course.imageID}}'); {%endif%}">
 							</div>
 							<div class="my-auto mx-3 d-inline-flex flex-column">
 								<span class="font-weight-bold comment-username d-flex">
@@ -51,7 +51,7 @@
 						</a>
 					</div>
 
-					<div class="col-lg-4 col-8 mt-4 mt-lg-0 d-flex flex-wrap">
+					<div class="col-lg-4 col-8 mt-4 mt-lg-0 d-flex flex-wrap px-0 px-lg-2">
 							<a class="my-auto mr-2 mx-lg-auto" href="{% url 'admin_course_id' course.code|lower course.number  'lessons' %}">
 								<button  type="button" class="btn btn-sm btn-light px-2 d-flex">
 									<div class="m-auto d-flex">
@@ -74,7 +74,7 @@
 							</a>				
 					</div>
 
-					<div class="col-4 col-lg-2 d-flex mt-4 mt-lg-0">
+					<div class="col-4 col-lg-2 d-flex mt-4 mt-lg-0 px-2">
 						<a class="ml-auto my-auto" href="{% url 'admin_course_id' course.code|lower course.number  'edit' %}">
 							<button  type="button" class="btn btn-light px-2 d-flex">
 								<div class="m-auto d-flex">

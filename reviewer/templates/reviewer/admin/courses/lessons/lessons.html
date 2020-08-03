@@ -9,7 +9,6 @@
 	<div class="tab-pane fade show active" id="v-pills-courses" role="tabpanel" aria-labelledby="v-pills-courses-tab">
 		{% include 'reviewer/admin/courses/lessons/lessons_add.html' %}
 	</div>
-
 {% endblock %}
 
 {% block scripts %}
@@ -43,21 +42,17 @@
 	    		selection.find("option[selected]").removeAttr("selected");
 		    	selection.find(`option[value=${selection.val()}]`).attr("selected", "selected");
 		    	selection.parent().find(".lang-badge").css("background-image", `url('https://drive.google.com/thumbnail?id=${otherlang[selection.val()].imageID}&sz=s100')`);
+		    	
+		    	let selectedVals = $(".import-codelang .codelang-select option[selected]").map(function(){ return $(this).val() }).get();
 
-		    	let selectedVals = [];
 		    	let remOpts = [];
-		    	let langOptions = "";
-
-		    	$(".import-codelang .codelang-select option[selected]").each(function(){
-		    		selectedVals.push($(this).val());
-		    	});
-
 		    	for (const [key, value] of Object.entries(otherlang)) {
 		    		selectedVals.includes(key)? null: remOpts.push(value);
 				}
 
 				remOpts = remOpts.sort(function (a, b) { return a.lang.localeCompare( b.lang ) });
 
+				let langOptions = "";
 				for (var opts of remOpts){
 		    		langOptions += `<option value="${opts.id}">${opts.lang}</option>`;
 				}
@@ -91,7 +86,6 @@
 	    		selection.val(currentLangID);
 	    	}
 	    	
-
 		});
 
 	</script>

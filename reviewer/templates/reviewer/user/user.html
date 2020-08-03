@@ -34,7 +34,7 @@
 
 						{% if user_filt.fave_lang %}
 							<div class="position-absolute" style="top:0">
-								<div class="position-relative lang-badge lang-badge-offset" style="background-image: url('https://drive.google.com/uc?export=view&id={{user_filt.fave_lang.imageID}}');">
+								<div class="position-relative lang-badge lang-badge-offset" style="background-image: url('https://drive.google.com/thumbnail?id={{user_filt.fave_lang.imageID}}');">
 								</div>
 							</div>
 						{% endif %}
@@ -57,7 +57,8 @@
 							<div class="col-6">
 								<p class="font-weight-bold mb-1">First Name</p>
 								<p class="d-inline-flex">
-									<span class="my-auto">{{user_filt.first_name}} {{user_filt.suffix}}</span>
+									<span class="my-auto">
+									{{user_filt.first_name}} {% if user_filt.suffix %} {{user_filt.suffix}}{% endif %}</span>
 								</p>
 
 								{% if user_filt.middle_name != None %}
@@ -134,9 +135,7 @@
 					</h2>
 				  <li class="nav-item ml-auto">
 				    <a class="nav-link active" id="created-tab" data-toggle="tab" href="#created" role="tab" aria-controls="created" aria-selected="true">
-
 				    		Created
-
 				    	<div class="ml-auto my-auto position-absolute active-visible">
 				    		<div class="d-flex position-relative" style="left: 3.4em; bottom:2.5em">
 								<i class="material-icons my-auto mr-2 import-font-primary">mode_comment</i> 
@@ -225,16 +224,18 @@
 				      </div>
 				      <div class="modal-footer d-flex justify-content-between">
 				      	 <button class="btn btn-sm btn-light d-inline-flex save-skip-image px-2">
+				      	 	{% comment %}
 							<i class="material-icons my-auto material-icon-sm mr-2">
 							save
 							</i>
+							{% endcomment %}
 							<span class="my-auto">Skip Cropping</span>
 						</button>
 				        <button class="btn btn-sm btn-primary d-inline-flex save-crop-image px-2">
-							<i class="material-icons my-auto material-icon-sm mr-2">
+							<i class="material-icons my-auto material-icon-sm mr-1">
 							crop
 							</i>
-							<span class="my-auto">Crop and Save Image</span>
+							<span class="my-auto">Crop Image</span>
 						</button>
 				      </div>
 
@@ -246,12 +247,12 @@
 {% endblock %}
 
 {% block styles %}
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.4/croppie.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.min.css">
 {% endblock %}
 
 {% block scripts %}
 	<script src="{% static 'reviewer/js/import_comments.js' %}"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.4/croppie.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.min.js"></script>
 	<script>
 		var croppie_size = 200; 
 		var image_has_file = false;

@@ -82,13 +82,9 @@
 	<script src="{% static 'reviewer/js/quill-blot-formatter.min.js' %}"></script>
 
 	<script>
-
 		Quill.register('modules/blotFormatter', QuillBlotFormatter.default);
-
 		var quillObj = {{ announcement_json | safe }};
-
 		console.log(quillObj);
-
 	  	var quill = new Quill('#announcement-content', {
 		  	modules:{
 		  		toolbar: false,
@@ -97,9 +93,7 @@
 		  	readOnly: true,
 		    theme: 'snow'
 	  	});
-
 	  	quill.setContents(quillObj["ops"]);
-
   </script>
 
 {% endblock %}

@@ -129,8 +129,6 @@
 {% endblock %}
 
 {% block scripts %}
-
-
 	<script async>
 		refRequest = $.ajax({
 			url: "{% url 'course_ref' course_filt.code|lower course_filt.number %}",

@@ -36,10 +36,9 @@
 
 		// Functions
 		initialize: function(){
-			for (i = 0; i < importApp.initfunc.length; i++) {
-			  	importApp.initfunc[i]();
+			for (var run of importApp.initfunc) {
+			  	run();
 			}
-
 		},
 		log : function(){
 			return this.name;
@@ -100,21 +99,20 @@
 
 					for (let key of Object.keys(hlinkRegExParts)) {
 						tempURL = tempURL.replace(hlinkRegExParts[key], function(item){
-								 if (item != ''){
-								 	if (key == 'query'){
-										linkMeta[key] = {string: item};
+							if (item != ''){
+								if (key == 'query'){
+									linkMeta[key] = {string: item};
 
-										var searchParams = new URLSearchParams(item);
-										for (let p of searchParams) {
-											linkMeta[key][p[0].replace("amp;", '')] = p[1];
-										}
+									var searchParams = new URLSearchParams(item);
+									for (let p of searchParams) {
+										linkMeta[key][p[0].replace("amp;", '')] = p[1];
 									}
-									else
-										linkMeta[key] = item;
-								 } 
-
-								return '';
-							});
+								}
+								else
+									linkMeta[key] = item;
+							}
+							return '';
+						});
 					}
 
 					linksFound.push(linkMeta);
@@ -150,38 +148,45 @@
 
 	// Togglable Icons/Captions
 	$("body").on("click", ".togglable" , function(){
-		var captexists = ($(this).parent().find(".icaption").length > 0)
+		var captElement = $(this).parent().find(".icaption");
+		var captExists = (captElement.length > 0)
 		$(this).toggleClass("active-button");
 
-		if (captexists){
-			$(this).parent().find(".icaption").toggleClass("active-button");
-			var caption = $(this).parent().find(".icaption").html().trim();
+		if (captExists){
+			captElement.toggleClass("active-button");
+			var caption = captElement.html().trim();
 		}
 		
-		var currenthtml = $(this).html().trim();
-		var activearray = ['visibility', 'check_box', 'brightness_3', 'notifications_active'];
-		var disabledarray = ['visibility_off', 'check_box_outline_blank', 'brightness_5', 'notifications_off'];
-		var activecaption = ["Shown", "On"];
-		var disabledcaption = ["Hidden", "Off"];
+		var currentHtml = $(this).html().trim();
+		const iconArray = [
+			{on: 'visibility', off: 'visibility_off'},
+			{on: 'check_box', off: 'check_box_outline_blank'},
+			{on: 'brightness_3', off: 'brightness_5'},
+			{on: 'notifications_active', off: 'notifications_off'}	
+		];
 
-		for (i = 0; i < activearray.length ; i++){
-			if (currenthtml == activearray[i])
-				$(this).html(disabledarray[i]);
-			else if (currenthtml == disabledarray[i])
-				$(this).html(activearray[i]);
+		const captionArray = [
+			{on: 'Shown', off: 'Hidden'},
+			{on: 'On', off: 'Off'}
+		];
+
+		for (var iconState of iconArray){
+			if (currentHtml == iconState.on)
+				$(this).html(iconState.off);
+			else if (currentHtml == iconState.off)
+				$(this).html(iconState.on);
 		}
 
-		if (captexists){
-			for (i = 0; i < activecaption.length ; i++){
-				if (caption == activecaption[i])
-					$(this).parent().find(".icaption").html(disabledcaption[i]);
-				else if (caption == disabledcaption[i])
-					$(this).parent().find(".icaption").html(activecaption[i]);
+		if (captExists){
+			for (var captionState of captionArray){
+				if (caption == captionState.on)
+					captElement.html(captionState.off);
+				else if (caption == captionState.off)
+					captElement.html(captionState.on);
 			}
 		}
 	}); 
 
-	
 	// Scroll Header
 	function headerEffect(){
 		( $(window).scrollTop() < 15)? 
@@ -197,7 +202,6 @@
 	});
 
 	// Header Scroll
-
 	$(window).scroll(function (event) {
 		headerEffect();
 	});

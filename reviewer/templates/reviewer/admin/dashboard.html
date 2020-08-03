@@ -9,15 +9,14 @@
 {% block admin_side %}
 	<div class="tab-pane fade show active" id="v-pills-dashboard" role="tabpanel" aria-labelledby="v-pills-dashboard-tab">
 
+		{% comment %}
 		<div class="alert layer-container alert-dismissible fade show p-3 mb-3" role="alert">
 			<div class="d-flex">
 				<div class="d-flex rounded-circle import-bg-primary my-auto align-items-center" style="width:50px;height:50px;">
 						<i class="material-icons import-font-secondary">
 					verified_user
 					</i>
-
 				</div>
-
 				<span class="m-auto">Welcome to the administrator menu.</span>
 			</div>
 
@@ -25,6 +24,7 @@
 		    <span aria-hidden="true">&times;</span>
 		  </button>
 		</div>
+		{% endcomment %}
 
 		<h2 class="font-weight-bold mb-3">Statistics</h2>
 
@@ -44,7 +44,7 @@
 							<div class="mx-3 my-auto">
 								<img class="user-pic my-auto" src="
 								{% if top_user.prof_picID %}
-									https://drive.google.com/uc?export=view&id={{top_user.prof_picID}}
+									https://drive.google.com/thumbnail?id={{top_user.prof_picID}}
 								{% else %}
 									{% static 'reviewer/images/default_profile.png' %}
 								{% endif %}
@@ -58,7 +58,6 @@
 				{% endfor %}
 			</div>
 		</div>
-
 
 		<h3 class="mt-3">Insights since 30 days ago</h3>
 
@@ -121,7 +120,6 @@
 
 
 {% block scripts %}
-
 	<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3"></script>
 	<script>
 
@@ -147,7 +145,6 @@
 			
 		};
 
-		console.log(lang_options.colors)
 		var langctx = document.getElementById('LangChart').getContext('2d');
 		Chart.defaults.global.defaultFontFamily = 'SpaceGrotesk';
 
@@ -187,7 +184,5 @@
 		        }
 		    }
 		});
-
 	</script>
-
 {% endblock %}

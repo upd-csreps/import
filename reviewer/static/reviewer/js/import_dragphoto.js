@@ -3,7 +3,6 @@
 
 		module_name: "importDragPhoto",
 		dragPhoto: {
-
 			clear: function (target, dragicon){
 				$("." + target + " input[type=file]").val("");
 				if($('#id_imagehascleared').length)
@@ -81,12 +80,10 @@
 
 				}
 				catch(err){
-
 				}
 			},
 
 			init: function(){
-
 				let targetElements = document.querySelectorAll(".import-image-drag");
 				let upphoto_drag = document.querySelectorAll(".import-image-drag-enabled");
 				let upphotos = [];

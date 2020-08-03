@@ -107,7 +107,6 @@
 			},
 
 			updateLikeIcon: function(id, state, count, addhtml){
-
 				let icons = ["star_border", "star"];
 				let liked_comm = `[data-comment-id='${id}']`;
 				let cvars = [".liked-count", ".liked-comments", ".comment-like"];
@@ -115,11 +114,9 @@
 				let liked_ct = parseInt($(cvars[0]).html());
 				$(liked_comm).find(".comment-like-count").html(count);
 
-				$(cvars[1] + liked_comm).fadeOut(2000,
-					function(){ 
-						$(cvars[1] + liked_comm).remove();
-					}
-				);
+				$(cvars[1] + liked_comm).fadeOut(2000, function(){ 
+					$(cvars[1] + liked_comm).remove();
+				});
 
 				if (state){
 					$(cvars[1]).prepend(addhtml);
@@ -139,7 +136,6 @@
 			},
 
 			detectManyLike : function(){
-
 				var spamFlag = false;
 				var disableClick = false;
 				for (let comment of Object.keys(importApp.comments.likedPressed)) {
