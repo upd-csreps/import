@@ -17,7 +17,7 @@
 				qdata: undefined,
 				load: function(){
 
-					$(".import-code-console").html("");
+					$(".import-code-console").empty();
 					$(".import-code-iden-answer").fadeOut(300);
 
 					let code = importApp.builder.editor.session.getValue();
@@ -69,7 +69,7 @@
 
 								//Multiple Choice
 								if ($(".import-choices").length){
-									$(".import-choices").html("");
+									$(".import-choices").empty();
 									for (var choc = 0; choc < currentq_data.choices.length; choc++){
 										$(".import-choices").append(`<div class="d-flex layer-container p-2 mb-2 import-choice">
 											<div class="py-2 px-3 my-auto">

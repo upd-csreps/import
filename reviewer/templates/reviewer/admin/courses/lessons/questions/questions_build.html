@@ -74,11 +74,15 @@
 							<textarea class="form-control"></textarea>
 						</div>
 
+						To add:
+
 						Timer
 
 						Banned Keywords
 
 						STDIO
+
+						Initial Code
 					{% endif %}
 				</div>
 				<div class="col-lg-6 mt-4">
@@ -154,7 +158,9 @@
 						</div>
 					{% elif question.qtype == "code" %}
 						<div id="import-code-editor" class="layer-container mx-auto mx-lg-0 w-100"></div>
-						<pre class="w-100 p-2 layer-container import-code-console m-0"></pre>
+						<pre class="w-100 p-2 layer-container import-code-console m-0" id="import-code-console"></pre>
+
+						<button id="import-code-test">Test</button>
 					{% elif question.qtype == "cust" %}
 						Custom
 					{% endif %}
@@ -237,8 +243,7 @@
 			$("body").on("keydown", ".import-code-iden-input", function(event){
 				(event.which == 13 || event.keyCode == 13)? $(".import-code-iden-submit").click():importApp.questions.input.allow(this);
 			});
-		{% elif question.qtype == "math" %}			
-
+		{% elif question.qtype == "math" %}
 			let importggb;
 			const typeListener = function(state) {
 				if (state[0] == "editorKeyTyped") {
@@ -275,27 +280,32 @@
 				mathInput.inject('import-ggb-input');
 				ggbApp.inject('import-ggb-element');
 			});
-
 		{% endif %}
+
 		$("body").on("click", ".import-code-iden-submit", function(event){importApp.questions.input.check();});
 		$("body").on("click", ".import-math-submit", function(event){importApp.questions.input.check();});
 
-	    var Logger = console.log;
-		console.log = function(msg) {
-			if(
-				{% if question.qtype != "math" %}
-				true
-				{%else%}
-				msg != "Visibility changed: true" && msg != "Visibility changed: false" && msg != "============== restarted ==============="
-				{% endif %}
-			){
-				Logger.apply(this, arguments);
-				if ($(".import-code-console").html().trim() != ""){
-					$(".import-code-console").append("\n");
+		{% if question.qtype != "code" %}
+		    var Logger = console.log;
+			console.log = function(msg) {
+				if(
+					{% if question.qtype != "math" %}
+					true
+					{%else%}
+					msg != "Visibility changed: true" && msg != "Visibility changed: false" && msg != "============== restarted ==============="
+					{% endif %}
+				){
+					Logger.apply(this, arguments);
+					if ($(".import-code-console").html().trim() != ""){
+						$(".import-code-console").append("\n");
+					}
+					$(".import-code-console").append((typeof msg == "string")? msg: JSON.stringify(msg));
 				}
-				$(".import-code-console").append((typeof msg == "string")? msg: JSON.stringify(msg));
 			}
-		}
-
+		{% endif %}
 	</script>
+
+	{% if question.qtype == "code" %}
+		{% include 'reviewer/partials/coding-scripts.html' %}
+	{% endif %}
 {% endblock %}

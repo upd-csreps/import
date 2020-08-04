@@ -1,0 +1,39 @@
+{% load static %}
+{% if question.lang.name|lower == "python" %}
+	<script src="{% static 'reviewer/js/skulpt.min.js' %}"></script>
+    <script src="{% static 'reviewer/js/skulpt-stdlib.js' %}"></script>
+    <script>
+    	let pythonSk = {
+    		print: function(text){
+    			$(".import-code-console").append(text);
+    		},
+    		builtinRead: function(x) {
+				if (Sk.builtinFiles === undefined || Sk.builtinFiles["files"][x] === undefined)
+					throw "File not found: '" + x + "'";
+				return Sk.builtinFiles["files"][x];
+			},
+			success: function(mod) {
+				console.log('success');
+			},
+			error: function(err) {
+				console.log(err.toString());
+			},
+			run: function() { 
+			   let program = importApp.builder.editor.session.getValue(); 
+			   var codeConsole =  $(".import-code-console"); 
+			   codeConsole.empty();
+			   Sk.pre = "import-code-console";
+			   Sk.configure({ output: pythonSk.print , read: pythonSk.builtinRead }); 
+			   //(Sk.TurtleGraphics || (Sk.TurtleGraphics = {})).target = 'mycanvas';
+			   var myPromise = Sk.misceval.asyncToPromise(function() {
+			       return Sk.importMainWithBody("<stdin>", false, program, true);
+			   });
+			   myPromise.then(pythonSk.success, pythonSk.error);
+			}
+    	}
+
+    	importApp.builder.editor.session.setMode("ace/mode/python");
+    	$("body").on("click", "#import-code-test", function(event){pythonSk.run();});
+    </script>
+{% endif %}
+
